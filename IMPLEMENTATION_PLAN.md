@@ -583,3 +583,20 @@ Additional production features (not in hackathon scope):
 > [!NOTE]
 > The MCP server code is identical between local and production. The `mcp` Python SDK handles both `stdio` and `http` transports natively. No code changes needed — just env vars.
 
+---
+
+## 13. Project Architecture Decision Records (ADRs)
+
+Foundational architectural decisions for every component of CodeGraph are formally documented under [`docs/adr/`](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/README.md):
+
+| ADR ID | Title | Component Governed | Status |
+|---|---|---|---|
+| [**ADR-001**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/001-falkordb-graph-engine-and-offline-fallback.md) | FalkorDB Graph Engine & Offline Fallback | Storage & Engine Layer (`codegraph/db.py`) | `ACCEPTED` |
+| [**ADR-002**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/002-four-pillar-graph-data-model.md) | Four-Pillar Connected Knowledge Graph Data Model | Schema & Domain Model (`codegraph/schema.py`) | `ACCEPTED` |
+| [**ADR-003**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/003-mcp-server-as-universal-agent-interface.md) | Model Context Protocol (MCP) as Universal Interface | Integration Layer (`codegraph/mcp_server.py`) | `ACCEPTED` |
+| [**ADR-004**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/004-persona-driven-multi-agent-system.md) | Persona-Driven Multi-Agent Architecture | Tool & Prompt Layer (`codegraph/tools/`) | `ACCEPTED` |
+| [**ADR-005**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/005-deterministic-ast-and-document-ingestion.md) | Deterministic AST and Markdown Ingestion Pipeline | Ingestion Pipeline (`codegraph/ingest/`) | `ACCEPTED` |
+| [**ADR-006**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/006-human-in-the-loop-approval-workflow.md) | Human-in-the-Loop Quality Approval Gate | Operational Mutations (`codegraph/tools/ingest_tools.py`) | `ACCEPTED` |
+| [**ADR-007**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/007-dual-transport-deployment-strategy.md) | Dual-Transport Deployment Strategy (Stdio vs HTTP) | Transport Layer (`codegraph/config.py`) | `ACCEPTED` |
+
+
