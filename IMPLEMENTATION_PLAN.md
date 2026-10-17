@@ -177,54 +177,131 @@ transport = os.environ.get("MCP_TRANSPORT", "stdio")  # "stdio" | "http"
 > [!TIP]
 > **For the hackathon demo**: Use `stdio` transport. The MCP client launches the server process automatically when you chat. Zero setup beyond the JSON config above.
 
-### Graph Schema
+### Graph Schema (4-Pillar Connected Data Model)
+
+All 4 entity pillars stem from **`Project`** and interlink across their lifecycle:
 
 ```mermaid
-erDiagram
-    PRD ||--o{ Requirement : contains
-    Requirement ||--o{ Scenario : has
-    Requirement ||--o{ Function : "implemented_by"
-    ADR ||--o{ Decision : documents
-    Decision ||--o{ Function : "affects"
-    Decision ||--o{ Requirement : "relates_to"
-    File ||--o{ Function : contains
-    File ||--o{ Class : contains
-    Class ||--o{ Function : contains
-    Function ||--o{ Function : calls
-    Function ||--o{ ChangeRecord : "changed_by"
-    ChangeRecord ||--o{ BugFix : "fixes"
-    BugFix ||--o{ RCA : has
-    Runbook ||--o{ Function : "documents_debugging_for"
-    Runbook ||--o{ BugFix : "created_from"
+flowchart TD
+    Project["📦 Project (Root Anchor)"]
+
+    %% PRD Chain
+    subgraph PRDChain["📄 PRD Entity Chain"]
+        PRD_IN["PRD Input"]
+        FUNC_REQ["Functional Requirement"]
+        GUARD["Guardrail"]
+        PRD_OUT["PRD Output"]
+        PRD_IN --> FUNC_REQ --> GUARD --> PRD_OUT
+    end
+
+    %% ADR Chain
+    subgraph ADRChain["🏛️ ADR Entity Chain"]
+        ADR_REQ["ADR Requirement"]
+        ARCH["Architecture"]
+        DEC["Decision"]
+        ADR_RES["ADR Result"]
+        ADR_REQ --> ARCH --> DEC --> ADR_RES
+    end
+
+    %% CodeBase Chain
+    subgraph CodeChain["💻 CodeBase Entity Chain"]
+        CODE_IN["Code Input"]
+        FLOW["Logic Flow"]
+        CLS["Class"]
+        FN["Function"]
+        LOGIC["Code Logic"]
+        CODE_OUT["Code Output"]
+        CODE_IN --> FLOW --> CLS --> FN --> LOGIC --> CODE_OUT
+    end
+
+    %% Operations Chain
+    subgraph OpsChain["🚨 Operations Entity Chain"]
+        ISSUE["Issue"]
+        RCA_NODE["RCA"]
+        FIX["Fix"]
+        OP_RES["Op Result"]
+        ISSUE --> RCA_NODE --> FIX --> OP_RES
+    end
+
+    %% Timeline & Lineage
+    TIMELINE["📜 ChangeTimeline\n(What Changed & Why Changed)"]
+
+    %% Anchor links
+    Project --> PRD_IN
+    Project --> ADR_REQ
+    Project --> CODE_IN
+    Project --> ISSUE
+    Project --> TIMELINE
+
+    %% Cross-Entity Interlinks
+    FUNC_REQ -. "DRIVES_ADR_REQUIREMENT" .-> ADR_REQ
+    GUARD -. "JUSTIFIES_DECISION" .-> DEC
+    PRD_IN -. "MAPS_TO_CODE_INPUT" .-> CODE_IN
+    FUNC_REQ -. "IMPLEMENTED_BY_FUNCTION" .-> FN
+    GUARD -. "VERIFIED_BY_LOGIC" .-> LOGIC
+    PRD_OUT -. "EXPECTS_CODE_OUTPUT" .-> CODE_OUT
+
+    DEC -. "CONSTRAINS_FUNCTION" .-> FN
+    DEC -. "ENFORCED_IN_CODE_LOGIC" .-> LOGIC
+    ARCH -. "STRUCTURES_LOGIC_FLOW" .-> FLOW
+
+    ISSUE -. "MANIFESTED_IN_FUNCTION" .-> FN
+    ISSUE -. "VIOLATED_DECISION" .-> DEC
+    FIX -. "FIXES_FUNCTION" .-> FN
+    FIX -. "MODIFIES_CODE_LOGIC" .-> LOGIC
+
+    TIMELINE -. "CHANGED_NODE" .-> LOGIC
+    TIMELINE -. "MOTIVATED_BY_PRD" .-> FUNC_REQ
+    TIMELINE -. "MOTIVATED_BY_ADR" .-> DEC
+    TIMELINE -. "MOTIVATED_BY_FIX" .-> FIX
 ```
 
-### Key Node Types & Properties
+### 4-Pillar Node Inventory
 
-| Node | Properties |
-|------|-----------|
-| `PRD` | `id`, `title`, `version`, `created_at`, `status` |
-| `Requirement` | `id`, `prd_id`, `description`, `priority`, `status` |
-| `Scenario` | `id`, `description`, `expected_behavior`, `covered_by_code` (bool) |
-| `ADR` | `id`, `title`, `status` (accepted/superseded), `date`, `context`, `decision`, `consequences` |
-| `File` | `path`, `language`, `last_modified` |
-| `Function` | `name`, `signature`, `file_path`, `line_start`, `line_end`, `description` |
-| `Class` | `name`, `file_path`, `line_start`, `line_end` |
-| `ChangeRecord` | `commit_hash`, `author`, `date`, `message`, `reason` (prd/adr/bugfix/refactor) |
-| `BugFix` | `id`, `ticket`, `description`, `rca`, `fix_summary`, `date` |
-| `Runbook` | `id`, `title`, `steps`, `related_service` |
+| Chain | Node Type | Purpose & Key Properties |
+|---|---|---|
+| **Anchor** | `Project` | Root anchor: `id`, `name`, `description`, `repository` |
+| **CodeBase** | `CodeInput` | Parameter signatures and source types (`HTTP_JSON_PAYLOAD`) |
+| | `LogicFlow` | Sequence of orchestration steps across classes |
+| | `Class` | Class metadata, file location, line range |
+| | `Function` | Function signature, AST location, docstring |
+| | `CodeLogic` | Specific algorithm/branch (Luhn checksum, retry loop, concurrency) |
+| | `CodeOutput` | Return types and output data dictionaries |
+| **PRD** | `PRDInput` | Business checkout/refund payloads, actor persona |
+| | `FunctionalRequirement` | Business specification (`title`, `priority`, `status`) |
+| | `Guardrail` | Safety boundaries (`HARD_BLOCK`, `violation_code`) |
+| | `PRDOutput` | Expected customer/merchant business outcome |
+| **ADR** | `ADRRequirement` | Technical drivers (partner network jitter, batch burst volume) |
+| | `Architecture` | Architectural patterns (Exponential Backoff, Worker Queue) |
+| | `Decision` | Architectural mandates and invariants (`MAX_RETRIES == 3`) |
+| | `ADRResult` | Positive impact and tradeoffs (98.4% drop reduction) |
+| **Operations** | `Issue` | Incident tickets, symptoms, severity (`REFUND_TIMEOUT`) |
+| | `RCA` | Root cause analysis and trigger conditions |
+| | `Fix` | Remediation actions, commit hash, lead approval status |
+| | `OpResult` | Verified outcome post-fix (queue lag dropped <0.5s) |
+| **Timeline** | `ChangeTimeline` | **What Changed**, **Why Changed**, commit hash, author, date |
 
-### Key Relationship Types
+### Cross-Entity Relationship Inventory
 
-| Relationship | From → To | Properties |
-|-------------|-----------|------------|
-| `IMPLEMENTS` | Requirement → Function | `coverage_pct`, `notes` |
-| `HAS_SCENARIO` | Requirement → Scenario | — |
-| `DECIDED_BY` | Function → ADR | `rationale` |
-| `CHANGED_BY` | Function → ChangeRecord | `diff_summary` |
-| `CALLS` | Function → Function | — |
-| `CONTAINS` | File → Function/Class | — |
-| `RELATES_TO` | ADR → Requirement | `impact` |
-| `FIXED_BY` | BugFix → ChangeRecord | — |
+| Relationship | From Node | To Node | Meaning |
+|---|---|---|---|
+| `DRIVES_ADR_REQUIREMENT` | `FunctionalRequirement` | `ADRRequirement` | PRD business rule dictates technical architectural requirements |
+| `JUSTIFIES_DECISION` | `Guardrail` | `Decision` | PRD guardrail justifies technical architectural constraints |
+| `MAPS_TO_CODE_INPUT` | `PRDInput` | `CodeInput` | Business payload parameters map to API arguments |
+| `IMPLEMENTED_BY_FUNCTION` | `FunctionalRequirement` | `Function` | Functional requirement is fulfilled by code function |
+| `VERIFIED_BY_LOGIC` | `Guardrail` | `CodeLogic` | Guardrail rule statement is checked by code algorithm |
+| `CONSTRAINS_FUNCTION` | `Decision` | `Function` | ADR invariant strictly constrains code function |
+| `ENFORCED_IN_CODE_LOGIC` | `Decision` | `CodeLogic` | ADR rule is implemented in concrete code logic |
+| `STRUCTURES_LOGIC_FLOW` | `Architecture` | `LogicFlow` | Architectural pattern dictates flow orchestration |
+| `MANIFESTED_IN_FUNCTION` | `Issue` | `Function` | Production incident manifested in specific code function |
+| `VIOLATED_DECISION` | `Issue` | `Decision` | Incident occurred because code violated an ADR constraint |
+| `FIXES_FUNCTION` | `Fix` | `Function` | Operational fix remediates the affected function |
+| `MODIFIES_CODE_LOGIC` | `Fix` | `CodeLogic` | Fix restores invariants in concrete code logic |
+| `CHANGED_NODE` | `ChangeTimeline` | `CodeLogic` | Records exactly **WHAT** changed |
+| `MOTIVATED_BY_PRD` | `ChangeTimeline` | `FunctionalRequirement` | Records that change was motivated by customer PRD |
+| `MOTIVATED_BY_ADR` | `ChangeTimeline` | `Decision` | Records that change was motivated by architectural rule |
+| `MOTIVATED_BY_FIX` | `ChangeTimeline` | `Fix` | Records that change was motivated by production incident |
+| `PRECEDED_BY` | `ChangeTimeline` | `ChangeTimeline` | Chronological timeline sequence link |
 
 ---
 

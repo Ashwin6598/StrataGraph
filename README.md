@@ -44,17 +44,44 @@ Instead of a siloed custom UI, CodeGraph is an **MCP (Model Context Protocol) Se
                                │ OpenCypher
 ┌──────────────────────────────▼──────────────────────────────┐
 │                    FalkorDB / Graph Store                   │
-│   (PRD) ──[:CONTAINS_REQ]──> (Requirement) ──[:IMPLEMENTS]──> (Function)
-│                                    │                              ▲
-│                                    ▼                              │
-│                                (Scenario)              [:AFFECTS] │
-│                                                                   │
-│   (ADR) ──[:DOCUMENTS]──> (Decision) ─────────────────────────────┘
-│                                    ▲
-│                                    │ [:FIXED_IN]
-│   (Runbook) ──[:RESOLVES]──> (BugFix) ──[:FIXED_BY]──> (ChangeRecord)
+│                                                             │
+│                      [ Root: Project ]                      │
+│        ┌───────────────┬───────────────┬──────────────┐     │
+│        ▼               ▼               ▼              ▼     │
+│     [ PRD ]         [ ADR ]       [ CodeBase ]   [ Ops ]    │
+│        │               │               │              │     │
+│      Input        Requirement        Input          Issues  │
+│        │               │               │              │     │
+│  Functional Req   Architecture    Logic Flow         RCA    │
+│        │               │               │              │     │
+│   Guardrails       Decisions        Classes           Fix   │
+│        │               │               │              │     │
+│     Output          Result         Functions        Result  │
+│        ▲               ▲               │              ▲     │
+│        │               │          Code Logic          │     │
+│        │               │               │              │     │
+│        │               │            Output            │     │
+│        └───────────────┴───────────────┴──────────────┘     │
+│                                                             │
+│   [ Timeline & History: ChangeTimeline (What & Why) ]      │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+### 🔗 The 4-Pillar Connected Data Model
+
+All entities stem from **`Project`** and are interconnected across their lifecycle:
+
+1. **CodeBase Chain:** `Project` ➔ `CodeInput` ➔ `LogicFlow` ➔ `Class` ➔ `Function` ➔ `CodeLogic` ➔ `CodeOutput`
+2. **PRD Chain:** `Project` ➔ `PRDInput` ➔ `FunctionalRequirement` ➔ `Guardrail` ➔ `PRDOutput`
+3. **ADR Chain:** `Project` ➔ `ADRRequirement` ➔ `Architecture` ➔ `Decision` ➔ `ADRResult`
+4. **Operations Chain:** `Project` ➔ `Issue` ➔ `RCA` ➔ `Fix` ➔ `OpResult`
+5. **Timeline & History:** `ChangeTimeline` records **WHAT** changed and **WHY** it changed, linked to `FunctionalRequirement`, `Decision`, and `Fix`.
+
+#### Cross-Entity Interlinks:
+* **Code is built from ADR:** `Decision` ➔ `CONSTRAINS_FUNCTION` / `ENFORCED_IN_CODE_LOGIC` ➔ `Function` / `CodeLogic`
+* **ADR is built from PRD:** `FunctionalRequirement` ➔ `DRIVES_ADR_REQUIREMENT` ➔ `ADRRequirement`, `Guardrail` ➔ `JUSTIFIES_DECISION` ➔ `Decision`
+* **Code implements PRD:** `FunctionalRequirement` ➔ `IMPLEMENTED_BY_FUNCTION` ➔ `Function`, `Guardrail` ➔ `VERIFIED_BY_LOGIC` ➔ `CodeLogic`
+* **Operations fixes the CodeBase:** `Issue` ➔ `MANIFESTED_IN_FUNCTION`, `Issue` ➔ `VIOLATED_DECISION`, `Fix` ➔ `MODIFIES_CODE_LOGIC` / `FIXES_FUNCTION`
 
 ---
 

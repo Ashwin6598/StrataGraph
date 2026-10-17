@@ -1,7 +1,7 @@
 """
 Product Agent MCP Tools.
 Designed specifically for Product Managers: outputs clear business summaries in plain English,
-no code snippets, with multi-hop graph reasoning and explainable Cypher queries.
+no code snippets, with multi-hop graph reasoning across the PRD, CodeBase, ADR, and Operations chains.
 """
 
 from typing import Dict, Any, List, Optional
@@ -9,17 +9,20 @@ from ..db import db
 from ..schema import ExplainableResult, TraversalStep, Relationships
 
 
-def query_prd_coverage(prd_id: Optional[str] = None) -> Dict[str, Any]:
+def query_prd_coverage(project_id: str = "project:payflow") -> Dict[str, Any]:
     """
-    Analyzes how completely the codebase implements the Product Requirements Document (PRD).
+    Analyzes how completely the codebase implements the Product Requirements.
+    Traverses: Project -> PRDInput -> FunctionalRequirement -> Function -> CodeLogic.
     Returns total requirements, implemented count, missing requirements, and coverage percentage.
     Output is in plain business terms.
     """
     cypher = """
-    MATCH (p:PRD)-[:CONTAINS_REQ]->(r:Requirement)
-    OPTIONAL MATCH (r)-[:IMPLEMENTED_BY]->(f:Function)
-    RETURN p.id AS prd_id, p.title AS title, r.id AS req_id, r.title AS req_title,
-           r.priority AS priority, r.status AS req_status, count(f) AS func_count
+    MATCH (p:Project {id: $project_id})-[:HAS_PRD_INPUT]->(pi:PRDInput)-[:SPECIFIES_REQUIREMENT]->(r:FunctionalRequirement)
+    OPTIONAL MATCH (r)-[:IMPLEMENTED_BY_FUNCTION]->(f:Function)-[:EXECUTES_LOGIC]->(cl:CodeLogic)
+    OPTIONAL MATCH (r)-[:ENFORCES_GUARDRAIL]->(g:Guardrail)
+    RETURN r.id AS req_id, r.title AS title, r.priority AS priority, r.status AS status,
+           collect(DISTINCT f.name) AS implementing_functions,
+           collect(DISTINCT g.title) AS guardrails
     """
 
     all_reqs = []
@@ -27,31 +30,39 @@ def query_prd_coverage(prd_id: Optional[str] = None) -> Dict[str, Any]:
     missing_reqs = []
     traversal_path = []
 
-    # Query graph
     for nid, node in db.memory_graph.nodes.items():
-        if node["label"] == "Requirement":
+        if node["label"] == "FunctionalRequirement":
             props = node["properties"]
-            req_id = props.get("id")
+            req_id = node["id"]
 
             # Find linked functions
             linked_funcs = []
             for edge in db.memory_graph.edges:
-                if edge["from"] == req_id and edge["rel"] == Relationships.IMPLEMENTED_BY:
-                    func_node = db.memory_graph.nodes.get(edge["to"])
-                    if func_node:
-                        linked_funcs.append(func_node["properties"].get("name"))
+                if edge["from"] == req_id and edge["rel"] == Relationships.IMPLEMENTED_BY_FUNCTION:
+                    fn_node = db.memory_graph.nodes.get(edge["to"])
+                    if fn_node:
+                        linked_funcs.append(fn_node["properties"].get("name"))
                         traversal_path.append(TraversalStep(
-                            from_node=f"Requirement({req_id})",
-                            relationship=Relationships.IMPLEMENTED_BY,
-                            to_node=f"Function({func_node['properties'].get('name')})",
-                            explanation=f"Requirement {req_id} is verified by active code function {func_node['properties'].get('name')}"
+                            from_node=f"FunctionalRequirement({req_id})",
+                            relationship=Relationships.IMPLEMENTED_BY_FUNCTION,
+                            to_node=f"Function({fn_node['properties'].get('name')})",
+                            explanation=f"Requirement '{props.get('title')}' is implemented by code function '{fn_node['properties'].get('name')}'"
                         ))
 
+            # Find linked guardrails
+            linked_guardrails = []
+            for edge in db.memory_graph.edges:
+                if edge["from"] == req_id and edge["rel"] == Relationships.ENFORCES_GUARDRAIL:
+                    g_node = db.memory_graph.nodes.get(edge["to"])
+                    if g_node:
+                        linked_guardrails.append(g_node["properties"].get("title"))
+
             item = {
-                "id": req_id,
+                "id": req_id.replace("req:", ""),
                 "title": props.get("title"),
                 "priority": props.get("priority"),
                 "status": props.get("status"),
+                "guardrails": linked_guardrails,
                 "implemented_by_functions": linked_funcs,
                 "is_covered": len(linked_funcs) > 0
             }
@@ -67,7 +78,7 @@ def query_prd_coverage(prd_id: Optional[str] = None) -> Dict[str, Any]:
 
     summary = (
         f"Product Requirements Coverage: {pct}% complete. "
-        f"{covered} of {total} requirements have verified implementation. "
+        f"{covered} of {total} functional requirements have verified engineering implementation. "
         f"{len(missing_reqs)} requirements remain unimplemented ({', '.join([m['id'] + ': ' + m['title'] for m in missing_reqs])})."
     )
 
@@ -78,7 +89,7 @@ def query_prd_coverage(prd_id: Optional[str] = None) -> Dict[str, Any]:
         "implemented_count": covered,
         "unimplemented_count": len(missing_reqs),
         "implemented_requirements": [
-            {"id": r["id"], "title": r["title"], "priority": r["priority"]} for r in implemented_reqs
+            {"id": r["id"], "title": r["title"], "priority": r["priority"], "guardrails": r["guardrails"]} for r in implemented_reqs
         ],
         "missing_requirements": [
             {"id": r["id"], "title": r["title"], "priority": r["priority"]} for r in missing_reqs
@@ -89,120 +100,94 @@ def query_prd_coverage(prd_id: Optional[str] = None) -> Dict[str, Any]:
         result=result_data,
         cypher_query=cypher.strip(),
         traversal_path=traversal_path,
-        explanation="Traversed PRD -> Requirement -> IMPLEMENTED_BY -> Function nodes across the knowledge graph."
+        explanation="Traversed Project -> PRDInput -> FunctionalRequirement -> Guardrail -> Function -> CodeLogic across the knowledge graph."
     ).model_dump()
 
 
 def simulate_scenario(scenario_query: str) -> Dict[str, Any]:
     """
-    Performs multi-hop graph simulation of a business or test scenario (e.g. 'expired card', 'refund after 30 days').
-    Follows requirement -> function -> downstream call chains to determine how the application behaves,
-    returning an explanation in plain business English with no code examples.
+    Simulates a business or test scenario (e.g. 'expired card', 'refund after 30 days') using multi-hop graph traversal.
+    Follows: PRDInput -> FunctionalRequirement -> Guardrail -> PRDOutput -> Function -> CodeLogic -> CodeOutput.
+    Explains the exact system behavior in plain business English with zero code examples.
     """
     cypher = """
-    MATCH (s:Scenario)<-[:HAS_SCENARIO]-(r:Requirement)-[:IMPLEMENTED_BY]->(f:Function)
-    OPTIONAL MATCH (f)-[:CALLS*1..4]->(downstream:Function)
-    WHERE s.description CONTAINS $keyword OR r.title CONTAINS $keyword
-    RETURN s, r, f, collect(downstream.name) AS execution_chain
+    MATCH (pi:PRDInput)-[:SPECIFIES_REQUIREMENT]->(r:FunctionalRequirement)-[:ENFORCES_GUARDRAIL]->(g:Guardrail)-[:DEFINES_PRD_OUTPUT]->(po:PRDOutput)
+    OPTIONAL MATCH (r)-[:IMPLEMENTED_BY_FUNCTION]->(f:Function)-[:EXECUTES_LOGIC]->(cl:CodeLogic)-[:PRODUCES_CODE_OUTPUT]->(co:CodeOutput)
+    WHERE g.title CONTAINS $keyword OR g.rule_statement CONTAINS $keyword OR po.business_outcome CONTAINS $keyword
+    RETURN r, g, po, f, cl, co
     """
 
     query_lower = scenario_query.lower()
-    matched_scenarios = []
+    matched_guardrails = []
     traversal_path = []
 
-    # Multi-hop search: Scenarios -> Requirements -> Functions -> Calls
+    # Score matches across Guardrails and PRD Outputs
     for nid, node in db.memory_graph.nodes.items():
-        if node["label"] == "Scenario":
-            desc = node["properties"].get("description", "").lower()
-            scen_id = node["properties"].get("id")
-            req_id = node["properties"].get("req_id")
+        if node["label"] == "Guardrail":
+            props = node["properties"]
+            title = props.get("title", "").lower()
+            rule = props.get("rule_statement", "").lower()
+            v_code = props.get("violation_code", "").lower()
 
-            # Rank matches by score
             score = 0
-            if query_lower in desc:
+            if query_lower in title or query_lower in rule:
                 score += 100
             for k in query_lower.split():
-                if len(k) > 2 and k in desc:
-                    # Give higher weight to distinct non-generic words
-                    weight = 10 if k not in ("card", "with", "from", "user") else 1
-                    score += weight
+                if len(k) > 2:
+                    if k in title or k in rule or k in v_code:
+                        weight = 10 if k not in ("card", "with", "from", "user") else 1
+                        score += weight
 
             if score > 0:
-                # Find requirement
+                req_id = props.get("req_id")
                 req_node = db.memory_graph.nodes.get(req_id, {})
                 req_props = req_node.get("properties", {})
 
-                # Find implementing functions
+                # Find PRD outputs
+                outputs = []
+                for edge in db.memory_graph.edges:
+                    if edge["from"] == nid and edge["rel"] == Relationships.DEFINES_PRD_OUTPUT:
+                        out_node = db.memory_graph.nodes.get(edge["to"])
+                        if out_node:
+                            outputs.append(out_node["properties"])
+
+                # Find implementing code functions & logic
                 implementing_funcs = []
                 for edge in db.memory_graph.edges:
-                    if edge["from"] == req_id and edge["rel"] == Relationships.IMPLEMENTED_BY:
+                    if edge["from"] == req_id and edge["rel"] == Relationships.IMPLEMENTED_BY_FUNCTION:
                         fn_node = db.memory_graph.nodes.get(edge["to"])
                         if fn_node:
-                            fn_name = fn_node["properties"].get("name")
-                            implementing_funcs.append(fn_name)
-                            traversal_path.append(TraversalStep(
-                                from_node=f"Scenario({scen_id})",
-                                relationship="HAS_SCENARIO (reverse)",
-                                to_node=f"Requirement({req_id})",
-                                explanation=f"Scenario '{node['properties'].get('description')}' belongs to Requirement {req_id}"
-                            ))
-                            traversal_path.append(TraversalStep(
-                                from_node=f"Requirement({req_id})",
-                                relationship=Relationships.IMPLEMENTED_BY,
-                                to_node=f"Function({fn_name})",
-                                explanation=f"Business requirement {req_id} executes through workflow component '{fn_name}'"
-                            ))
+                            implementing_funcs.append(fn_node["properties"].get("name"))
 
-                            # Find downstream calls (multi-hop)
-                            for call_edge in db.memory_graph.edges:
-                                if call_edge["from"] == edge["to"] and call_edge["rel"] == Relationships.CALLS:
-                                    downstream_node = db.memory_graph.nodes.get(call_edge["to"])
-                                    if downstream_node:
-                                        downstream_name = downstream_node["properties"].get("name")
-                                        traversal_path.append(TraversalStep(
-                                            from_node=f"Function({fn_name})",
-                                            relationship=Relationships.CALLS,
-                                            to_node=f"Function({downstream_name})",
-                                            explanation=f"Component '{fn_name}' delegates downstream checks to '{downstream_name}'"
-                                        ))
+                traversal_path.append(TraversalStep(
+                    from_node=f"FunctionalRequirement({req_id})",
+                    relationship=Relationships.ENFORCES_GUARDRAIL,
+                    to_node=f"Guardrail({nid})",
+                    explanation=f"Business requirement '{req_props.get('title')}' establishes safety guardrail '{props.get('title')}'"
+                ))
 
-                matched_scenarios.append({
+                matched_guardrails.append({
                     "score": score,
-                    "scenario_id": scen_id,
-                    "requirement": req_props.get("title", req_id),
-                    "scenario_description": node["properties"].get("description"),
-                    "expected_outcome": node["properties"].get("expected_behavior"),
-                    "handled_by_code": len(implementing_funcs) > 0,
-                    "execution_path_components": implementing_funcs
+                    "requirement": req_props.get("title"),
+                    "guardrail_title": props.get("title"),
+                    "rule_statement": props.get("rule_statement"),
+                    "violation_code": props.get("violation_code"),
+                    "enforcement_level": props.get("enforcement_level"),
+                    "expected_outcomes": [o.get("business_outcome") for o in outputs],
+                    "handled_in_code": len(implementing_funcs) > 0,
+                    "workflow_components": implementing_funcs
                 })
 
-    matched_scenarios.sort(key=lambda s: s["score"], reverse=True)
+    matched_guardrails.sort(key=lambda x: x["score"], reverse=True)
 
-    if not matched_scenarios:
-        # Fallback search across requirements if no specific scenario text matched
-        for nid, node in db.memory_graph.nodes.items():
-            if node["label"] == "Requirement":
-                r_title = node["properties"].get("title", "").lower()
-                r_desc = node["properties"].get("description", "").lower()
-                if any(k in r_title or k in r_desc for k in query_lower.split() if len(k) > 3):
-                    req_id = node["properties"].get("id")
-                    matched_scenarios.append({
-                        "scenario_id": f"scen_inferred_{req_id}",
-                        "requirement": node["properties"].get("title"),
-                        "scenario_description": node["properties"].get("description"),
-                        "expected_outcome": "Standard processing per PRD specification.",
-                        "handled_by_code": True,
-                        "execution_path_components": ["payment_service"]
-                    })
-
-    # Synthesize plain English business answer
-    if matched_scenarios:
-        first = matched_scenarios[0]
+    if matched_guardrails:
+        top = matched_guardrails[0]
+        outcome_desc = top["expected_outcomes"][0] if top["expected_outcomes"] else "Standard business policy enforcement."
         business_explanation = (
-            f"When this scenario occurs ('{first['scenario_description']}'): "
-            f"The system evaluates the transaction according to '{first['requirement']}'. "
-            f"Expected outcome: {first['expected_outcome']}. "
-            f"Status: This business rule is fully guarded in the application flow."
+            f"When this scenario occurs: The system enforces '{top['guardrail_title']}' under '{top['requirement']}'. "
+            f"Rule: {top['rule_statement']} "
+            f"Expected Outcome: {outcome_desc} "
+            f"Status: This business rule is actively guarded in the production flow."
         )
     else:
         business_explanation = (
@@ -215,84 +200,91 @@ def simulate_scenario(scenario_query: str) -> Dict[str, Any]:
         result={
             "scenario_query": scenario_query,
             "plain_english_assessment": business_explanation,
-            "matched_rules": matched_scenarios
+            "matched_guardrails": matched_guardrails
         },
         cypher_query=cypher.strip(),
         traversal_path=traversal_path,
-        explanation="Multi-hop traversal: Scenario -> Requirement -> Function -> Downstream Call Hierarchy."
+        explanation="Multi-hop chain traversal: PRDInput -> FunctionalRequirement -> Guardrail -> PRDOutput -> Function -> CodeLogic."
     ).model_dump()
 
 
 def get_change_history(from_date: Optional[str] = None, keyword: Optional[str] = None) -> Dict[str, Any]:
     """
-    Returns the timeline of changes made to the application with the exact business or architectural reasons
-    (e.g., PRD requirement, bug fix, or architectural ADR).
-    Formatted for Product Managers to understand WHAT changed and WHY.
+    Returns the complete chronological timeline of changes with explicit reasons (WHAT changed and WHY it changed).
+    Traverses: ChangeTimeline -> MotivatedBy (PRD Requirement / ADR Decision / Operational BugFix).
+    Formatted for Product Managers and Auditors.
     """
     cypher = """
-    MATCH (cr:ChangeRecord)<-[:CHANGED_BY]-(f:Function)
-    WHERE ($from_date IS NULL OR cr.date >= $from_date)
-    RETURN cr.date AS date, cr.commit_hash AS commit, cr.message AS change_summary,
-           cr.reason AS reason_category, cr.reason_id AS governing_id, f.name AS function_changed
-    ORDER BY cr.date DESC
+    MATCH (p:Project)-[:HAS_TIMELINE_RECORD]->(tl:ChangeTimeline)
+    OPTIONAL MATCH (tl)-[:MOTIVATED_BY_PRD]->(r:FunctionalRequirement)
+    OPTIONAL MATCH (tl)-[:MOTIVATED_BY_ADR]->(d:Decision)
+    OPTIONAL MATCH (tl)-[:MOTIVATED_BY_FIX]->(fx:Fix)
+    OPTIONAL MATCH (tl)-[:CHANGED_NODE]->(cl:CodeLogic)
+    WHERE ($from_date IS NULL OR tl.date >= $from_date)
+    RETURN tl.date AS date, tl.commit_hash AS commit, tl.what_changed AS what, tl.why_changed AS why,
+           tl.change_category AS category, r.title AS prd_reason, d.title AS adr_reason, fx.action_taken AS fix_reason
+    ORDER BY tl.date DESC
     """
 
     records = []
     traversal_path = []
 
     for nid, node in db.memory_graph.nodes.items():
-        if node["label"] == "ChangeRecord":
+        if node["label"] == "ChangeTimeline":
             props = node["properties"]
             c_date = props.get("date", "")
             if from_date and c_date < from_date:
                 continue
 
-            # Find affected functions
-            affected_functions = []
+            # Find motivations
+            motivations = []
             for edge in db.memory_graph.edges:
-                if edge["to"] == nid and edge["rel"] == Relationships.CHANGED_BY:
-                    fn_node = db.memory_graph.nodes.get(edge["from"])
-                    if fn_node:
-                        fn_name = fn_node["properties"].get("name")
-                        affected_functions.append(fn_name)
+                if edge["from"] == nid:
+                    target_node = db.memory_graph.nodes.get(edge["to"])
+                    if target_node:
+                        lbl = target_node["label"]
+                        t_title = target_node["properties"].get("title") or target_node["properties"].get("name") or target_node["id"]
+                        motivations.append(f"{lbl}: {t_title}")
                         traversal_path.append(TraversalStep(
-                            from_node=f"ChangeRecord({nid})",
-                            relationship="CHANGED_BY (reverse)",
-                            to_node=f"Function({fn_name})",
-                            explanation=f"Change made by {props.get('author')} modified component {fn_name}"
+                            from_node=f"ChangeTimeline({props.get('commit_hash')[:7]})",
+                            relationship=edge["rel"],
+                            to_node=f"{lbl}({t_title})",
+                            explanation=f"Change on {c_date} was motivated by {lbl} '{t_title}'"
                         ))
 
             records.append({
                 "date": c_date,
-                "summary": props.get("message"),
+                "commit_hash": props.get("commit_hash"),
                 "author": props.get("author"),
-                "reason_type": props.get("reason"),
-                "governing_document_or_ticket": props.get("reason_id"),
-                "affected_areas": affected_functions
+                "what_changed": props.get("what_changed"),
+                "why_changed": props.get("why_changed"),
+                "category": props.get("change_category"),
+                "diff_summary": props.get("diff_summary"),
+                "governing_lineage": motivations
             })
 
     records.sort(key=lambda x: x["date"], reverse=True)
 
     return ExplainableResult(
         result={
-            "change_count": len(records),
+            "total_changes": len(records),
             "timeline": records,
-            "plain_english_summary": f"Identified {len(records)} recorded changes linked to verified PRD, Bug, or Architecture lineage."
+            "plain_english_summary": f"Retrieved {len(records)} timeline changes with full 'What Changed' and 'Why Changed' lineage connected to PRDs, ADRs, and Operations fixes."
         },
         cypher_query=cypher.strip(),
         traversal_path=traversal_path,
-        explanation="Traversed ChangeRecord -> CHANGED_BY -> Function nodes with document lineage."
+        explanation="Traversed Project -> ChangeTimeline -> MotivatedBy (PRD | ADR | Fix) lineage graph."
     ).model_dump()
 
 
 def list_uncovered_requirements() -> Dict[str, Any]:
     """
-    Identifies all business requirements in the PRD that currently have zero implementing code.
+    Identifies all business requirements in the PRD that currently have zero implementing code functions or logic.
     Useful for Product Managers to detect release bottlenecks and unstarted backlog items.
     """
     cypher = """
-    MATCH (r:Requirement)
-    WHERE NOT (r)-[:IMPLEMENTED_BY]->()
+    MATCH (r:FunctionalRequirement)
+    WHERE NOT (r)-[:IMPLEMENTED_BY_FUNCTION]->()
     RETURN r.id AS req_id, r.title AS title, r.priority AS priority, r.description AS description
     """
 
@@ -300,28 +292,29 @@ def list_uncovered_requirements() -> Dict[str, Any]:
     traversal_path = []
 
     for nid, node in db.memory_graph.nodes.items():
-        if node["label"] == "Requirement":
-            req_id = node["properties"].get("id")
+        if node["label"] == "FunctionalRequirement":
+            req_id = node["id"]
             has_code = False
             for edge in db.memory_graph.edges:
-                if edge["from"] == req_id and edge["rel"] == Relationships.IMPLEMENTED_BY:
+                if edge["from"] == req_id and edge["rel"] == Relationships.IMPLEMENTED_BY_FUNCTION:
                     has_code = True
                     break
 
             if not has_code:
                 props = node["properties"]
+                clean_id = req_id.replace("req:", "")
                 uncovered.append({
-                    "id": req_id,
+                    "id": clean_id,
                     "title": props.get("title"),
                     "priority": props.get("priority"),
                     "description": props.get("description"),
                     "status": "NOT_STARTED_IN_CODE"
                 })
                 traversal_path.append(TraversalStep(
-                    from_node=f"Requirement({req_id})",
-                    relationship="NOT_IMPLEMENTED_BY",
+                    from_node=f"FunctionalRequirement({clean_id})",
+                    relationship="NOT_IMPLEMENTED_BY_FUNCTION",
                     to_node="None",
-                    explanation=f"Requirement {req_id} ({props.get('title')}) has no linked code function in the graph."
+                    explanation=f"Requirement {clean_id} ({props.get('title')}) has no linked code function in the graph."
                 ))
 
     return ExplainableResult(
@@ -332,5 +325,5 @@ def list_uncovered_requirements() -> Dict[str, Any]:
         },
         cypher_query=cypher.strip(),
         traversal_path=traversal_path,
-        explanation="Graph query matching Requirement nodes with out-degree zero on IMPLEMENTED_BY."
+        explanation="Graph query matching FunctionalRequirement nodes with out-degree zero on IMPLEMENTED_BY_FUNCTION."
     ).model_dump()

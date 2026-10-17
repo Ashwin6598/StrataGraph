@@ -1,6 +1,6 @@
 """
-Comprehensive Test Suite for CodeGraph.
-Validates Knowledge Graph Ingestion, Multi-Hop Traversals, Explainability, and MCP Tools.
+Comprehensive Test Suite for CodeGraph (4-Pillar Data Model).
+Validates Knowledge Graph Ingestion, 4-Pillar Chains, Cross-Entity Interlinks, and Timeline Lineage.
 """
 
 import pytest
@@ -34,31 +34,55 @@ def setup_graph():
     seed_all()
 
 
-def test_graph_seeding_integrity():
-    """Verify that nodes across all 6 core entity types exist."""
+def test_4_pillar_graph_seeding_integrity():
+    """Verify that nodes across all 4 pillar chains, Project root, and Timeline exist."""
     assert len(db.memory_graph.nodes) >= 60, "Graph should contain at least 60 nodes"
     assert len(db.memory_graph.edges) >= 120, "Graph should contain at least 120 edges"
 
     labels = {n["label"] for n in db.memory_graph.nodes.values()}
-    assert "PRD" in labels
-    assert "Requirement" in labels
-    assert "Scenario" in labels
-    assert "ADR" in labels
+
+    # Anchor
+    assert "Project" in labels
+
+    # CodeBase Chain: Project -> CodeInput -> LogicFlow -> Class -> Function -> CodeLogic -> CodeOutput
+    assert "CodeInput" in labels
+    assert "LogicFlow" in labels
+    assert "Class" in labels
     assert "Function" in labels
-    assert "BugFix" in labels
-    assert "Runbook" in labels
-    assert "ChangeRecord" in labels
+    assert "CodeLogic" in labels
+    assert "CodeOutput" in labels
+
+    # PRD Chain: Project -> PRDInput -> FunctionalRequirement -> Guardrail -> PRDOutput
+    assert "PRDInput" in labels
+    assert "FunctionalRequirement" in labels
+    assert "Guardrail" in labels
+    assert "PRDOutput" in labels
+
+    # ADR Chain: Project -> ADRRequirement -> Architecture -> Decision -> ADRResult
+    assert "ADRRequirement" in labels
+    assert "Architecture" in labels
+    assert "Decision" in labels
+    assert "ADRResult" in labels
+
+    # Operations Chain: Project -> Issue -> RCA -> Fix -> OpResult
+    assert "Issue" in labels
+    assert "RCA" in labels
+    assert "Fix" in labels
+    assert "OpResult" in labels
+
+    # Timeline & History
+    assert "ChangeTimeline" in labels
 
 
 def test_product_query_prd_coverage():
-    """Verify PRD coverage calculation and gap detection."""
+    """Verify PRD coverage calculation across FunctionalRequirements."""
     res = query_prd_coverage()
     data = res["result"]
 
-    assert data["total_requirements"] == 10
-    assert data["implemented_count"] == 8
+    assert data["total_requirements"] == 9
+    assert data["implemented_count"] == 7
     assert data["unimplemented_count"] == 2
-    assert data["coverage_percentage"] == "80.0%"
+    assert "77.8%" in data["coverage_percentage"]
 
     # Verify unimplemented requirements
     missing_ids = [m["id"] for m in data["missing_requirements"]]
@@ -66,36 +90,41 @@ def test_product_query_prd_coverage():
     assert "REQ-008" in missing_ids  # Partial refunds
 
     # Verify explainability
-    assert "MATCH (p:PRD)" in res["cypher_query"]
+    assert "Project" in res["cypher_query"]
     assert len(res["traversal_path"]) > 0
 
 
 def test_product_simulate_scenario():
-    """Verify multi-hop business scenario simulation."""
+    """Verify multi-hop business scenario simulation traversing Guardrail and PRDOutput."""
     res = simulate_scenario("expired card")
     data = res["result"]
 
-    assert len(data["matched_rules"]) > 0
-    top = data["matched_rules"][0]
-    assert "CARD_EXPIRED" in top["expected_outcome"]
-    assert top["handled_by_code"] is True
-    assert "validate_card" in top["execution_path_components"]
+    assert len(data["matched_guardrails"]) > 0
+    top = data["matched_guardrails"][0]
+    assert "CARD_EXPIRED" in top["violation_code"]
+    assert top["handled_in_code"] is True
+    assert "validate_card" in top["workflow_components"]
 
     # Verify explainability
-    assert "MATCH (s:Scenario)" in res["cypher_query"]
+    assert "MATCH (pi:PRDInput)" in res["cypher_query"]
     assert len(res["traversal_path"]) > 0
 
 
 def test_product_get_change_history():
-    """Verify change history timeline with reasons."""
+    """Verify change history timeline with 'what changed' and 'why changed'."""
     res = get_change_history()
     data = res["result"]
 
-    assert data["change_count"] >= 4
-    reasons = {c["reason_type"] for c in data["timeline"]}
-    assert "PRD_REQUIREMENT" in reasons
-    assert "ADR_ENFORCEMENT" in reasons
-    assert "BUG_FIX" in reasons
+    assert data["total_changes"] >= 4
+    for record in data["timeline"]:
+        assert "what_changed" in record
+        assert "why_changed" in record
+        assert "date" in record
+
+    categories = {c["category"] for c in data["timeline"]}
+    assert "PRD_FEATURE" in categories
+    assert "ADR_ENFORCEMENT" in categories
+    assert "OPERATION_FIX" in categories
 
 
 def test_product_list_uncovered_requirements():
@@ -110,7 +139,7 @@ def test_product_list_uncovered_requirements():
 
 
 def test_developer_debug_issue():
-    """Verify incident triage matching BUG-342 and Runbook."""
+    """Verify incident triage matching BUG-342 and RCA."""
     res = debug_issue("REFUND_TIMEOUT on order #4521")
     data = res["result"]
 
@@ -118,9 +147,9 @@ def test_developer_debug_issue():
     top = data["matched_incidents"][0]
     assert top["ticket_id"] == "BUG-342"
     assert "concurrency" in top["root_cause_analysis"].lower()
-    assert "ADR-002" in top["runbook_resolution_steps"]
+    assert any("ADR-002" in adr for adr in top["violated_adr"])
 
-    # Verify target code location
+    # Verify affected code location
     assert len(top["affected_code_locations"]) > 0
     loc = top["affected_code_locations"][0]
     assert "refund_processor.py" in loc["file"]
@@ -134,24 +163,21 @@ def test_developer_check_safe_to_change():
     assert data["safe_to_modify"] is False
     assert "UNSAFE" in data["safety_verdict"]
     assert any("ADR-001" in a for a in data["governing_adrs"])
-    assert any("BUG-112" in b for b in data["past_bug_fixes"])
-    assert any("BUG-298" in b for b in data["past_bug_fixes"])
+    assert any("BUG-112" in i for i in data["past_issues"])
 
 
 def test_developer_get_function_lineage():
-    """Verify evolutionary history of validate_card."""
-    res = get_function_lineage("validate_card")
+    """Verify evolutionary history and timeline of retry_with_backoff."""
+    res = get_function_lineage("retry_with_backoff")
     data = res["result"]
 
-    assert data["function"] == "validate_card"
-    assert len(data["prd_requirements_fulfilled"]) > 0
-    assert any(r["id"] == "REQ-002" for r in data["prd_requirements_fulfilled"])
-    assert len(data["commit_change_history"]) > 0
+    assert data["function"] == "retry_with_backoff"
+    assert len(data["governing_adrs"]) > 0
+    assert len(data["timeline_history"]) > 0
 
 
 def test_developer_review_pr_diff():
     """Verify PR diff safety evaluation."""
-    # Touching a constrained function should flag risk
     res = review_pr_diff(["retry_with_backoff", "send_webhook"])
     data = res["result"]
 
@@ -160,12 +186,12 @@ def test_developer_review_pr_diff():
 
 
 def test_developer_cross_org_bug_check():
-    """Verify pattern matching across past incidents."""
+    """Verify pattern matching across past issues."""
     res = cross_org_bug_check("concurrency")
     data = res["result"]
 
     assert data["found_matches_count"] >= 1
-    assert any("BUG-342" in m["id"] for m in data["historical_incidents"])
+    assert any("BUG-342" in m["ticket"] for m in data["historical_issues"])
 
 
 def test_shared_search_and_neighborhood():
@@ -173,14 +199,13 @@ def test_shared_search_and_neighborhood():
     search_res = search_graph("fraud")
     assert search_res["result"]["total_matches"] > 0
 
-    # Expand 2 hops from ADR-001
-    neigh_res = get_related_entities("ADR-001", hops=2)
+    # Expand 2 hops from project:payflow
+    neigh_res = get_related_entities("project:payflow", hops=2)
     assert neigh_res["result"]["connected_entities_count"] > 0
 
 
 def test_ingest_record_bugfix_approval_workflow():
-    """Verify recording a new bug fix with approval gate."""
-    # 1. Unapproved recording
+    """Verify recording a new bug fix with approval gate into Operations chain."""
     unapp = record_bugfix(
         ticket_id="BUG-999",
         symptom="Currency symbol parsing error",
@@ -192,7 +217,6 @@ def test_ingest_record_bugfix_approval_workflow():
     assert unapp["result"]["status"] == "PENDING_APPROVAL"
     assert unapp["result"]["approved"] is False
 
-    # 2. Approved recording
     app = record_bugfix(
         ticket_id="BUG-1000",
         symptom="Card whitespace stripping",
@@ -207,7 +231,6 @@ def test_ingest_record_bugfix_approval_workflow():
 
 def test_mcp_server_registration():
     """Verify MCP Server lists all 15 tools and predefined prompts."""
-    # List tools from server
     tool_names = [t.name for t in server._tool_manager.list_tools()]
     expected_tools = [
         "query_prd_coverage",

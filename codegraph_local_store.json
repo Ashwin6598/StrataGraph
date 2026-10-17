@@ -1,1702 +1,1603 @@
 {
   "nodes": {
-    "PRD-PAYFLOW-101": {
-      "id": "PRD-PAYFLOW-101",
-      "label": "PRD",
+    "project:payflow": {
+      "id": "project:payflow",
+      "label": "Project",
       "properties": {
-        "id": "PRD-PAYFLOW-101",
-        "title": "PayFlow Core Payment Processing Gateway",
-        "version": "1.2",
-        "author": "Sarah Jenkins (Principal Product Manager)",
-        "status": "APPROVED",
-        "created_at": null
+        "id": "project:payflow",
+        "name": "PayFlow Payment Gateway",
+        "description": "Enterprise payment orchestration platform handling card authorizations, fraud analysis, and asynchronous refunds.",
+        "repository": "https://github.com/payflow/payflow-core",
+        "created_at": "2025-10-01"
       }
     },
-    "REQ-001": {
-      "id": "REQ-001",
-      "label": "Requirement",
+    "prd_input:checkout_payload": {
+      "id": "prd_input:checkout_payload",
+      "label": "PRDInput",
       "properties": {
-        "id": "REQ-001",
-        "prd_id": "PRD-PAYFLOW-101",
+        "id": "prd_input:checkout_payload",
+        "project_id": "project:payflow",
+        "title": "Customer Checkout Payment Request",
+        "business_payload": "order_id, amount_cents, currency, card_number, expiry_month, expiry_year, idempotency_key",
+        "actor": "E-Commerce Shopper"
+      }
+    },
+    "prd_input:refund_request": {
+      "id": "prd_input:refund_request",
+      "label": "PRDInput",
+      "properties": {
+        "id": "prd_input:refund_request",
+        "project_id": "project:payflow",
+        "title": "Merchant Refund Request",
+        "business_payload": "order_id, amount_cents, settled_timestamp",
+        "actor": "Merchant Admin"
+      }
+    },
+    "req:REQ-001": {
+      "id": "req:REQ-001",
+      "label": "FunctionalRequirement",
+      "properties": {
+        "id": "req:REQ-001",
+        "prd_input_id": "prd_input:checkout_payload",
         "title": "Card Payment Authorization",
-        "description": "The system must authorize payment transactions securely with tokenized card details and enforce strict transaction limits.",
+        "description": "Authorize payment transactions securely with tokenized card details and enforce transaction limits.",
         "priority": "CRITICAL",
         "status": "IMPLEMENTED"
       }
     },
-    "SCEN-001": {
-      "id": "SCEN-001",
-      "label": "Scenario",
+    "req:REQ-002": {
+      "id": "req:REQ-002",
+      "label": "FunctionalRequirement",
       "properties": {
-        "id": "SCEN-001",
-        "req_id": "REQ-001",
-        "description": "Standard Visa/Mastercard payment with valid balance authorizes and returns HTTP 200 with transaction token.",
-        "expected_behavior": "Standard Visa/Mastercard payment with valid balance authorizes and returns HTTP 200 with transaction token.",
-        "covered_by_code": true
-      }
-    },
-    "SCEN-002": {
-      "id": "SCEN-002",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-002",
-        "req_id": "REQ-001",
-        "description": "Payment exceeding user limit returns `TRANSACTION_LIMIT_EXCEEDED` and aborts before charging.",
-        "expected_behavior": "Payment exceeding user limit returns `TRANSACTION_LIMIT_EXCEEDED` and aborts before charging.",
-        "covered_by_code": true
-      }
-    },
-    "REQ-002": {
-      "id": "REQ-002",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-002",
-        "prd_id": "PRD-PAYFLOW-101",
+        "id": "req:REQ-002",
+        "prd_input_id": "prd_input:checkout_payload",
         "title": "Expiry & Luhn Card Validation",
-        "description": "All incoming payment requests must validate card number checksum (Luhn algorithm) and card expiration dates prior to contacting payment networks.",
+        "description": "Validate card expiration date and Luhn checksum before forwarding to external payment rails.",
         "priority": "CRITICAL",
         "status": "IMPLEMENTED"
       }
     },
-    "SCEN-003": {
-      "id": "SCEN-003",
-      "label": "Scenario",
+    "req:REQ-003": {
+      "id": "req:REQ-003",
+      "label": "FunctionalRequirement",
       "properties": {
-        "id": "SCEN-003",
-        "req_id": "REQ-002",
-        "description": "Card with past expiration month/year returns `CARD_EXPIRED` at validation stage with zero bank fees incurred.",
-        "expected_behavior": "Card with past expiration month/year returns `CARD_EXPIRED` at validation stage with zero bank fees incurred.",
-        "covered_by_code": true
-      }
-    },
-    "SCEN-004": {
-      "id": "SCEN-004",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-004",
-        "req_id": "REQ-002",
-        "description": "Malformed card number failing checksum returns `INVALID_CARD_NUMBER`.",
-        "expected_behavior": "Malformed card number failing checksum returns `INVALID_CARD_NUMBER`.",
-        "covered_by_code": true
-      }
-    },
-    "REQ-003": {
-      "id": "REQ-003",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-003",
-        "prd_id": "PRD-PAYFLOW-101",
+        "id": "req:REQ-003",
+        "prd_input_id": "prd_input:checkout_payload",
         "title": "Real-Time ML Fraud Risk Assessment",
-        "description": "Every transaction must pass through the fraud detection engine to receive a risk score between 0 and 100 before capture.",
+        "description": "Evaluate transaction risk score between 0 and 100 before capturing charges.",
         "priority": "HIGH",
         "status": "IMPLEMENTED"
       }
     },
-    "SCEN-005": {
-      "id": "SCEN-005",
-      "label": "Scenario",
+    "req:REQ-004": {
+      "id": "req:REQ-004",
+      "label": "FunctionalRequirement",
       "properties": {
-        "id": "SCEN-005",
-        "req_id": "REQ-003",
-        "description": "Risk score under 50 passes without challenge.",
-        "expected_behavior": "Risk score under 50 passes without challenge.",
-        "covered_by_code": true
-      }
-    },
-    "SCEN-006": {
-      "id": "SCEN-006",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-006",
-        "req_id": "REQ-003",
-        "description": "Risk score 50 to 85 triggers 3D-Secure secondary challenge.",
-        "expected_behavior": "Risk score 50 to 85 triggers 3D-Secure secondary challenge.",
-        "covered_by_code": true
-      }
-    },
-    "SCEN-007": {
-      "id": "SCEN-007",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-007",
-        "req_id": "REQ-003",
-        "description": "Risk score above 85 returns `FRAUD_RISK_REJECTED` and freezes transaction.",
-        "expected_behavior": "Risk score above 85 returns `FRAUD_RISK_REJECTED` and freezes transaction.",
-        "covered_by_code": true
-      }
-    },
-    "REQ-004": {
-      "id": "REQ-004",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-004",
-        "prd_id": "PRD-PAYFLOW-101",
+        "id": "req:REQ-004",
+        "prd_input_id": "prd_input:checkout_payload",
         "title": "Multi-Currency Dynamic Currency Conversion (DCC)",
-        "description": "Allow cross-border buyers to pay in their local home currency with real-time foreign exchange spread calculation.",
+        "description": "Allow cross-border buyers to pay in their local home currency with dynamic FX spread calculation.",
         "priority": "MEDIUM",
         "status": "PENDING_DEV"
       }
     },
-    "SCEN-008": {
-      "id": "SCEN-008",
-      "label": "Scenario",
+    "req:REQ-005": {
+      "id": "req:REQ-005",
+      "label": "FunctionalRequirement",
       "properties": {
-        "id": "SCEN-008",
-        "req_id": "REQ-004",
-        "description": "Buyer paying in GBP for EUR item receives live spot rate plus 1.5% markup.",
-        "expected_behavior": "Buyer paying in GBP for EUR item receives live spot rate plus 1.5% markup.",
-        "covered_by_code": false
-      }
-    },
-    "REQ-005": {
-      "id": "REQ-005",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-005",
-        "prd_id": "PRD-PAYFLOW-101",
+        "id": "req:REQ-005",
+        "prd_input_id": "prd_input:checkout_payload",
         "title": "Idempotent Payment Submission",
-        "description": "Repeated payment requests bearing the same `Idempotency-Key` within 24 hours must return identical cached responses without double-charging.",
+        "description": "Repeated requests with duplicate Idempotency-Key return cached results without double charging.",
         "priority": "HIGH",
         "status": "IMPLEMENTED"
       }
     },
-    "SCEN-009": {
-      "id": "SCEN-009",
-      "label": "Scenario",
+    "req:REQ-006": {
+      "id": "req:REQ-006",
+      "label": "FunctionalRequirement",
       "properties": {
-        "id": "SCEN-009",
-        "req_id": "REQ-005",
-        "description": "Network retry with duplicate key returns original transaction ID and status `SUCCESS`.",
-        "expected_behavior": "Network retry with duplicate key returns original transaction ID and status `SUCCESS`.",
-        "covered_by_code": true
-      }
-    },
-    "REQ-006": {
-      "id": "REQ-006",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-006",
-        "prd_id": "PRD-PAYFLOW-101",
+        "id": "req:REQ-006",
+        "prd_input_id": "prd_input:checkout_payload",
         "title": "Asynchronous Webhook Event Delivery",
-        "description": "Dispatch signed JSON webhooks to merchant endpoints upon status transitions (`payment.authorized`, `payment.failed`, `refund.processed`).",
+        "description": "Dispatch signed JSON webhooks to merchant endpoints upon status transitions.",
         "priority": "HIGH",
         "status": "IMPLEMENTED"
       }
     },
-    "SCEN-010": {
-      "id": "SCEN-010",
-      "label": "Scenario",
+    "req:REQ-007": {
+      "id": "req:REQ-007",
+      "label": "FunctionalRequirement",
       "properties": {
-        "id": "SCEN-010",
-        "req_id": "REQ-006",
-        "description": "Merchant webhook endpoint unreachable initiates exponential backoff delivery.",
-        "expected_behavior": "Merchant webhook endpoint unreachable initiates exponential backoff delivery.",
-        "covered_by_code": true
-      }
-    },
-    "REQ-007": {
-      "id": "REQ-007",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-007",
-        "prd_id": "PRD-PAYFLOW-101",
+        "id": "req:REQ-007",
+        "prd_input_id": "prd_input:refund_request",
         "title": "Full Refund Processing with 30-Day Window",
-        "description": "Merchants can issue 100% full refunds against settled transactions within 30 days of the original settlement date.",
+        "description": "Issue 100% full refunds against settled transactions within 30 days of the original settlement date.",
         "priority": "HIGH",
         "status": "IMPLEMENTED"
       }
     },
-    "SCEN-011": {
-      "id": "SCEN-011",
-      "label": "Scenario",
+    "req:REQ-008": {
+      "id": "req:REQ-008",
+      "label": "FunctionalRequirement",
       "properties": {
-        "id": "SCEN-011",
-        "req_id": "REQ-007",
-        "description": "Refund requested on day 14 settles successfully and transitions order to `REFUNDED`.",
-        "expected_behavior": "Refund requested on day 14 settles successfully and transitions order to `REFUNDED`.",
-        "covered_by_code": true
-      }
-    },
-    "SCEN-012": {
-      "id": "SCEN-012",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-012",
-        "req_id": "REQ-007",
-        "description": "Refund requested after 30 days is rejected with error `REFUND_WINDOW_EXPIRED`.",
-        "expected_behavior": "Refund requested after 30 days is rejected with error `REFUND_WINDOW_EXPIRED`.",
-        "covered_by_code": true
-      }
-    },
-    "REQ-008": {
-      "id": "REQ-008",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-008",
-        "prd_id": "PRD-PAYFLOW-101",
+        "id": "req:REQ-008",
+        "prd_input_id": "prd_input:refund_request",
         "title": "Partial Refund Support",
-        "description": "Allow merchants to refund arbitrary line items or portions of an order up to the remaining unrefunded balance.",
+        "description": "Allow merchants to refund arbitrary line items or portions up to the remaining unrefunded balance.",
         "priority": "LOW",
         "status": "PENDING_DEV"
       }
     },
-    "SCEN-013": {
-      "id": "SCEN-013",
-      "label": "Scenario",
+    "req:REQ-010": {
+      "id": "req:REQ-010",
+      "label": "FunctionalRequirement",
       "properties": {
-        "id": "SCEN-013",
-        "req_id": "REQ-008",
-        "description": "Refunding $30 of a $100 order keeps $70 captured and allows subsequent refunds up to $70.",
-        "expected_behavior": "Refunding $30 of a $100 order keeps $70 captured and allows subsequent refunds up to $70.",
-        "covered_by_code": false
-      }
-    },
-    "REQ-009": {
-      "id": "REQ-009",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-009",
-        "prd_id": "PRD-PAYFLOW-101",
-        "title": "Dispute & Chargeback Lifecycle Management",
-        "description": "Ingest bank chargeback notices, place funds on reserve hold, and notify the compliance team.",
-        "priority": "MEDIUM",
-        "status": "IMPLEMENTED"
-      }
-    },
-    "SCEN-014": {
-      "id": "SCEN-014",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-014",
-        "req_id": "REQ-009",
-        "description": "Incoming chargeback triggers merchant notification email and debit from balance.",
-        "expected_behavior": "Incoming chargeback triggers merchant notification email and debit from balance.",
-        "covered_by_code": true
-      }
-    },
-    "REQ-010": {
-      "id": "REQ-010",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-010",
-        "prd_id": "PRD-PAYFLOW-101",
+        "id": "req:REQ-010",
+        "prd_input_id": "prd_input:checkout_payload",
         "title": "High-Concurrency Rate Limiting & Retry Backoff",
-        "description": "Throttle downstream banking requests to avoid 429 partner rejections, utilizing exactly 3 exponential retry attempts.",
+        "description": "Throttle downstream requests to avoid partner 429 rejections using exponential backoff.",
         "priority": "HIGH",
         "status": "IMPLEMENTED"
       }
     },
-    "SCEN-015": {
-      "id": "SCEN-015",
-      "label": "Scenario",
+    "guardrail:card_luhn_and_expiry": {
+      "id": "guardrail:card_luhn_and_expiry",
+      "label": "Guardrail",
       "properties": {
-        "id": "SCEN-015",
-        "req_id": "REQ-010",
-        "description": "Transient network error on attempt 1 succeeds on retry attempt 2 after 1.0s delay.",
-        "expected_behavior": "Transient network error on attempt 1 succeeds on retry attempt 2 after 1.0s delay.",
-        "covered_by_code": true
+        "id": "guardrail:card_luhn_and_expiry",
+        "req_id": "req:REQ-002",
+        "title": "Card Expiration and Luhn Validity Guardrail",
+        "rule_statement": "Card expiration year/month must be >= current date AND Luhn mod-10 checksum == 0.",
+        "enforcement_level": "HARD_BLOCK",
+        "violation_code": "CARD_EXPIRED"
       }
     },
-    "ADR-001": {
-      "id": "ADR-001",
-      "label": "ADR",
+    "guardrail:fraud_score_ceiling_85": {
+      "id": "guardrail:fraud_score_ceiling_85",
+      "label": "Guardrail",
       "properties": {
-        "id": "ADR-001",
-        "title": "ADR-001: Fraud Risk Scoring and Mandatory Retry Ceiling",
-        "status": "ACCEPTED",
-        "date": "2025-11-20",
-        "context": "Payment processing systems must evaluate high-risk signals in real time while maintaining resilient connections to external risk and clearing networks. During initial tests, unstable network segments caused random drops. Developers attempted to either bypass risk evaluation under latency or reduce retry attempts to 1, causing thousands of legitimate card transactions to fail.",
-        "decision": "1. **Mandatory 3-Retry Ceiling:** Every external fraud evaluation and network call MUST execute exactly 3 retry attempts with exponential backoff (initial delay: 0.5s, factor: 2.0).\n2. **Hard-Reject Boundary:** Any risk assessment resulting in a score strictly greater than 85 MUST trigger an immediate, non-overridable `FRAUD_RISK_REJECTED` error.\n3. **Never Lower Retries:** Developers are explicitly forbidden from lowering the retry count below 3 or suppressing backoff delays, as this violates our card-scheme service level agreement (SLA).",
-        "consequences": "- **Positive:** Reduces transaction false-drop rate by 98.4% during upstream jitter.\n- **Negative:** Adds up to 3.5 seconds of worst-case latency during complete partner outages before failing over.\n- **Critical Risk:** Modifying `retry_with_backoff` without cross-functional approval historically caused `BUG-112` and `BUG-298`."
+        "id": "guardrail:fraud_score_ceiling_85",
+        "req_id": "req:REQ-003",
+        "title": "Fraud Score Upper Ceiling Guardrail",
+        "rule_statement": "Transactions with risk score strictly greater than 85 MUST be hard rejected immediately.",
+        "enforcement_level": "HARD_BLOCK",
+        "violation_code": "FRAUD_RISK_REJECTED"
       }
     },
-    "dec:ADR-001:core": {
-      "id": "dec:ADR-001:core",
+    "guardrail:refund_30_day_limit": {
+      "id": "guardrail:refund_30_day_limit",
+      "label": "Guardrail",
+      "properties": {
+        "id": "guardrail:refund_30_day_limit",
+        "req_id": "req:REQ-007",
+        "title": "Refund 30-Day Settlement Window Guardrail",
+        "rule_statement": "Refund requests where (current_time - settled_timestamp) > 30 days MUST be rejected.",
+        "enforcement_level": "HARD_BLOCK",
+        "violation_code": "REFUND_WINDOW_EXPIRED"
+      }
+    },
+    "guardrail:idempotency_24h_window": {
+      "id": "guardrail:idempotency_24h_window",
+      "label": "Guardrail",
+      "properties": {
+        "id": "guardrail:idempotency_24h_window",
+        "req_id": "req:REQ-005",
+        "title": "Idempotency Cache Replay Guardrail",
+        "rule_statement": "Duplicate idempotency key within 24 hours must replay cached authorization without recharging.",
+        "enforcement_level": "HARD_BLOCK",
+        "violation_code": "IDEMPOTENCY_REPLAY"
+      }
+    },
+    "prd_output:payment_authorized_success": {
+      "id": "prd_output:payment_authorized_success",
+      "label": "PRDOutput",
+      "properties": {
+        "id": "prd_output:payment_authorized_success",
+        "guardrail_id": "guardrail:card_luhn_and_expiry",
+        "expected_status": "SUCCESS",
+        "business_outcome": "Customer payment is authorized and transaction token is returned to merchant checkout."
+      }
+    },
+    "prd_output:card_expired_rejection": {
+      "id": "prd_output:card_expired_rejection",
+      "label": "PRDOutput",
+      "properties": {
+        "id": "prd_output:card_expired_rejection",
+        "guardrail_id": "guardrail:card_luhn_and_expiry",
+        "expected_status": "REJECTED",
+        "business_outcome": "Customer sees 'Card has expired' message with zero partner clearing fees incurred."
+      }
+    },
+    "prd_output:refund_queued_processing": {
+      "id": "prd_output:refund_queued_processing",
+      "label": "PRDOutput",
+      "properties": {
+        "id": "prd_output:refund_queued_processing",
+        "guardrail_id": "guardrail:refund_30_day_limit",
+        "expected_status": "PROCESSING",
+        "business_outcome": "Merchant receives instant pending refund receipt while batch queue handles settlement."
+      }
+    },
+    "prd_output:refund_expired_rejection": {
+      "id": "prd_output:refund_expired_rejection",
+      "label": "PRDOutput",
+      "properties": {
+        "id": "prd_output:refund_expired_rejection",
+        "guardrail_id": "guardrail:refund_30_day_limit",
+        "expected_status": "REJECTED",
+        "business_outcome": "Refund rejected with REFUND_WINDOW_EXPIRED error code."
+      }
+    },
+    "adr_req:external_network_resilience": {
+      "id": "adr_req:external_network_resilience",
+      "label": "ADRRequirement",
+      "properties": {
+        "id": "adr_req:external_network_resilience",
+        "project_id": "project:payflow",
+        "title": "External Risk Network Resilience and Zero False-Drop SLA",
+        "technical_driver": "Third-party clearing networks experience 1-2% momentary packet drops during peak hours. Dropping requests causes merchant revenue loss."
+      }
+    },
+    "adr_req:peak_refund_throughput": {
+      "id": "adr_req:peak_refund_throughput",
+      "label": "ADRRequirement",
+      "properties": {
+        "id": "adr_req:peak_refund_throughput",
+        "project_id": "project:payflow",
+        "title": "High-Volume Batch Refund Isolation and Rate-Limit Protection",
+        "technical_driver": "High-volume sales events trigger spikes of 500+ refunds/sec. Synchronous execution exhausts gateway thread pools."
+      }
+    },
+    "arch:resilient_retry_pipeline": {
+      "id": "arch:resilient_retry_pipeline",
+      "label": "Architecture",
+      "properties": {
+        "id": "arch:resilient_retry_pipeline",
+        "adr_req_id": "adr_req:external_network_resilience",
+        "pattern_name": "Resilient Exponential Backoff and Circuit Breaker Pipeline",
+        "description": "Wraps all external fraud scoring and bank network communications in an isolated retry loop with strict backoff ceilings."
+      }
+    },
+    "arch:async_worker_queue": {
+      "id": "arch:async_worker_queue",
+      "label": "Architecture",
+      "properties": {
+        "id": "arch:async_worker_queue",
+        "adr_req_id": "adr_req:peak_refund_throughput",
+        "pattern_name": "Decoupled Distributed Queue with Concurrency-Capped Consumers",
+        "description": "Asynchronously enqueues refund jobs to isolate the checkout API while capping worker concurrency to respect banking partner rate limits."
+      }
+    },
+    "decision:ADR-001:retry_ceiling": {
+      "id": "decision:ADR-001:retry_ceiling",
       "label": "Decision",
       "properties": {
-        "id": "dec:ADR-001:core",
+        "id": "decision:ADR-001:retry_ceiling",
+        "arch_id": "arch:resilient_retry_pipeline",
         "adr_id": "ADR-001",
-        "statement": "1. **Mandatory 3-Retry Ceiling:** Every external fraud evaluation and network call MUST execute exactly 3 retry attempts with exponential backoff (initial delay: 0.5s, factor: 2.0).\n2. **Hard-Reject Boundary:** Any risk assessment resulting in a score strictly greater than 85 MUST trigger an immediate, non-overridable `FRAUD_RISK_REJECTED` error.\n3. **Never Lower Retries:** Developers are explicitly forbidden from lowering the retry count below 3 or suppressing backoff delays, as this violates our card-scheme service level agreement (SLA).",
-        "rationale": "Payment processing systems must evaluate high-risk signals in real time while maintaining resilient connections to external risk and clearing networks. During initial tests, unstable network segments caused random drops. Developers attempted to either bypass risk evaluation under latency or reduce retry attempts to 1, causing thousands of legitimate card transactions to fail.",
-        "rule_type": "ARCHITECTURAL_CONSTRAINT"
+        "title": "Mandatory 3-Retry Ceiling with Exponential Backoff",
+        "statement": "Every external fraud evaluation and network call MUST execute exactly 3 retry attempts with exponential backoff (0.5s initial, 2.0x factor). Score > 85 is hard-rejected. Lowering retry count below 3 is strictly prohibited.",
+        "rationale": "Eliminates false declines caused by momentary packet loss while avoiding cascade timeout loops.",
+        "invariants": "MAX_RETRIES == 3, INITIAL_BACKOFF == 0.5s, RISK_THRESHOLD_REJECT == 85"
       }
     },
-    "ADR-002": {
-      "id": "ADR-002",
-      "label": "ADR",
-      "properties": {
-        "id": "ADR-002",
-        "title": "ADR-002: Asynchronous Queuing and Concurrency for High-Volume Refunds",
-        "status": "ACCEPTED",
-        "date": "2026-01-10",
-        "context": "During high-volume sales events (such as Black Friday/Cyber Monday), merchants issue batch refund requests exceeding 500 operations per second. Synchronous HTTP execution caused gateway worker pool exhaustion, thread starvation, and cascading 504 Gateway Timeouts across the primary payment authorization flow.",
-        "decision": "1. **Asynchronous Decoupling:** The `RefundProcessor` will enqueue refund jobs into a durable distributed queue and immediately return a pending tracking token to the caller.\n2. **Worker Pool Concurrency of 5:** Queue consumers MUST run with exactly 5 concurrent workers per instance.\n   - Setting concurrency below 5 causes message accumulation, lag, and `REFUND_TIMEOUT` alerts under peak load.\n   - Setting concurrency above 10 causes banking partner API rate-limits (`HTTP 429 Too Many Requests`).\n3. **Strict 30-Day Age Check:** Refund eligibility must be checked against the settlement timestamp before queue dispatch.",
-        "consequences": "- Prevents refund spikes from impacting real-time checkout availability.\n- Requires careful worker pool tuning: decreasing concurrency below 5 was the direct root cause of incident `BUG-342`."
-      }
-    },
-    "dec:ADR-002:core": {
-      "id": "dec:ADR-002:core",
+    "decision:ADR-002:concurrency_5": {
+      "id": "decision:ADR-002:concurrency_5",
       "label": "Decision",
       "properties": {
-        "id": "dec:ADR-002:core",
+        "id": "decision:ADR-002:concurrency_5",
+        "arch_id": "arch:async_worker_queue",
         "adr_id": "ADR-002",
-        "statement": "1. **Asynchronous Decoupling:** The `RefundProcessor` will enqueue refund jobs into a durable distributed queue and immediately return a pending tracking token to the caller.\n2. **Worker Pool Concurrency of 5:** Queue consumers MUST run with exactly 5 concurrent workers per instance.\n   - Setting concurrency below 5 causes message accumulation, lag, and `REFUND_TIMEOUT` alerts under peak load.\n   - Setting concurrency above 10 causes banking partner API rate-limits (`HTTP 429 Too Many Requests`).\n3. **Strict 30-Day Age Check:** Refund eligibility must be checked against the settlement timestamp before queue dispatch.",
-        "rationale": "During high-volume sales events (such as Black Friday/Cyber Monday), merchants issue batch refund requests exceeding 500 operations per second. Synchronous HTTP execution caused gateway worker pool exhaustion, thread starvation, and cascading 504 Gateway Timeouts across the primary payment authorization flow.",
-        "rule_type": "ARCHITECTURAL_CONSTRAINT"
+        "title": "Worker Pool Concurrency of 5 for High-Volume Refunds",
+        "statement": "Queue consumers MUST run with exactly 5 concurrent workers per instance. Concurrency < 5 causes message accumulation and REFUND_TIMEOUT under load. Concurrency > 10 causes banking partner HTTP 429 rate limit errors.",
+        "rationale": "Preserves checkout gateway thread availability while staying within bank clearing rate limits.",
+        "invariants": "WORKER_POOL_CONCURRENCY == 5, MAX_REFUND_AGE_DAYS == 30"
       }
     },
-    "file:fraud_detector.py": {
-      "id": "file:fraud_detector.py",
-      "label": "File",
+    "adr_result:98_pct_drop_reduction": {
+      "id": "adr_result:98_pct_drop_reduction",
+      "label": "ADRResult",
       "properties": {
-        "path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/fraud_detector.py",
-        "filename": "fraud_detector.py",
-        "language": "python"
+        "id": "adr_result:98_pct_drop_reduction",
+        "decision_id": "decision:ADR-001:retry_ceiling",
+        "positive_impact": "Reduces transaction false-drop rate by 98.4% during upstream network jitter.",
+        "tradeoffs": "Adds up to 3.5s worst-case latency during complete partner outages."
       }
     },
-    "class:fraud_detector.py:FraudDetector": {
-      "id": "class:fraud_detector.py:FraudDetector",
+    "adr_result:thread_starvation_eliminated": {
+      "id": "adr_result:thread_starvation_eliminated",
+      "label": "ADRResult",
+      "properties": {
+        "id": "adr_result:thread_starvation_eliminated",
+        "decision_id": "decision:ADR-002:concurrency_5",
+        "positive_impact": "Eliminates HTTP 504 Gateway Timeouts on primary payment authorization during Black Friday refund spikes.",
+        "tradeoffs": "Refunds settle asynchronously rather than synchronously in-band."
+      }
+    },
+    "code_input:auth_args": {
+      "id": "code_input:auth_args",
+      "label": "CodeInput",
+      "properties": {
+        "id": "code_input:auth_args",
+        "project_id": "project:payflow",
+        "name": "PaymentService.authorize_payment Parameters",
+        "parameter_signature": "(order_id: str, amount_cents: int, card_number: str, expiry_month: int, expiry_year: int, idempotency_key: str)",
+        "source_type": "HTTP_JSON_PAYLOAD",
+        "description": "Normalized authorization arguments extracted from customer payment request."
+      }
+    },
+    "code_input:refund_args": {
+      "id": "code_input:refund_args",
+      "label": "CodeInput",
+      "properties": {
+        "id": "code_input:refund_args",
+        "project_id": "project:payflow",
+        "name": "RefundProcessor.execute_refund Parameters",
+        "parameter_signature": "(order_id: str, amount_cents: int, settled_timestamp: float)",
+        "source_type": "HTTP_JSON_PAYLOAD",
+        "description": "Refund request parameters extracted from merchant portal request."
+      }
+    },
+    "flow:payment_authorization": {
+      "id": "flow:payment_authorization",
+      "label": "LogicFlow",
+      "properties": {
+        "id": "flow:payment_authorization",
+        "code_input_id": "code_input:auth_args",
+        "name": "Payment Authorization Orchestration Flow",
+        "description": "Validates card checksum & expiry -> scores fraud risk -> generates charge token -> dispatches webhook.",
+        "steps": [
+          "validate_card",
+          "assess_risk",
+          "create_charge_token",
+          "send_webhook"
+        ]
+      }
+    },
+    "flow:refund_execution": {
+      "id": "flow:refund_execution",
+      "label": "LogicFlow",
+      "properties": {
+        "id": "flow:refund_execution",
+        "code_input_id": "code_input:refund_args",
+        "name": "Asynchronous Refund Execution Flow",
+        "description": "Checks 30-day settlement window -> enqueues async worker job -> returns tracking receipt.",
+        "steps": [
+          "validate_refund_eligibility",
+          "queue_refund_job",
+          "send_webhook"
+        ]
+      }
+    },
+    "class:PaymentService": {
+      "id": "class:PaymentService",
       "label": "Class",
       "properties": {
-        "name": "FraudDetector",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/fraud_detector.py",
+        "id": "class:PaymentService",
+        "name": "PaymentService",
+        "file_path": "demo_data/code/payment_service.py",
         "line_start": 12,
-        "line_end": 74,
-        "docstring": null
+        "line_end": 95,
+        "docstring": "Handles card validation, idempotency checks, fraud evaluation, and charge creation."
       }
     },
-    "func:fraud_detector.py:__init__": {
-      "id": "func:fraud_detector.py:__init__",
-      "label": "Function",
+    "class:FraudDetector": {
+      "id": "class:FraudDetector",
+      "label": "Class",
       "properties": {
-        "name": "__init__",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/fraud_detector.py",
-        "signature": "__init__(self)",
-        "line_start": 21,
-        "line_end": 22,
-        "docstring": null,
-        "class_name": "FraudDetector"
+        "id": "class:FraudDetector",
+        "name": "FraudDetector",
+        "file_path": "demo_data/code/fraud_detector.py",
+        "line_start": 12,
+        "line_end": 68,
+        "docstring": "Assesses transaction risk and executes resilient partner queries with retry backoff."
       }
     },
-    "func:fraud_detector.py:retry_with_backoff": {
-      "id": "func:fraud_detector.py:retry_with_backoff",
+    "class:RefundProcessor": {
+      "id": "class:RefundProcessor",
+      "label": "Class",
+      "properties": {
+        "id": "class:RefundProcessor",
+        "name": "RefundProcessor",
+        "file_path": "demo_data/code/refund_processor.py",
+        "line_start": 12,
+        "line_end": 85,
+        "docstring": "Manages refund validation, async queue dispatch, and settlement."
+      }
+    },
+    "class:NotificationService": {
+      "id": "class:NotificationService",
+      "label": "Class",
+      "properties": {
+        "id": "class:NotificationService",
+        "name": "NotificationService",
+        "file_path": "demo_data/code/notification_service.py",
+        "line_start": 9,
+        "line_end": 40,
+        "docstring": "Dispatches webhooks and receipts for transaction events."
+      }
+    },
+    "func:validate_card": {
+      "id": "func:validate_card",
       "label": "Function",
       "properties": {
+        "id": "func:validate_card",
+        "name": "validate_card",
+        "class_id": "class:PaymentService",
+        "file_path": "demo_data/code/payment_service.py",
+        "signature": "validate_card(card_number, expiry_month, expiry_year)",
+        "line_start": 20,
+        "line_end": 48,
+        "docstring": "Validates card structure, expiration date, and Luhn checksum."
+      }
+    },
+    "func:authorize_payment": {
+      "id": "func:authorize_payment",
+      "label": "Function",
+      "properties": {
+        "id": "func:authorize_payment",
+        "name": "authorize_payment",
+        "class_id": "class:PaymentService",
+        "file_path": "demo_data/code/payment_service.py",
+        "signature": "authorize_payment(order_id, amount_cents, card_number, expiry_month, expiry_year, idempotency_key, user_metadata)",
+        "line_start": 50,
+        "line_end": 94,
+        "docstring": "Main entry point for authorizing customer charge."
+      }
+    },
+    "func:assess_risk": {
+      "id": "func:assess_risk",
+      "label": "Function",
+      "properties": {
+        "id": "func:assess_risk",
+        "name": "assess_risk",
+        "class_id": "class:FraudDetector",
+        "file_path": "demo_data/code/fraud_detector.py",
+        "signature": "assess_risk(card_number, amount_cents, metadata)",
+        "line_start": 45,
+        "line_end": 68,
+        "docstring": "Calculates transaction risk score and decides risk action."
+      }
+    },
+    "func:retry_with_backoff": {
+      "id": "func:retry_with_backoff",
+      "label": "Function",
+      "properties": {
+        "id": "func:retry_with_backoff",
         "name": "retry_with_backoff",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/fraud_detector.py",
-        "signature": "retry_with_backoff(self, operation, operation_name)",
+        "class_id": "class:FraudDetector",
+        "file_path": "demo_data/code/fraud_detector.py",
+        "signature": "retry_with_backoff(operation, operation_name)",
         "line_start": 24,
         "line_end": 44,
-        "docstring": "Executes a network operation with exponential retry backoff.\nGoverned by ADR-001.\nWARNING: Reducing MAX_RETRIES below 3 violates partner SLA and causes cascade failures.",
-        "class_name": "FraudDetector"
+        "docstring": "Executes a network operation with exponential retry backoff per ADR-001."
       }
     },
-    "func:fraud_detector.py:assess_risk": {
-      "id": "func:fraud_detector.py:assess_risk",
+    "func:validate_refund_eligibility": {
+      "id": "func:validate_refund_eligibility",
       "label": "Function",
       "properties": {
-        "name": "assess_risk",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/fraud_detector.py",
-        "signature": "assess_risk(self, card_number, amount_cents, metadata)",
-        "line_start": 46,
-        "line_end": 74,
-        "docstring": "Calculates transaction risk score (0-100) and decides risk action.\nImplements REQ-003 (SCEN-005, SCEN-006, SCEN-007).\nGoverned by ADR-001.",
-        "class_name": "FraudDetector"
-      }
-    },
-    "func:fraud_detector.py:_call_risk_engine": {
-      "id": "func:fraud_detector.py:_call_risk_engine",
-      "label": "Function",
-      "properties": {
-        "name": "_call_risk_engine",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/fraud_detector.py",
-        "signature": "_call_risk_engine()",
-        "line_start": 52,
-        "line_end": 63,
-        "docstring": null,
-        "class_name": "FraudDetector"
-      }
-    },
-    "file:notification_service.py": {
-      "id": "file:notification_service.py",
-      "label": "File",
-      "properties": {
-        "path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/notification_service.py",
-        "filename": "notification_service.py",
-        "language": "python"
-      }
-    },
-    "class:notification_service.py:NotificationService": {
-      "id": "class:notification_service.py:NotificationService",
-      "label": "Class",
-      "properties": {
-        "name": "NotificationService",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/notification_service.py",
-        "line_start": 10,
-        "line_end": 37,
-        "docstring": null
-      }
-    },
-    "func:notification_service.py:__init__": {
-      "id": "func:notification_service.py:__init__",
-      "label": "Function",
-      "properties": {
-        "name": "__init__",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/notification_service.py",
-        "signature": "__init__(self)",
-        "line_start": 11,
-        "line_end": 12,
-        "docstring": null,
-        "class_name": "NotificationService"
-      }
-    },
-    "func:notification_service.py:send_webhook": {
-      "id": "func:notification_service.py:send_webhook",
-      "label": "Function",
-      "properties": {
-        "name": "send_webhook",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/notification_service.py",
-        "signature": "send_webhook(self, event_type, payload)",
-        "line_start": 14,
-        "line_end": 26,
-        "docstring": "Dispatches signed webhook event to registered merchant endpoints.\nImplements REQ-006.",
-        "class_name": "NotificationService"
-      }
-    },
-    "func:notification_service.py:send_receipt": {
-      "id": "func:notification_service.py:send_receipt",
-      "label": "Function",
-      "properties": {
-        "name": "send_receipt",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/notification_service.py",
-        "signature": "send_receipt(self, email, transaction_id, amount_cents)",
-        "line_start": 28,
-        "line_end": 37,
-        "docstring": "Sends email confirmation receipt to customer.",
-        "class_name": "NotificationService"
-      }
-    },
-    "file:payment_service.py": {
-      "id": "file:payment_service.py",
-      "label": "File",
-      "properties": {
-        "path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/payment_service.py",
-        "filename": "payment_service.py",
-        "language": "python"
-      }
-    },
-    "class:payment_service.py:PaymentService": {
-      "id": "class:payment_service.py:PaymentService",
-      "label": "Class",
-      "properties": {
-        "name": "PaymentService",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/payment_service.py",
-        "line_start": 13,
-        "line_end": 106,
-        "docstring": null
-      }
-    },
-    "func:payment_service.py:__init__": {
-      "id": "func:payment_service.py:__init__",
-      "label": "Function",
-      "properties": {
-        "name": "__init__",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/payment_service.py",
-        "signature": "__init__(self, fraud_detector, notifier)",
-        "line_start": 14,
-        "line_end": 17,
-        "docstring": null,
-        "class_name": "PaymentService"
-      }
-    },
-    "func:payment_service.py:validate_card": {
-      "id": "func:payment_service.py:validate_card",
-      "label": "Function",
-      "properties": {
-        "name": "validate_card",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/payment_service.py",
-        "signature": "validate_card(self, card_number, expiry_month, expiry_year)",
-        "line_start": 19,
-        "line_end": 48,
-        "docstring": "Validates card structure, expiration date, and Luhn checksum.\nImplements REQ-002 (SCEN-003, SCEN-004).",
-        "class_name": "PaymentService"
-      }
-    },
-    "func:payment_service.py:authorize_payment": {
-      "id": "func:payment_service.py:authorize_payment",
-      "label": "Function",
-      "properties": {
-        "name": "authorize_payment",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/payment_service.py",
-        "signature": "authorize_payment(self, order_id, amount_cents, card_number, expiry_month, expiry_year, idempotency_key, user_metadata)",
-        "line_start": 50,
-        "line_end": 106,
-        "docstring": "Main entry point for authorizing a customer charge.\nImplements REQ-001, REQ-002, REQ-003, REQ-005.\nCalls validate_card -> assess_risk -> execute_charge -> send_webhook.",
-        "class_name": "PaymentService"
-      }
-    },
-    "file:refund_processor.py": {
-      "id": "file:refund_processor.py",
-      "label": "File",
-      "properties": {
-        "path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/refund_processor.py",
-        "filename": "refund_processor.py",
-        "language": "python"
-      }
-    },
-    "class:refund_processor.py:RefundProcessor": {
-      "id": "class:refund_processor.py:RefundProcessor",
-      "label": "Class",
-      "properties": {
-        "name": "RefundProcessor",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/refund_processor.py",
-        "line_start": 13,
-        "line_end": 83,
-        "docstring": null
-      }
-    },
-    "func:refund_processor.py:__init__": {
-      "id": "func:refund_processor.py:__init__",
-      "label": "Function",
-      "properties": {
-        "name": "__init__",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/refund_processor.py",
-        "signature": "__init__(self, notifier)",
-        "line_start": 20,
-        "line_end": 22,
-        "docstring": null,
-        "class_name": "RefundProcessor"
-      }
-    },
-    "func:refund_processor.py:validate_refund_eligibility": {
-      "id": "func:refund_processor.py:validate_refund_eligibility",
-      "label": "Function",
-      "properties": {
+        "id": "func:validate_refund_eligibility",
         "name": "validate_refund_eligibility",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/refund_processor.py",
-        "signature": "validate_refund_eligibility(self, settled_timestamp)",
-        "line_start": 24,
+        "class_id": "class:RefundProcessor",
+        "file_path": "demo_data/code/refund_processor.py",
+        "signature": "validate_refund_eligibility(settled_timestamp)",
+        "line_start": 22,
         "line_end": 40,
-        "docstring": "Validates whether transaction falls within the 30-day refund window.\nImplements REQ-007 (SCEN-011, SCEN-012).",
-        "class_name": "RefundProcessor"
+        "docstring": "Validates whether transaction falls within the 30-day refund window."
       }
     },
-    "func:refund_processor.py:queue_refund_job": {
-      "id": "func:refund_processor.py:queue_refund_job",
+    "func:queue_refund_job": {
+      "id": "func:queue_refund_job",
       "label": "Function",
       "properties": {
+        "id": "func:queue_refund_job",
         "name": "queue_refund_job",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/refund_processor.py",
-        "signature": "queue_refund_job(self, order_id, amount_cents, settled_timestamp)",
+        "class_id": "class:RefundProcessor",
+        "file_path": "demo_data/code/refund_processor.py",
+        "signature": "queue_refund_job(order_id, amount_cents, settled_timestamp)",
         "line_start": 42,
         "line_end": 56,
-        "docstring": "Enqueues refund into async queue. Governed by ADR-002.",
-        "class_name": "RefundProcessor"
+        "docstring": "Enqueues refund into async queue governed by ADR-002."
       }
     },
-    "func:refund_processor.py:execute_refund": {
-      "id": "func:refund_processor.py:execute_refund",
+    "func:execute_refund": {
+      "id": "func:execute_refund",
       "label": "Function",
       "properties": {
+        "id": "func:execute_refund",
         "name": "execute_refund",
-        "file_path": "/Users/ashwin/Documents/Projects/GraphHack/demo_data/code/refund_processor.py",
-        "signature": "execute_refund(self, order_id, amount_cents, settled_timestamp)",
+        "class_id": "class:RefundProcessor",
+        "file_path": "demo_data/code/refund_processor.py",
+        "signature": "execute_refund(order_id, amount_cents, settled_timestamp)",
         "line_start": 58,
-        "line_end": 83,
-        "docstring": "Executes full refund for an order.\nValidates 30-day limit -> enqueues async job -> notifies merchant.",
-        "class_name": "RefundProcessor"
+        "line_end": 84,
+        "docstring": "Executes full refund for an order."
       }
     },
-    "BUG-342": {
-      "id": "BUG-342",
-      "label": "BugFix",
+    "func:send_webhook": {
+      "id": "func:send_webhook",
+      "label": "Function",
       "properties": {
-        "id": "BUG-342",
+        "id": "func:send_webhook",
+        "name": "send_webhook",
+        "class_id": "class:NotificationService",
+        "file_path": "demo_data/code/notification_service.py",
+        "signature": "send_webhook(event_type, payload)",
+        "line_start": 15,
+        "line_end": 28,
+        "docstring": "Dispatches signed webhook event to registered merchant endpoints."
+      }
+    },
+    "logic:luhn_and_expiry_check": {
+      "id": "logic:luhn_and_expiry_check",
+      "label": "CodeLogic",
+      "properties": {
+        "id": "logic:luhn_and_expiry_check",
+        "func_id": "func:validate_card",
+        "name": "Luhn Checksum and Expiry Arithmetic Check",
+        "logic_type": "VALIDATION",
+        "code_snippet": "if expiry_year < current_year or (expiry_year == current_year and expiry_month < current_month): return CARD_EXPIRED; checksum % 10 == 0",
+        "invariants": "Expiry year/month checked before network call"
+      }
+    },
+    "logic:retry_exponential_backoff": {
+      "id": "logic:retry_exponential_backoff",
+      "label": "CodeLogic",
+      "properties": {
+        "id": "logic:retry_exponential_backoff",
+        "func_id": "func:retry_with_backoff",
+        "name": "Exponential Backoff Loop with Fixed Ceiling of 3",
+        "logic_type": "RETRY_LOOP",
+        "code_snippet": "while attempts < self.MAX_RETRIES (3): try: return op() except: time.sleep(delay); delay *= 2.0",
+        "invariants": "MAX_RETRIES == 3, INITIAL_DELAY == 0.5s"
+      }
+    },
+    "logic:worker_concurrency_5": {
+      "id": "logic:worker_concurrency_5",
+      "label": "CodeLogic",
+      "properties": {
+        "id": "logic:worker_concurrency_5",
+        "func_id": "func:queue_refund_job",
+        "name": "Worker Queue Concurrency Throttling",
+        "logic_type": "QUEUE_CONCURRENCY",
+        "code_snippet": "job = {'concurrency_limit': self.WORKER_POOL_CONCURRENCY (5)}; self.refund_queue.append(job)",
+        "invariants": "WORKER_POOL_CONCURRENCY == 5"
+      }
+    },
+    "logic:refund_age_30_days": {
+      "id": "logic:refund_age_30_days",
+      "label": "CodeLogic",
+      "properties": {
+        "id": "logic:refund_age_30_days",
+        "func_id": "func:validate_refund_eligibility",
+        "name": "30-Day Settlement Date Boundary Validation",
+        "logic_type": "VALIDATION",
+        "code_snippet": "if (time.time() - settled_timestamp) / 86400 > 30: return REFUND_WINDOW_EXPIRED",
+        "invariants": "MAX_REFUND_AGE_DAYS == 30"
+      }
+    },
+    "code_output:auth_success_dict": {
+      "id": "code_output:auth_success_dict",
+      "label": "CodeOutput",
+      "properties": {
+        "id": "code_output:auth_success_dict",
+        "logic_id": "logic:luhn_and_expiry_check",
+        "name": "Authorization Success Response",
+        "return_type": "Dict[str, Any]",
+        "sample_payload": "{'status': 'SUCCESS', 'transaction_id': 'txn_101', 'amount_cents': 5000}"
+      }
+    },
+    "code_output:card_expired_dict": {
+      "id": "code_output:card_expired_dict",
+      "label": "CodeOutput",
+      "properties": {
+        "id": "code_output:card_expired_dict",
+        "logic_id": "logic:luhn_and_expiry_check",
+        "name": "Card Expired Error Response",
+        "return_type": "Dict[str, Any]",
+        "sample_payload": "{'status': 'REJECTED', 'error_code': 'CARD_EXPIRED', 'message': 'Card has expired'}"
+      }
+    },
+    "code_output:refund_processing_dict": {
+      "id": "code_output:refund_processing_dict",
+      "label": "CodeOutput",
+      "properties": {
+        "id": "code_output:refund_processing_dict",
+        "logic_id": "logic:worker_concurrency_5",
+        "name": "Refund Processing Acknowledgment",
+        "return_type": "Dict[str, Any]",
+        "sample_payload": "{'status': 'PROCESSING', 'refund_job_id': 'rfjob_4521_123', 'amount_refunded_cents': 2500}"
+      }
+    },
+    "issue:BUG-342": {
+      "id": "issue:BUG-342",
+      "label": "Issue",
+      "properties": {
+        "id": "issue:BUG-342",
+        "project_id": "project:payflow",
         "ticket": "BUG-342",
-        "symptom": "`REFUND_TIMEOUT`, `HTTP 504 Gateway Timeout` on `/v1/refunds` endpoint.",
-        "description": "Incident REFUND_TIMEOUT Under Load: `REFUND_TIMEOUT`, `HTTP 504 Gateway Timeout` on `/v1/refunds` endpoint.",
-        "rca": "The `RefundProcessor.WORKER_POOL_CONCURRENCY` was accidentally reduced from 5 to 2 in a hotfix PR. At concurrency 2, the async consumer queue becomes saturated whenever request volume exceeds 80 refunds/sec. Messages queue up, consumer lag reaches >120s, and API gateways drop connections with `REFUND_TIMEOUT`.",
-        "fix_summary": "1. Open `demo_data/code/refund_processor.py`.\n  2. Ensure `WORKER_POOL_CONCURRENCY` is set to `5` as specified in `ADR-002`.\n  3. Restart worker pool service.\n  4. Never set concurrency > 10 (triggers partner HTTP 429).\n\n---",
-        "approved": true,
-        "date": "2026-02-15"
+        "title": "REFUND_TIMEOUT on /v1/refunds during Black Friday peak load",
+        "symptom": "REFUND_TIMEOUT, HTTP 504 Gateway Timeout on /v1/refunds endpoint, queue consumer lag > 120s",
+        "severity": "CRITICAL",
+        "reported_at": "2026-02-15"
       }
     },
-    "proc:RB-PAY-001:BUG-342": {
-      "id": "proc:RB-PAY-001:BUG-342",
-      "label": "Runbook",
+    "issue:BUG-112": {
+      "id": "issue:BUG-112",
+      "label": "Issue",
       "properties": {
-        "id": "proc:RB-PAY-001:BUG-342",
-        "title": "Procedure for REFUND_TIMEOUT Under Load",
-        "service": "PayFlow Payment & Refund Gateway",
-        "symptom": "`REFUND_TIMEOUT`, `HTTP 504 Gateway Timeout` on `/v1/refunds` endpoint.",
-        "rca": "The `RefundProcessor.WORKER_POOL_CONCURRENCY` was accidentally reduced from 5 to 2 in a hotfix PR. At concurrency 2, the async consumer queue becomes saturated whenever request volume exceeds 80 refunds/sec. Messages queue up, consumer lag reaches >120s, and API gateways drop connections with `REFUND_TIMEOUT`.",
-        "resolution_steps": "1. Open `demo_data/code/refund_processor.py`.\n  2. Ensure `WORKER_POOL_CONCURRENCY` is set to `5` as specified in `ADR-002`.\n  3. Restart worker pool service.\n  4. Never set concurrency > 10 (triggers partner HTTP 429).\n\n---"
-      }
-    },
-    "BUG-112": {
-      "id": "BUG-112",
-      "label": "BugFix",
-      "properties": {
-        "id": "BUG-112",
+        "id": "issue:BUG-112",
+        "project_id": "project:payflow",
         "ticket": "BUG-112",
-        "symptom": "`FRAUD_SERVICE_UNAVAILABLE`, spikes in legitimate card declines.",
-        "description": "Incident CASCADE_FRAUD_CHECK_FAILURES: `FRAUD_SERVICE_UNAVAILABLE`, spikes in legitimate card declines.",
-        "rca": "A junior developer reduced `MAX_RETRIES` from 3 to 1 in `fraud_detector.py` to \"speed up checkout responses\". Because third-party credit card fraud networks experience 1-2% momentary packet drops, removing retry attempts caused 1 out of every 50 checkout requests to fail immediately.",
-        "fix_summary": "1. Refer to `ADR-001` (Fraud Risk Scoring and Mandatory Retry Ceiling).\n  2. Restore `MAX_RETRIES = 3` and `INITIAL_BACKOFF_SECONDS = 0.5`.\n  3. Run verification test suite.",
-        "approved": true,
-        "date": "2026-02-15"
+        "title": "Spike in legitimate card decline errors during network jitter",
+        "symptom": "FRAUD_SERVICE_UNAVAILABLE, sudden 2% drop in authorized transactions",
+        "severity": "HIGH",
+        "reported_at": "2026-01-04"
       }
     },
-    "proc:RB-PAY-001:BUG-112": {
-      "id": "proc:RB-PAY-001:BUG-112",
-      "label": "Runbook",
+    "issue:BUG-298": {
+      "id": "issue:BUG-298",
+      "label": "Issue",
       "properties": {
-        "id": "proc:RB-PAY-001:BUG-112",
-        "title": "Procedure for CASCADE_FRAUD_CHECK_FAILURES",
-        "service": "PayFlow Payment & Refund Gateway",
-        "symptom": "`FRAUD_SERVICE_UNAVAILABLE`, spikes in legitimate card declines.",
-        "rca": "A junior developer reduced `MAX_RETRIES` from 3 to 1 in `fraud_detector.py` to \"speed up checkout responses\". Because third-party credit card fraud networks experience 1-2% momentary packet drops, removing retry attempts caused 1 out of every 50 checkout requests to fail immediately.",
-        "resolution_steps": "1. Refer to `ADR-001` (Fraud Risk Scoring and Mandatory Retry Ceiling).\n  2. Restore `MAX_RETRIES = 3` and `INITIAL_BACKOFF_SECONDS = 0.5`.\n  3. Run verification test suite."
-      }
-    },
-    "BUG-298": {
-      "id": "BUG-298",
-      "label": "BugFix",
-      "properties": {
-        "id": "BUG-298",
+        "id": "issue:BUG-298",
+        "project_id": "project:payflow",
         "ticket": "BUG-298",
-        "symptom": "`FRAUD_SERVICE_UNAVAILABLE`, spikes in legitimate card declines.",
-        "description": "Incident CASCADE_FRAUD_CHECK_FAILURES: `FRAUD_SERVICE_UNAVAILABLE`, spikes in legitimate card declines.",
-        "rca": "A junior developer reduced `MAX_RETRIES` from 3 to 1 in `fraud_detector.py` to \"speed up checkout responses\". Because third-party credit card fraud networks experience 1-2% momentary packet drops, removing retry attempts caused 1 out of every 50 checkout requests to fail immediately.",
-        "fix_summary": "1. Refer to `ADR-001` (Fraud Risk Scoring and Mandatory Retry Ceiling).\n  2. Restore `MAX_RETRIES = 3` and `INITIAL_BACKOFF_SECONDS = 0.5`.\n  3. Run verification test suite.",
-        "approved": true,
-        "date": "2026-02-15"
+        "title": "Downstream clearing partner rate limit 429 flood",
+        "symptom": "HTTP 429 Too Many Requests from banking partner",
+        "severity": "HIGH",
+        "reported_at": "2026-01-20"
       }
     },
-    "proc:RB-PAY-001:BUG-298": {
-      "id": "proc:RB-PAY-001:BUG-298",
-      "label": "Runbook",
+    "rca:BUG-342:concurrency_reduction": {
+      "id": "rca:BUG-342:concurrency_reduction",
+      "label": "RCA",
       "properties": {
-        "id": "proc:RB-PAY-001:BUG-298",
-        "title": "Procedure for CASCADE_FRAUD_CHECK_FAILURES",
-        "service": "PayFlow Payment & Refund Gateway",
-        "symptom": "`FRAUD_SERVICE_UNAVAILABLE`, spikes in legitimate card declines.",
-        "rca": "A junior developer reduced `MAX_RETRIES` from 3 to 1 in `fraud_detector.py` to \"speed up checkout responses\". Because third-party credit card fraud networks experience 1-2% momentary packet drops, removing retry attempts caused 1 out of every 50 checkout requests to fail immediately.",
-        "resolution_steps": "1. Refer to `ADR-001` (Fraud Risk Scoring and Mandatory Retry Ceiling).\n  2. Restore `MAX_RETRIES = 3` and `INITIAL_BACKOFF_SECONDS = 0.5`.\n  3. Run verification test suite."
+        "id": "rca:BUG-342:concurrency_reduction",
+        "issue_id": "issue:BUG-342",
+        "root_cause": "RefundProcessor.WORKER_POOL_CONCURRENCY was accidentally reduced from 5 to 2 in a hotfix PR. At concurrency 2, consumer queue became saturated at >80 req/s, queue lag exceeded gateway timeout limit.",
+        "trigger_condition": "Refund request volume exceeded 80 requests/second under holiday peak load."
       }
     },
-    "commit:a1b2c3d": {
-      "id": "commit:a1b2c3d",
-      "label": "ChangeRecord",
+    "rca:BUG-112:retry_lowered_to_1": {
+      "id": "rca:BUG-112:retry_lowered_to_1",
+      "label": "RCA",
       "properties": {
+        "id": "rca:BUG-112:retry_lowered_to_1",
+        "issue_id": "issue:BUG-112",
+        "root_cause": "A junior developer reduced MAX_RETRIES from 3 to 1 in fraud_detector.py to speed up checkout responses. Removing retry attempts caused 1 out of 50 legitimate checkouts to fail on momentary packet drops.",
+        "trigger_condition": "Upstream clearing partner experienced 1-2% momentary packet loss."
+      }
+    },
+    "fix:BUG-342:restore_concurrency_5": {
+      "id": "fix:BUG-342:restore_concurrency_5",
+      "label": "Fix",
+      "properties": {
+        "id": "fix:BUG-342:restore_concurrency_5",
+        "rca_id": "rca:BUG-342:concurrency_reduction",
+        "action_taken": "Restored WORKER_POOL_CONCURRENCY to 5 in refund_processor.py as strictly mandated by ADR-002.",
+        "commit_hash": "b7c8d9e0f1",
+        "approved_by": "david.infra@payflow.internal",
+        "approval_status": "APPROVED"
+      }
+    },
+    "fix:BUG-112:restore_retries_3": {
+      "id": "fix:BUG-112:restore_retries_3",
+      "label": "Fix",
+      "properties": {
+        "id": "fix:BUG-112:restore_retries_3",
+        "rca_id": "rca:BUG-112:retry_lowered_to_1",
+        "action_taken": "Restored MAX_RETRIES = 3 and INITIAL_BACKOFF_SECONDS = 0.5 per ADR-001.",
+        "commit_hash": "f1e2d3c4b5",
+        "approved_by": "marcus.sec@payflow.internal",
+        "approval_status": "APPROVED"
+      }
+    },
+    "op_result:BUG-342:lag_cleared": {
+      "id": "op_result:BUG-342:lag_cleared",
+      "label": "OpResult",
+      "properties": {
+        "id": "op_result:BUG-342:lag_cleared",
+        "fix_id": "fix:BUG-342:restore_concurrency_5",
+        "verified_outcome": "Queue consumer lag dropped from 120s to <0.4s. 504 timeouts eliminated and 500+ refunds/sec sustained.",
+        "verified_at": "2026-02-18"
+      }
+    },
+    "op_result:BUG-112:declines_normalized": {
+      "id": "op_result:BUG-112:declines_normalized",
+      "label": "OpResult",
+      "properties": {
+        "id": "op_result:BUG-112:declines_normalized",
+        "fix_id": "fix:BUG-112:restore_retries_3",
+        "verified_outcome": "False decline rate dropped from 2.0% back to baseline <0.01% with zero impact to checkout availability.",
+        "verified_at": "2026-01-05"
+      }
+    },
+    "timeline:commit:a1b2c3d": {
+      "id": "timeline:commit:a1b2c3d",
+      "label": "ChangeTimeline",
+      "properties": {
+        "id": "timeline:commit:a1b2c3d",
+        "project_id": "project:payflow",
         "commit_hash": "a1b2c3d4e5",
         "author": "sarah.dev@payflow.internal",
+        "timestamp": "2025-10-15T09:15:00Z",
         "date": "2025-10-15",
-        "message": "feat(core): implement initial card validation & Luhn algorithm per PRD REQ-002",
-        "reason": "PRD_REQUIREMENT",
-        "reason_id": "REQ-002",
-        "file_path": "payment_service.py"
+        "what_changed": "Implemented initial card validation & Luhn checksum algorithm in payment_service.py",
+        "why_changed": "Fulfills PRD requirement REQ-002: Expiry & Luhn Card Validation",
+        "change_category": "PRD_FEATURE",
+        "diff_summary": "def validate_card(...): checksum % 10 == 0; expiry_year < current_year"
       }
     },
-    "commit:e4f5a6b": {
-      "id": "commit:e4f5a6b",
-      "label": "ChangeRecord",
+    "timeline:commit:e4f5a6b": {
+      "id": "timeline:commit:e4f5a6b",
+      "label": "ChangeTimeline",
       "properties": {
+        "id": "timeline:commit:e4f5a6b",
+        "project_id": "project:payflow",
         "commit_hash": "e4f5a6b7c8",
         "author": "alex.arch@payflow.internal",
+        "timestamp": "2025-11-22T14:30:00Z",
         "date": "2025-11-22",
-        "message": "refactor(fraud): enforce ADR-001 mandatory 3-retry ceiling with exponential backoff",
-        "reason": "ADR_ENFORCEMENT",
-        "reason_id": "ADR-001",
-        "file_path": "fraud_detector.py"
+        "what_changed": "Enforced ADR-001 mandatory 3-retry ceiling with exponential backoff in fraud_detector.py",
+        "why_changed": "Architectural mandate ADR-001 to prevent partner network jitter false declines",
+        "change_category": "ADR_ENFORCEMENT",
+        "diff_summary": "MAX_RETRIES: int = 3; while attempts < self.MAX_RETRIES: ... delay *= 2.0"
       }
     },
-    "commit:f1e2d3c": {
-      "id": "commit:f1e2d3c",
-      "label": "ChangeRecord",
+    "timeline:commit:f1e2d3c": {
+      "id": "timeline:commit:f1e2d3c",
+      "label": "ChangeTimeline",
       "properties": {
+        "id": "timeline:commit:f1e2d3c",
+        "project_id": "project:payflow",
         "commit_hash": "f1e2d3c4b5",
         "author": "marcus.sec@payflow.internal",
+        "timestamp": "2026-01-05T11:45:00Z",
         "date": "2026-01-05",
-        "message": "fix(fraud): restore MAX_RETRIES=3 to resolve BUG-112 network drop false declines",
-        "reason": "BUG_FIX",
-        "reason_id": "BUG-112",
-        "file_path": "fraud_detector.py"
+        "what_changed": "Restored MAX_RETRIES = 3 in fraud_detector.py",
+        "why_changed": "Resolves production incident BUG-112 where unauthorized reduction to 1 retry caused false card declines",
+        "change_category": "OPERATION_FIX",
+        "diff_summary": "MAX_RETRIES = 3  # Restored per ADR-001 to resolve BUG-112"
       }
     },
-    "commit:b7c8d9e": {
-      "id": "commit:b7c8d9e",
-      "label": "ChangeRecord",
+    "timeline:commit:b7c8d9e": {
+      "id": "timeline:commit:b7c8d9e",
+      "label": "ChangeTimeline",
       "properties": {
+        "id": "timeline:commit:b7c8d9e",
+        "project_id": "project:payflow",
         "commit_hash": "b7c8d9e0f1",
         "author": "david.infra@payflow.internal",
+        "timestamp": "2026-02-18T16:20:00Z",
         "date": "2026-02-18",
-        "message": "fix(refund): set worker concurrency to 5 per ADR-002 to resolve BUG-342 REFUND_TIMEOUT",
-        "reason": "BUG_FIX",
-        "reason_id": "BUG-342",
-        "file_path": "refund_processor.py"
+        "what_changed": "Restored WORKER_POOL_CONCURRENCY = 5 in refund_processor.py",
+        "why_changed": "Resolves production incident BUG-342 REFUND_TIMEOUT caused by concurrency drop violating ADR-002",
+        "change_category": "OPERATION_FIX",
+        "diff_summary": "WORKER_POOL_CONCURRENCY = 5  # Restored per ADR-002 to resolve BUG-342"
       }
     },
-    "BUG-999": {
-      "id": "BUG-999",
-      "label": "BugFix",
+    "issue:BUG-999": {
+      "id": "issue:BUG-999",
+      "label": "Issue",
       "properties": {
-        "id": "BUG-999",
+        "id": "issue:BUG-999",
+        "project_id": "project:payflow",
         "ticket": "BUG-999",
+        "title": "Incident BUG-999: Currency symbol parsing error",
         "symptom": "Currency symbol parsing error",
-        "description": "Incident BUG-999: Currency symbol parsing error",
-        "rca": "Regex failed on non-ASCII currency signs",
-        "fix_summary": "Updated regex pattern to unicode",
-        "approved": false,
-        "date": "2026-10-17"
+        "severity": "HIGH",
+        "reported_at": "2026-10-17"
       }
     },
-    "BUG-1000": {
-      "id": "BUG-1000",
-      "label": "BugFix",
+    "fix:BUG-999": {
+      "id": "fix:BUG-999",
+      "label": "Fix",
       "properties": {
-        "id": "BUG-1000",
+        "id": "fix:BUG-999",
+        "rca_id": "rca:BUG-999",
+        "action_taken": "Updated regex pattern to unicode",
+        "commit_hash": "pending",
+        "approved_by": "unapproved",
+        "approval_status": "PENDING_APPROVAL"
+      }
+    },
+    "issue:BUG-1000": {
+      "id": "issue:BUG-1000",
+      "label": "Issue",
+      "properties": {
+        "id": "issue:BUG-1000",
+        "project_id": "project:payflow",
         "ticket": "BUG-1000",
+        "title": "Incident BUG-1000: Card whitespace stripping",
         "symptom": "Card whitespace stripping",
-        "description": "Incident BUG-1000: Card whitespace stripping",
-        "rca": "Missing strip before Luhn",
-        "fix_summary": "Added strip call",
-        "approved": true,
-        "date": "2026-10-17"
+        "severity": "HIGH",
+        "reported_at": "2026-10-17"
+      }
+    },
+    "fix:BUG-1000": {
+      "id": "fix:BUG-1000",
+      "label": "Fix",
+      "properties": {
+        "id": "fix:BUG-1000",
+        "rca_id": "rca:BUG-1000",
+        "action_taken": "Added strip call",
+        "commit_hash": "approved_hash",
+        "approved_by": "lead_reviewer",
+        "approval_status": "APPROVED"
       }
     }
   },
   "edges": [
     {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "CONTAINS_REQ",
-      "to": "REQ-001",
+      "from": "project:payflow",
+      "rel": "HAS_PRD_INPUT",
+      "to": "prd_input:checkout_payload",
       "properties": {}
     },
     {
-      "from": "REQ-001",
-      "rel": "HAS_SCENARIO",
-      "to": "SCEN-001",
+      "from": "project:payflow",
+      "rel": "HAS_PRD_INPUT",
+      "to": "prd_input:refund_request",
       "properties": {}
     },
     {
-      "from": "REQ-001",
-      "rel": "HAS_SCENARIO",
-      "to": "SCEN-002",
+      "from": "prd_input:checkout_payload",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "req:REQ-001",
       "properties": {}
     },
     {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "CONTAINS_REQ",
-      "to": "REQ-002",
+      "from": "prd_input:checkout_payload",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "req:REQ-002",
       "properties": {}
     },
     {
-      "from": "REQ-002",
-      "rel": "HAS_SCENARIO",
-      "to": "SCEN-003",
+      "from": "prd_input:checkout_payload",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "req:REQ-003",
       "properties": {}
     },
     {
-      "from": "REQ-002",
-      "rel": "HAS_SCENARIO",
-      "to": "SCEN-004",
+      "from": "prd_input:checkout_payload",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "req:REQ-004",
       "properties": {}
     },
     {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "CONTAINS_REQ",
-      "to": "REQ-003",
+      "from": "prd_input:checkout_payload",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "req:REQ-005",
       "properties": {}
     },
     {
-      "from": "REQ-003",
-      "rel": "HAS_SCENARIO",
-      "to": "SCEN-005",
+      "from": "prd_input:checkout_payload",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "req:REQ-006",
       "properties": {}
     },
     {
-      "from": "REQ-003",
-      "rel": "HAS_SCENARIO",
-      "to": "SCEN-006",
+      "from": "prd_input:refund_request",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "req:REQ-007",
       "properties": {}
     },
     {
-      "from": "REQ-003",
-      "rel": "HAS_SCENARIO",
-      "to": "SCEN-007",
+      "from": "prd_input:refund_request",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "req:REQ-008",
       "properties": {}
     },
     {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "CONTAINS_REQ",
-      "to": "REQ-004",
+      "from": "prd_input:checkout_payload",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "req:REQ-010",
       "properties": {}
     },
     {
-      "from": "REQ-004",
-      "rel": "HAS_SCENARIO",
-      "to": "SCEN-008",
+      "from": "req:REQ-002",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "guardrail:card_luhn_and_expiry",
       "properties": {}
     },
     {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "CONTAINS_REQ",
-      "to": "REQ-005",
+      "from": "req:REQ-003",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "guardrail:fraud_score_ceiling_85",
       "properties": {}
     },
     {
-      "from": "REQ-005",
-      "rel": "HAS_SCENARIO",
-      "to": "SCEN-009",
+      "from": "req:REQ-007",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "guardrail:refund_30_day_limit",
       "properties": {}
     },
     {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "CONTAINS_REQ",
-      "to": "REQ-006",
+      "from": "req:REQ-005",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "guardrail:idempotency_24h_window",
       "properties": {}
     },
     {
-      "from": "REQ-006",
-      "rel": "HAS_SCENARIO",
-      "to": "SCEN-010",
+      "from": "guardrail:card_luhn_and_expiry",
+      "rel": "DEFINES_PRD_OUTPUT",
+      "to": "prd_output:payment_authorized_success",
       "properties": {}
     },
     {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "CONTAINS_REQ",
-      "to": "REQ-007",
+      "from": "guardrail:card_luhn_and_expiry",
+      "rel": "DEFINES_PRD_OUTPUT",
+      "to": "prd_output:card_expired_rejection",
       "properties": {}
     },
     {
-      "from": "REQ-007",
-      "rel": "HAS_SCENARIO",
-      "to": "SCEN-011",
+      "from": "guardrail:refund_30_day_limit",
+      "rel": "DEFINES_PRD_OUTPUT",
+      "to": "prd_output:refund_queued_processing",
       "properties": {}
     },
     {
-      "from": "REQ-007",
-      "rel": "HAS_SCENARIO",
-      "to": "SCEN-012",
+      "from": "guardrail:refund_30_day_limit",
+      "rel": "DEFINES_PRD_OUTPUT",
+      "to": "prd_output:refund_expired_rejection",
       "properties": {}
     },
     {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "CONTAINS_REQ",
-      "to": "REQ-008",
+      "from": "project:payflow",
+      "rel": "HAS_ADR_REQUIREMENT",
+      "to": "adr_req:external_network_resilience",
       "properties": {}
     },
     {
-      "from": "REQ-008",
-      "rel": "HAS_SCENARIO",
-      "to": "SCEN-013",
+      "from": "project:payflow",
+      "rel": "HAS_ADR_REQUIREMENT",
+      "to": "adr_req:peak_refund_throughput",
       "properties": {}
     },
     {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "CONTAINS_REQ",
-      "to": "REQ-009",
+      "from": "adr_req:external_network_resilience",
+      "rel": "DEFINES_ARCHITECTURE",
+      "to": "arch:resilient_retry_pipeline",
       "properties": {}
     },
     {
-      "from": "REQ-009",
-      "rel": "HAS_SCENARIO",
-      "to": "SCEN-014",
+      "from": "adr_req:peak_refund_throughput",
+      "rel": "DEFINES_ARCHITECTURE",
+      "to": "arch:async_worker_queue",
       "properties": {}
     },
     {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "CONTAINS_REQ",
-      "to": "REQ-010",
+      "from": "arch:resilient_retry_pipeline",
+      "rel": "LEADS_TO_DECISION",
+      "to": "decision:ADR-001:retry_ceiling",
       "properties": {}
     },
     {
-      "from": "REQ-010",
-      "rel": "HAS_SCENARIO",
-      "to": "SCEN-015",
+      "from": "arch:async_worker_queue",
+      "rel": "LEADS_TO_DECISION",
+      "to": "decision:ADR-002:concurrency_5",
       "properties": {}
     },
     {
-      "from": "ADR-001",
-      "rel": "DOCUMENTS_DECISION",
-      "to": "dec:ADR-001:core",
+      "from": "decision:ADR-001:retry_ceiling",
+      "rel": "YIELDS_RESULT",
+      "to": "adr_result:98_pct_drop_reduction",
       "properties": {}
     },
     {
-      "from": "ADR-002",
-      "rel": "DOCUMENTS_DECISION",
-      "to": "dec:ADR-002:core",
+      "from": "decision:ADR-002:concurrency_5",
+      "rel": "YIELDS_RESULT",
+      "to": "adr_result:thread_starvation_eliminated",
       "properties": {}
     },
     {
-      "from": "file:fraud_detector.py",
-      "rel": "CONTAINS_CLASS",
-      "to": "class:fraud_detector.py:FraudDetector",
+      "from": "project:payflow",
+      "rel": "HAS_CODE_INPUT",
+      "to": "code_input:auth_args",
       "properties": {}
     },
     {
-      "from": "file:fraud_detector.py",
-      "rel": "CONTAINS_FUNC",
-      "to": "func:fraud_detector.py:__init__",
+      "from": "project:payflow",
+      "rel": "HAS_CODE_INPUT",
+      "to": "code_input:refund_args",
       "properties": {}
     },
     {
-      "from": "class:fraud_detector.py:FraudDetector",
-      "rel": "CLASS_METHOD",
-      "to": "func:fraud_detector.py:__init__",
+      "from": "code_input:auth_args",
+      "rel": "TRIGGERS_FLOW",
+      "to": "flow:payment_authorization",
       "properties": {}
     },
     {
-      "from": "file:fraud_detector.py",
-      "rel": "CONTAINS_FUNC",
-      "to": "func:fraud_detector.py:retry_with_backoff",
+      "from": "code_input:refund_args",
+      "rel": "TRIGGERS_FLOW",
+      "to": "flow:refund_execution",
       "properties": {}
     },
     {
-      "from": "class:fraud_detector.py:FraudDetector",
-      "rel": "CLASS_METHOD",
-      "to": "func:fraud_detector.py:retry_with_backoff",
+      "from": "flow:payment_authorization",
+      "rel": "ROUTED_TO_CLASS",
+      "to": "class:PaymentService",
       "properties": {}
     },
     {
-      "from": "func:fraud_detector.py:retry_with_backoff",
+      "from": "flow:payment_authorization",
+      "rel": "ROUTED_TO_CLASS",
+      "to": "class:FraudDetector",
+      "properties": {}
+    },
+    {
+      "from": "flow:refund_execution",
+      "rel": "ROUTED_TO_CLASS",
+      "to": "class:RefundProcessor",
+      "properties": {}
+    },
+    {
+      "from": "class:PaymentService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:validate_card",
+      "properties": {}
+    },
+    {
+      "from": "class:PaymentService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:authorize_payment",
+      "properties": {}
+    },
+    {
+      "from": "class:FraudDetector",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:assess_risk",
+      "properties": {}
+    },
+    {
+      "from": "class:FraudDetector",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:retry_with_backoff",
+      "properties": {}
+    },
+    {
+      "from": "class:RefundProcessor",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:validate_refund_eligibility",
+      "properties": {}
+    },
+    {
+      "from": "class:RefundProcessor",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:queue_refund_job",
+      "properties": {}
+    },
+    {
+      "from": "class:RefundProcessor",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:execute_refund",
+      "properties": {}
+    },
+    {
+      "from": "class:NotificationService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:send_webhook",
+      "properties": {}
+    },
+    {
+      "from": "func:authorize_payment",
       "rel": "CALLS",
-      "to": "func_call_target:RuntimeError",
-      "properties": {
-        "callee_name": "RuntimeError"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:retry_with_backoff",
-      "rel": "CALLS",
-      "to": "func_call_target:operation",
-      "properties": {
-        "callee_name": "operation"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:retry_with_backoff",
-      "rel": "CALLS",
-      "to": "func_call_target:sleep",
-      "properties": {
-        "callee_name": "sleep"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:retry_with_backoff",
-      "rel": "CALLS",
-      "to": "func_call_target:RuntimeError",
-      "properties": {
-        "callee_name": "RuntimeError"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:retry_with_backoff",
-      "rel": "CALLS",
-      "to": "func_call_target:str",
-      "properties": {
-        "callee_name": "str"
-      }
-    },
-    {
-      "from": "file:fraud_detector.py",
-      "rel": "CONTAINS_FUNC",
-      "to": "func:fraud_detector.py:assess_risk",
+      "to": "func:validate_card",
       "properties": {}
     },
     {
-      "from": "class:fraud_detector.py:FraudDetector",
-      "rel": "CLASS_METHOD",
-      "to": "func:fraud_detector.py:assess_risk",
-      "properties": {}
-    },
-    {
-      "from": "func:fraud_detector.py:assess_risk",
+      "from": "func:authorize_payment",
       "rel": "CALLS",
-      "to": "func_call_target:retry_with_backoff",
-      "properties": {
-        "callee_name": "retry_with_backoff"
-      }
+      "to": "func:assess_risk",
+      "properties": {}
     },
     {
-      "from": "func:fraud_detector.py:assess_risk",
+      "from": "func:authorize_payment",
       "rel": "CALLS",
-      "to": "func_call_target:min",
-      "properties": {
-        "callee_name": "min"
-      }
+      "to": "func:send_webhook",
+      "properties": {}
     },
     {
-      "from": "func:fraud_detector.py:assess_risk",
+      "from": "func:assess_risk",
       "rel": "CALLS",
-      "to": "func_call_target:get",
-      "properties": {
-        "callee_name": "get"
-      }
+      "to": "func:retry_with_backoff",
+      "properties": {}
     },
     {
-      "from": "func:fraud_detector.py:assess_risk",
+      "from": "func:execute_refund",
       "rel": "CALLS",
-      "to": "func_call_target:get",
-      "properties": {
-        "callee_name": "get"
-      }
-    },
-    {
-      "from": "file:fraud_detector.py",
-      "rel": "CONTAINS_FUNC",
-      "to": "func:fraud_detector.py:_call_risk_engine",
+      "to": "func:validate_refund_eligibility",
       "properties": {}
     },
     {
-      "from": "class:fraud_detector.py:FraudDetector",
-      "rel": "CLASS_METHOD",
-      "to": "func:fraud_detector.py:_call_risk_engine",
-      "properties": {}
-    },
-    {
-      "from": "func:fraud_detector.py:_call_risk_engine",
+      "from": "func:execute_refund",
       "rel": "CALLS",
-      "to": "func_call_target:min",
-      "properties": {
-        "callee_name": "min"
-      }
+      "to": "func:queue_refund_job",
+      "properties": {}
     },
     {
-      "from": "func:fraud_detector.py:_call_risk_engine",
+      "from": "func:execute_refund",
       "rel": "CALLS",
-      "to": "func_call_target:get",
-      "properties": {
-        "callee_name": "get"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:_call_risk_engine",
-      "rel": "CALLS",
-      "to": "func_call_target:get",
-      "properties": {
-        "callee_name": "get"
-      }
-    },
-    {
-      "from": "file:notification_service.py",
-      "rel": "CONTAINS_CLASS",
-      "to": "class:notification_service.py:NotificationService",
+      "to": "func:send_webhook",
       "properties": {}
     },
     {
-      "from": "file:notification_service.py",
-      "rel": "CONTAINS_FUNC",
-      "to": "func:notification_service.py:__init__",
+      "from": "func:validate_card",
+      "rel": "EXECUTES_LOGIC",
+      "to": "logic:luhn_and_expiry_check",
       "properties": {}
     },
     {
-      "from": "class:notification_service.py:NotificationService",
-      "rel": "CLASS_METHOD",
-      "to": "func:notification_service.py:__init__",
+      "from": "func:retry_with_backoff",
+      "rel": "EXECUTES_LOGIC",
+      "to": "logic:retry_exponential_backoff",
       "properties": {}
     },
     {
-      "from": "file:notification_service.py",
-      "rel": "CONTAINS_FUNC",
-      "to": "func:notification_service.py:send_webhook",
+      "from": "func:queue_refund_job",
+      "rel": "EXECUTES_LOGIC",
+      "to": "logic:worker_concurrency_5",
       "properties": {}
     },
     {
-      "from": "class:notification_service.py:NotificationService",
-      "rel": "CLASS_METHOD",
-      "to": "func:notification_service.py:send_webhook",
+      "from": "func:validate_refund_eligibility",
+      "rel": "EXECUTES_LOGIC",
+      "to": "logic:refund_age_30_days",
       "properties": {}
     },
     {
-      "from": "func:notification_service.py:send_webhook",
-      "rel": "CALLS",
-      "to": "func_call_target:append",
-      "properties": {
-        "callee_name": "append"
-      }
-    },
-    {
-      "from": "file:notification_service.py",
-      "rel": "CONTAINS_FUNC",
-      "to": "func:notification_service.py:send_receipt",
+      "from": "logic:luhn_and_expiry_check",
+      "rel": "PRODUCES_CODE_OUTPUT",
+      "to": "code_output:auth_success_dict",
       "properties": {}
     },
     {
-      "from": "class:notification_service.py:NotificationService",
-      "rel": "CLASS_METHOD",
-      "to": "func:notification_service.py:send_receipt",
+      "from": "logic:luhn_and_expiry_check",
+      "rel": "PRODUCES_CODE_OUTPUT",
+      "to": "code_output:card_expired_dict",
       "properties": {}
     },
     {
-      "from": "file:payment_service.py",
-      "rel": "CONTAINS_CLASS",
-      "to": "class:payment_service.py:PaymentService",
+      "from": "logic:worker_concurrency_5",
+      "rel": "PRODUCES_CODE_OUTPUT",
+      "to": "code_output:refund_processing_dict",
       "properties": {}
     },
     {
-      "from": "file:payment_service.py",
-      "rel": "CONTAINS_FUNC",
-      "to": "func:payment_service.py:__init__",
+      "from": "project:payflow",
+      "rel": "HAS_ISSUE",
+      "to": "issue:BUG-342",
       "properties": {}
     },
     {
-      "from": "class:payment_service.py:PaymentService",
-      "rel": "CLASS_METHOD",
-      "to": "func:payment_service.py:__init__",
+      "from": "project:payflow",
+      "rel": "HAS_ISSUE",
+      "to": "issue:BUG-112",
       "properties": {}
     },
     {
-      "from": "func:payment_service.py:__init__",
-      "rel": "CALLS",
-      "to": "func_call_target:FraudDetector",
-      "properties": {
-        "callee_name": "FraudDetector"
-      }
-    },
-    {
-      "from": "func:payment_service.py:__init__",
-      "rel": "CALLS",
-      "to": "func_call_target:NotificationService",
-      "properties": {
-        "callee_name": "NotificationService"
-      }
-    },
-    {
-      "from": "file:payment_service.py",
-      "rel": "CONTAINS_FUNC",
-      "to": "func:payment_service.py:validate_card",
+      "from": "project:payflow",
+      "rel": "HAS_ISSUE",
+      "to": "issue:BUG-298",
       "properties": {}
     },
     {
-      "from": "class:payment_service.py:PaymentService",
-      "rel": "CLASS_METHOD",
-      "to": "func:payment_service.py:validate_card",
+      "from": "issue:BUG-342",
+      "rel": "ANALYZED_BY_RCA",
+      "to": "rca:BUG-342:concurrency_reduction",
       "properties": {}
     },
     {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:replace",
-      "properties": {
-        "callee_name": "replace"
-      }
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:enumerate",
-      "properties": {
-        "callee_name": "enumerate"
-      }
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:int",
-      "properties": {
-        "callee_name": "int"
-      }
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:replace",
-      "properties": {
-        "callee_name": "replace"
-      }
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:isdigit",
-      "properties": {
-        "callee_name": "isdigit"
-      }
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:len",
-      "properties": {
-        "callee_name": "len"
-      }
-    },
-    {
-      "from": "file:payment_service.py",
-      "rel": "CONTAINS_FUNC",
-      "to": "func:payment_service.py:authorize_payment",
+      "from": "issue:BUG-112",
+      "rel": "ANALYZED_BY_RCA",
+      "to": "rca:BUG-112:retry_lowered_to_1",
       "properties": {}
     },
     {
-      "from": "class:payment_service.py:PaymentService",
-      "rel": "CLASS_METHOD",
-      "to": "func:payment_service.py:authorize_payment",
+      "from": "rca:BUG-342:concurrency_reduction",
+      "rel": "RESOLVED_BY_FIX",
+      "to": "fix:BUG-342:restore_concurrency_5",
       "properties": {}
     },
     {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:validate_card",
-      "properties": {
-        "callee_name": "validate_card"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:assess_risk",
-      "properties": {
-        "callee_name": "assess_risk"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:time",
-      "properties": {
-        "callee_name": "time"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:int",
-      "properties": {
-        "callee_name": "int"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:time",
-      "properties": {
-        "callee_name": "time"
-      }
-    },
-    {
-      "from": "file:refund_processor.py",
-      "rel": "CONTAINS_CLASS",
-      "to": "class:refund_processor.py:RefundProcessor",
+      "from": "rca:BUG-112:retry_lowered_to_1",
+      "rel": "RESOLVED_BY_FIX",
+      "to": "fix:BUG-112:restore_retries_3",
       "properties": {}
     },
     {
-      "from": "file:refund_processor.py",
-      "rel": "CONTAINS_FUNC",
-      "to": "func:refund_processor.py:__init__",
+      "from": "fix:BUG-342:restore_concurrency_5",
+      "rel": "ACHIEVES_RESULT",
+      "to": "op_result:BUG-342:lag_cleared",
       "properties": {}
     },
     {
-      "from": "class:refund_processor.py:RefundProcessor",
-      "rel": "CLASS_METHOD",
-      "to": "func:refund_processor.py:__init__",
+      "from": "fix:BUG-112:restore_retries_3",
+      "rel": "ACHIEVES_RESULT",
+      "to": "op_result:BUG-112:declines_normalized",
       "properties": {}
     },
     {
-      "from": "func:refund_processor.py:__init__",
-      "rel": "CALLS",
-      "to": "func_call_target:NotificationService",
-      "properties": {
-        "callee_name": "NotificationService"
-      }
-    },
-    {
-      "from": "file:refund_processor.py",
-      "rel": "CONTAINS_FUNC",
-      "to": "func:refund_processor.py:validate_refund_eligibility",
+      "from": "project:payflow",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:a1b2c3d",
       "properties": {}
     },
     {
-      "from": "class:refund_processor.py:RefundProcessor",
-      "rel": "CLASS_METHOD",
-      "to": "func:refund_processor.py:validate_refund_eligibility",
+      "from": "project:payflow",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:e4f5a6b",
       "properties": {}
     },
     {
-      "from": "func:refund_processor.py:validate_refund_eligibility",
-      "rel": "CALLS",
-      "to": "func_call_target:time",
-      "properties": {
-        "callee_name": "time"
-      }
-    },
-    {
-      "from": "file:refund_processor.py",
-      "rel": "CONTAINS_FUNC",
-      "to": "func:refund_processor.py:queue_refund_job",
+      "from": "project:payflow",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:f1e2d3c",
       "properties": {}
     },
     {
-      "from": "class:refund_processor.py:RefundProcessor",
-      "rel": "CLASS_METHOD",
-      "to": "func:refund_processor.py:queue_refund_job",
+      "from": "project:payflow",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:b7c8d9e",
       "properties": {}
     },
     {
-      "from": "func:refund_processor.py:queue_refund_job",
-      "rel": "CALLS",
-      "to": "func_call_target:append",
-      "properties": {
-        "callee_name": "append"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:queue_refund_job",
-      "rel": "CALLS",
-      "to": "func_call_target:time",
-      "properties": {
-        "callee_name": "time"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:queue_refund_job",
-      "rel": "CALLS",
-      "to": "func_call_target:int",
-      "properties": {
-        "callee_name": "int"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:queue_refund_job",
-      "rel": "CALLS",
-      "to": "func_call_target:time",
-      "properties": {
-        "callee_name": "time"
-      }
-    },
-    {
-      "from": "file:refund_processor.py",
-      "rel": "CONTAINS_FUNC",
-      "to": "func:refund_processor.py:execute_refund",
+      "from": "timeline:commit:a1b2c3d",
+      "rel": "PRECEDED_BY",
+      "to": "timeline:commit:e4f5a6b",
       "properties": {}
     },
     {
-      "from": "class:refund_processor.py:RefundProcessor",
-      "rel": "CLASS_METHOD",
-      "to": "func:refund_processor.py:execute_refund",
+      "from": "timeline:commit:e4f5a6b",
+      "rel": "PRECEDED_BY",
+      "to": "timeline:commit:f1e2d3c",
       "properties": {}
     },
     {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func_call_target:validate_refund_eligibility",
-      "properties": {
-        "callee_name": "validate_refund_eligibility"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func_call_target:queue_refund_job",
-      "properties": {
-        "callee_name": "queue_refund_job"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func_call_target:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:assess_risk",
-      "rel": "CALLS",
-      "to": "func:fraud_detector.py:retry_with_backoff",
-      "properties": {
-        "callee_name": "retry_with_backoff"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:payment_service.py:validate_card",
-      "properties": {
-        "callee_name": "validate_card"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:fraud_detector.py:assess_risk",
-      "properties": {
-        "callee_name": "assess_risk"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:notification_service.py:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:refund_processor.py:validate_refund_eligibility",
-      "properties": {
-        "callee_name": "validate_refund_eligibility"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:refund_processor.py:queue_refund_job",
-      "properties": {
-        "callee_name": "queue_refund_job"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:notification_service.py:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "proc:RB-PAY-001:BUG-342",
-      "rel": "RESOLVES_BUG",
-      "to": "BUG-342",
+      "from": "timeline:commit:f1e2d3c",
+      "rel": "PRECEDED_BY",
+      "to": "timeline:commit:b7c8d9e",
       "properties": {}
     },
     {
-      "from": "proc:RB-PAY-001:BUG-112",
-      "rel": "RESOLVES_BUG",
-      "to": "BUG-112",
+      "from": "req:REQ-003",
+      "rel": "DRIVES_ADR_REQUIREMENT",
+      "to": "adr_req:external_network_resilience",
       "properties": {}
     },
     {
-      "from": "proc:RB-PAY-001:BUG-298",
-      "rel": "RESOLVES_BUG",
-      "to": "BUG-298",
+      "from": "req:REQ-010",
+      "rel": "DRIVES_ADR_REQUIREMENT",
+      "to": "adr_req:external_network_resilience",
       "properties": {}
     },
     {
-      "from": "REQ-001",
-      "rel": "IMPLEMENTED_BY",
-      "to": "func:payment_service.py:authorize_payment",
-      "properties": {
-        "status": "ACTIVE"
-      }
-    },
-    {
-      "from": "REQ-002",
-      "rel": "IMPLEMENTED_BY",
-      "to": "func:payment_service.py:validate_card",
-      "properties": {
-        "status": "ACTIVE"
-      }
-    },
-    {
-      "from": "REQ-003",
-      "rel": "IMPLEMENTED_BY",
-      "to": "func:fraud_detector.py:assess_risk",
-      "properties": {
-        "status": "ACTIVE"
-      }
-    },
-    {
-      "from": "REQ-005",
-      "rel": "IMPLEMENTED_BY",
-      "to": "func:payment_service.py:authorize_payment",
-      "properties": {
-        "status": "ACTIVE"
-      }
-    },
-    {
-      "from": "REQ-006",
-      "rel": "IMPLEMENTED_BY",
-      "to": "func:notification_service.py:send_webhook",
-      "properties": {
-        "status": "ACTIVE"
-      }
-    },
-    {
-      "from": "REQ-007",
-      "rel": "IMPLEMENTED_BY",
-      "to": "func:refund_processor.py:execute_refund",
-      "properties": {
-        "status": "ACTIVE"
-      }
-    },
-    {
-      "from": "REQ-007",
-      "rel": "IMPLEMENTED_BY",
-      "to": "func:refund_processor.py:validate_refund_eligibility",
-      "properties": {
-        "status": "ACTIVE"
-      }
-    },
-    {
-      "from": "REQ-009",
-      "rel": "IMPLEMENTED_BY",
-      "to": "func:notification_service.py:send_webhook",
-      "properties": {
-        "status": "ACTIVE"
-      }
-    },
-    {
-      "from": "REQ-010",
-      "rel": "IMPLEMENTED_BY",
-      "to": "func:fraud_detector.py:retry_with_backoff",
-      "properties": {
-        "status": "ACTIVE"
-      }
-    },
-    {
-      "from": "dec:ADR-001:core",
-      "rel": "AFFECTS",
-      "to": "func:fraud_detector.py:retry_with_backoff",
-      "properties": {
-        "enforced": true
-      }
-    },
-    {
-      "from": "dec:ADR-001:core",
-      "rel": "AFFECTS",
-      "to": "func:fraud_detector.py:assess_risk",
-      "properties": {
-        "enforced": true
-      }
-    },
-    {
-      "from": "dec:ADR-002:core",
-      "rel": "AFFECTS",
-      "to": "func:refund_processor.py:execute_refund",
-      "properties": {
-        "enforced": true
-      }
-    },
-    {
-      "from": "dec:ADR-002:core",
-      "rel": "AFFECTS",
-      "to": "func:refund_processor.py:queue_refund_job",
-      "properties": {
-        "enforced": true
-      }
-    },
-    {
-      "from": "ADR-001",
-      "rel": "RELATES_TO",
-      "to": "REQ-003",
+      "from": "req:REQ-007",
+      "rel": "DRIVES_ADR_REQUIREMENT",
+      "to": "adr_req:peak_refund_throughput",
       "properties": {}
     },
     {
-      "from": "ADR-001",
-      "rel": "RELATES_TO",
-      "to": "REQ-010",
+      "from": "guardrail:fraud_score_ceiling_85",
+      "rel": "JUSTIFIES_DECISION",
+      "to": "decision:ADR-001:retry_ceiling",
       "properties": {}
     },
     {
-      "from": "ADR-002",
-      "rel": "RELATES_TO",
-      "to": "REQ-007",
+      "from": "guardrail:refund_30_day_limit",
+      "rel": "JUSTIFIES_DECISION",
+      "to": "decision:ADR-002:concurrency_5",
       "properties": {}
     },
     {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CHANGED_BY",
-      "to": "commit:a1b2c3d",
-      "properties": {
-        "reason": "PRD_REQUIREMENT"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:retry_with_backoff",
-      "rel": "CHANGED_BY",
-      "to": "commit:e4f5a6b",
-      "properties": {
-        "reason": "ADR_ENFORCEMENT"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:retry_with_backoff",
-      "rel": "CHANGED_BY",
-      "to": "commit:f1e2d3c",
-      "properties": {
-        "reason": "BUG_FIX"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:queue_refund_job",
-      "rel": "CHANGED_BY",
-      "to": "commit:b7c8d9e",
-      "properties": {
-        "reason": "BUG_FIX"
-      }
-    },
-    {
-      "from": "BUG-342",
-      "rel": "FIXED_IN",
-      "to": "func:refund_processor.py:queue_refund_job",
+      "from": "prd_output:payment_authorized_success",
+      "rel": "CORRESPONDS_TO_ADR",
+      "to": "adr_result:98_pct_drop_reduction",
       "properties": {}
     },
     {
-      "from": "BUG-342",
-      "rel": "FIXED_IN",
-      "to": "func:refund_processor.py:execute_refund",
+      "from": "decision:ADR-001:retry_ceiling",
+      "rel": "CONSTRAINS_FUNCTION",
+      "to": "func:retry_with_backoff",
       "properties": {}
     },
     {
-      "from": "BUG-342",
-      "rel": "FIXED_BY",
-      "to": "commit:b7c8d9e",
+      "from": "decision:ADR-001:retry_ceiling",
+      "rel": "CONSTRAINS_FUNCTION",
+      "to": "func:assess_risk",
       "properties": {}
     },
     {
-      "from": "BUG-112",
-      "rel": "FIXED_IN",
-      "to": "func:fraud_detector.py:retry_with_backoff",
+      "from": "decision:ADR-001:retry_ceiling",
+      "rel": "ENFORCED_IN_CODE_LOGIC",
+      "to": "logic:retry_exponential_backoff",
       "properties": {}
     },
     {
-      "from": "BUG-112",
-      "rel": "FIXED_BY",
-      "to": "commit:f1e2d3c",
+      "from": "decision:ADR-002:concurrency_5",
+      "rel": "CONSTRAINS_FUNCTION",
+      "to": "func:queue_refund_job",
       "properties": {}
     },
     {
-      "from": "BUG-298",
-      "rel": "FIXED_IN",
-      "to": "func:fraud_detector.py:retry_with_backoff",
+      "from": "decision:ADR-002:concurrency_5",
+      "rel": "CONSTRAINS_FUNCTION",
+      "to": "func:execute_refund",
       "properties": {}
     },
     {
-      "from": "proc:RB-PAY-001:BUG-342",
-      "rel": "DOCUMENTS",
-      "to": "func:refund_processor.py:execute_refund",
+      "from": "decision:ADR-002:concurrency_5",
+      "rel": "ENFORCED_IN_CODE_LOGIC",
+      "to": "logic:worker_concurrency_5",
       "properties": {}
     },
     {
-      "from": "proc:RB-PAY-001:BUG-112",
-      "rel": "DOCUMENTS",
-      "to": "func:fraud_detector.py:retry_with_backoff",
+      "from": "arch:resilient_retry_pipeline",
+      "rel": "STRUCTURES_LOGIC_FLOW",
+      "to": "flow:payment_authorization",
       "properties": {}
     },
     {
-      "from": "BUG-999",
-      "rel": "FIXED_IN",
-      "to": "func:payment_service.py:validate_card",
+      "from": "arch:async_worker_queue",
+      "rel": "STRUCTURES_LOGIC_FLOW",
+      "to": "flow:refund_execution",
+      "properties": {}
+    },
+    {
+      "from": "prd_input:checkout_payload",
+      "rel": "MAPS_TO_CODE_INPUT",
+      "to": "code_input:auth_args",
+      "properties": {}
+    },
+    {
+      "from": "prd_input:refund_request",
+      "rel": "MAPS_TO_CODE_INPUT",
+      "to": "code_input:refund_args",
+      "properties": {}
+    },
+    {
+      "from": "req:REQ-001",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:authorize_payment",
+      "properties": {}
+    },
+    {
+      "from": "req:REQ-002",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:validate_card",
+      "properties": {}
+    },
+    {
+      "from": "req:REQ-003",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:assess_risk",
+      "properties": {}
+    },
+    {
+      "from": "req:REQ-005",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:authorize_payment",
+      "properties": {}
+    },
+    {
+      "from": "req:REQ-006",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:send_webhook",
+      "properties": {}
+    },
+    {
+      "from": "req:REQ-007",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:execute_refund",
+      "properties": {}
+    },
+    {
+      "from": "req:REQ-007",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:validate_refund_eligibility",
+      "properties": {}
+    },
+    {
+      "from": "req:REQ-010",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:retry_with_backoff",
+      "properties": {}
+    },
+    {
+      "from": "guardrail:card_luhn_and_expiry",
+      "rel": "VERIFIED_BY_LOGIC",
+      "to": "logic:luhn_and_expiry_check",
+      "properties": {}
+    },
+    {
+      "from": "guardrail:fraud_score_ceiling_85",
+      "rel": "VERIFIED_BY_LOGIC",
+      "to": "logic:retry_exponential_backoff",
+      "properties": {}
+    },
+    {
+      "from": "guardrail:refund_30_day_limit",
+      "rel": "VERIFIED_BY_LOGIC",
+      "to": "logic:refund_age_30_days",
+      "properties": {}
+    },
+    {
+      "from": "prd_output:payment_authorized_success",
+      "rel": "EXPECTS_CODE_OUTPUT",
+      "to": "code_output:auth_success_dict",
+      "properties": {}
+    },
+    {
+      "from": "prd_output:card_expired_rejection",
+      "rel": "EXPECTS_CODE_OUTPUT",
+      "to": "code_output:card_expired_dict",
+      "properties": {}
+    },
+    {
+      "from": "prd_output:refund_queued_processing",
+      "rel": "EXPECTS_CODE_OUTPUT",
+      "to": "code_output:refund_processing_dict",
+      "properties": {}
+    },
+    {
+      "from": "issue:BUG-342",
+      "rel": "MANIFESTED_IN_FUNCTION",
+      "to": "func:queue_refund_job",
+      "properties": {}
+    },
+    {
+      "from": "issue:BUG-342",
+      "rel": "VIOLATED_DECISION",
+      "to": "decision:ADR-002:concurrency_5",
+      "properties": {}
+    },
+    {
+      "from": "issue:BUG-342",
+      "rel": "IMPACTED_REQUIREMENT",
+      "to": "req:REQ-007",
+      "properties": {}
+    },
+    {
+      "from": "fix:BUG-342:restore_concurrency_5",
+      "rel": "FIXES_FUNCTION",
+      "to": "func:queue_refund_job",
+      "properties": {}
+    },
+    {
+      "from": "fix:BUG-342:restore_concurrency_5",
+      "rel": "MODIFIES_CODE_LOGIC",
+      "to": "logic:worker_concurrency_5",
+      "properties": {}
+    },
+    {
+      "from": "fix:BUG-342:restore_concurrency_5",
+      "rel": "RESTORES_DECISION",
+      "to": "decision:ADR-002:concurrency_5",
+      "properties": {}
+    },
+    {
+      "from": "issue:BUG-112",
+      "rel": "MANIFESTED_IN_FUNCTION",
+      "to": "func:retry_with_backoff",
+      "properties": {}
+    },
+    {
+      "from": "issue:BUG-112",
+      "rel": "VIOLATED_DECISION",
+      "to": "decision:ADR-001:retry_ceiling",
+      "properties": {}
+    },
+    {
+      "from": "issue:BUG-112",
+      "rel": "IMPACTED_REQUIREMENT",
+      "to": "req:REQ-003",
+      "properties": {}
+    },
+    {
+      "from": "fix:BUG-112:restore_retries_3",
+      "rel": "FIXES_FUNCTION",
+      "to": "func:retry_with_backoff",
+      "properties": {}
+    },
+    {
+      "from": "fix:BUG-112:restore_retries_3",
+      "rel": "MODIFIES_CODE_LOGIC",
+      "to": "logic:retry_exponential_backoff",
+      "properties": {}
+    },
+    {
+      "from": "fix:BUG-112:restore_retries_3",
+      "rel": "RESTORES_DECISION",
+      "to": "decision:ADR-001:retry_ceiling",
+      "properties": {}
+    },
+    {
+      "from": "timeline:commit:a1b2c3d",
+      "rel": "CHANGED_NODE",
+      "to": "logic:luhn_and_expiry_check",
+      "properties": {}
+    },
+    {
+      "from": "timeline:commit:a1b2c3d",
+      "rel": "MOTIVATED_BY_PRD",
+      "to": "req:REQ-002",
+      "properties": {}
+    },
+    {
+      "from": "timeline:commit:e4f5a6b",
+      "rel": "CHANGED_NODE",
+      "to": "logic:retry_exponential_backoff",
+      "properties": {}
+    },
+    {
+      "from": "timeline:commit:e4f5a6b",
+      "rel": "MOTIVATED_BY_ADR",
+      "to": "decision:ADR-001:retry_ceiling",
+      "properties": {}
+    },
+    {
+      "from": "timeline:commit:f1e2d3c",
+      "rel": "CHANGED_NODE",
+      "to": "logic:retry_exponential_backoff",
+      "properties": {}
+    },
+    {
+      "from": "timeline:commit:f1e2d3c",
+      "rel": "MOTIVATED_BY_FIX",
+      "to": "fix:BUG-112:restore_retries_3",
+      "properties": {}
+    },
+    {
+      "from": "timeline:commit:b7c8d9e",
+      "rel": "CHANGED_NODE",
+      "to": "logic:worker_concurrency_5",
+      "properties": {}
+    },
+    {
+      "from": "timeline:commit:b7c8d9e",
+      "rel": "MOTIVATED_BY_FIX",
+      "to": "fix:BUG-342:restore_concurrency_5",
+      "properties": {}
+    },
+    {
+      "from": "project:payflow",
+      "rel": "HAS_ISSUE",
+      "to": "issue:BUG-999",
+      "properties": {}
+    },
+    {
+      "from": "issue:BUG-999",
+      "rel": "MANIFESTED_IN_FUNCTION",
+      "to": "func:validate_card",
+      "properties": {}
+    },
+    {
+      "from": "fix:BUG-999",
+      "rel": "FIXES_FUNCTION",
+      "to": "func:validate_card",
       "properties": {
         "approval_status": "PENDING_APPROVAL"
       }
     },
     {
-      "from": "BUG-1000",
-      "rel": "FIXED_IN",
-      "to": "func:payment_service.py:validate_card",
+      "from": "project:payflow",
+      "rel": "HAS_ISSUE",
+      "to": "issue:BUG-1000",
+      "properties": {}
+    },
+    {
+      "from": "issue:BUG-1000",
+      "rel": "MANIFESTED_IN_FUNCTION",
+      "to": "func:validate_card",
+      "properties": {}
+    },
+    {
+      "from": "fix:BUG-1000",
+      "rel": "FIXES_FUNCTION",
+      "to": "func:validate_card",
       "properties": {
         "approval_status": "APPROVED"
       }

@@ -6,7 +6,7 @@ Includes an explicit human approval workflow for recording new BugFixes and Root
 
 from typing import Dict, Any, Optional
 from ..db import db
-from ..schema import BugFixNode, Relationships, ExplainableResult
+from ..schema import IssueNode, FixNode, Relationships, ExplainableResult
 from ..ingest.code_parser import CodebaseParser
 from ..ingest.prd_parser import PRDParser
 from ..ingest.adr_parser import ADRParser
@@ -60,41 +60,55 @@ def record_bugfix(
     date: str = "2026-10-17"
 ) -> Dict[str, Any]:
     """
-    Records a resolved production bug, RCA, and verified fix into the knowledge graph.
-    Enforces the mandatory approval workflow: unapproved bug fixes are flagged as PROPOSED and do not mutate active constraints.
+    Records a resolved production bug, RCA, and verified fix into the Operations chain of the knowledge graph.
+    Enforces the mandatory approval workflow: unapproved bug fixes are flagged as PENDING_APPROVAL.
     """
     status = "APPROVED" if approved_by_lead else "PENDING_APPROVAL"
+    clean_func = affected_function_name.replace("func:", "")
+    issue_id = f"issue:{ticket_id}"
+    fix_id = f"fix:{ticket_id}"
 
-    bug_node = BugFixNode(
-        id=ticket_id,
+    # Create Issue
+    issue_node = IssueNode(
+        id=issue_id,
+        project_id="project:payflow",
         ticket=ticket_id,
+        title=f"Incident {ticket_id}: {symptom}",
         symptom=symptom,
-        description=f"Incident {ticket_id}: {symptom}",
-        rca=rca,
-        fix_summary=fix_summary,
-        approved=approved_by_lead,
-        date=date
+        severity="HIGH",
+        reported_at=date
     )
-    db.create_node(ticket_id, "BugFix", bug_node.model_dump())
+    db.create_node(issue_id, "Issue", issue_node.model_dump())
+    db.create_edge("project:payflow", Relationships.HAS_ISSUE, issue_id)
 
-    # Find affected function
-    target_fn_id = None
-    for nid, node in db.memory_graph.nodes.items():
-        if node["label"] == "Function" and node["properties"].get("name") == affected_function_name:
-            target_fn_id = nid
-            break
+    # Create Fix
+    fix_node = FixNode(
+        id=fix_id,
+        rca_id=f"rca:{ticket_id}",
+        action_taken=fix_summary,
+        commit_hash="pending" if not approved_by_lead else "approved_hash",
+        approved_by="lead_reviewer" if approved_by_lead else "unapproved",
+        approval_status=status
+    )
+    db.create_node(fix_id, "Fix", fix_node.model_dump())
 
-    if target_fn_id:
-        db.create_edge(ticket_id, Relationships.FIXED_IN, target_fn_id, {"approval_status": status})
+    # Link to affected function
+    target_fn_id = f"func:{clean_func}"
+    if target_fn_id in db.memory_graph.nodes:
+        db.create_edge(issue_id, Relationships.MANIFESTED_IN_FUNCTION, target_fn_id)
+        db.create_edge(fix_id, Relationships.FIXES_FUNCTION, target_fn_id, {"approval_status": status})
 
     db.flush()
 
     cypher = f"""
-    MERGE (b:BugFix {{id: '{ticket_id}'}})
-    SET b.symptom = '{symptom}', b.rca = '{rca}', b.approved = {str(approved_by_lead).lower()}
-    WITH b
-    MATCH (f:Function {{name: '{affected_function_name}'}})
-    MERGE (b)-[:FIXED_IN {{status: '{status}'}}]->(f)
+    MERGE (i:Issue {{id: '{issue_id}'}})
+    SET i.symptom = '{symptom}', i.approved = {str(approved_by_lead).lower()}
+    MERGE (fx:Fix {{id: '{fix_id}'}})
+    SET fx.action_taken = '{fix_summary}', fx.approval_status = '{status}'
+    WITH i, fx
+    MATCH (f:Function {{name: '{clean_func}'}})
+    MERGE (i)-[:MANIFESTED_IN_FUNCTION]->(f)
+    MERGE (fx)-[:FIXES_FUNCTION {{status: '{status}'}}]->(f)
     """
 
     return ExplainableResult(
@@ -102,11 +116,11 @@ def record_bugfix(
             "ticket_id": ticket_id,
             "status": status,
             "approved": approved_by_lead,
-            "affected_function": affected_function_name,
-            "message": "BugFix and RCA successfully registered in knowledge graph."
+            "affected_function": clean_func,
+            "message": "BugFix and RCA successfully registered in knowledge graph Operations chain."
             if approved_by_lead else "BugFix recorded under PENDING_APPROVAL. Architectural lead review required before permanent indexing."
         },
         cypher_query=cypher.strip(),
         traversal_path=[],
-        explanation="Graph mutation: BugFix node creation linked to Function via FIXED_IN edge with approval gate."
+        explanation="Graph mutation: Issue and Fix node creation linked to Function via MANIFESTED_IN_FUNCTION and FIXES_FUNCTION."
     ).model_dump()
