@@ -598,5 +598,23 @@ Foundational architectural decisions for every component of CodeGraph are formal
 | [**ADR-005**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/005-deterministic-ast-and-document-ingestion.md) | Deterministic AST and Markdown Ingestion Pipeline | Ingestion Pipeline (`codegraph/ingest/`) | `ACCEPTED` |
 | [**ADR-006**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/006-human-in-the-loop-approval-workflow.md) | Human-in-the-Loop Quality Approval Gate | Operational Mutations (`codegraph/tools/ingest_tools.py`) | `ACCEPTED` |
 | [**ADR-007**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/007-dual-transport-deployment-strategy.md) | Dual-Transport Deployment Strategy (Stdio vs HTTP) | Transport Layer (`codegraph/config.py`) | `ACCEPTED` |
+| [**ADR-008**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/008-comprehensive-verification-and-test-strategy.md) | Comprehensive Verification & Test Strategy | Quality & Test Suite (`tests/`) | `ACCEPTED` |
+
+---
+
+## 14. Verification & Testing Matrix
+
+The platform is backed by a 48-test automated pytest suite providing 100% deterministic local verification in <0.5 seconds:
+
+| Test Module | Coverage & Verification Scope | Test Count |
+|---|---|---|
+| [`tests/test_db_engine.py`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/test_db_engine.py) | Dual-driver CRUD, neighbor traversal, persistence fallback | 3 |
+| [`tests/test_parsers.py`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/test_parsers.py) | Python AST parser, PRD parser, ADR parser, runbook parser | 7 |
+| [`tests/test_product_tools.py`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/test_product_tools.py) | PRD compliance %, plain-English scenario simulation, change history | 6 |
+| [`tests/test_developer_tools.py`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/test_developer_tools.py) | RCA diagnostics, safe-to-change checks, 4-pillar lineage, PR diff audits | 10 |
+| [`tests/test_shared_and_ingest.py`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/test_shared_and_ingest.py) | Full-text search, N-hop neighborhood expansion, approval workflow | 11 |
+| [`tests/test_mcp_server.py`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/test_mcp_server.py) | Async MCP 2.x server, 17 tools registry, persona prompts | 7 |
+| [`tests/test_cli.py`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/test_cli.py) | Click CLI commands (`status`, `demo`, `seed`, `help`) | 4 |
+
 
 

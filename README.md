@@ -265,19 +265,28 @@ In customer environments, clients simply point their MCP config to the URL:
 
 ## 🧪 Running Automated Tests
 
-Run the full pytest suite:
+Run the full 48-test pytest suite:
 
 ```bash
-pytest -v
-# 13 passed in 0.54s
+uv run pytest -v
+# 48 passed in 0.39s
 ```
+
+The modular test suite in [`tests/`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/) provides comprehensive test coverage:
+* `test_db_engine.py`: Graph database engine, CRUD, neighbor traversal, and fallback storage
+* `test_parsers.py`: Deterministic AST parser, PRD markdown parser, ADR parser, runbook parser
+* `test_product_tools.py`: PRD compliance metrics, plain-English scenario simulation, change timeline
+* `test_developer_tools.py`: Incident diagnostics, safe-to-change checks, 4-pillar lineage, PR diff audits
+* `test_shared_and_ingest.py`: Full-text search, N-hop neighborhood expansion, and human approval workflow
+* `test_mcp_server.py`: Async MCP 2.x server initialization, 17 tools registry, persona prompts
+* `test_cli.py`: Click CLI commands (`status`, `demo`, `seed`, `help`)
 
 ---
 
 ## 🏆 Hackathon Track Criteria Alignment
 
 - **Multi-hop reasoning:** `simulate_scenario` and `get_related_entities` traverse chains: `Scenario -> Requirement -> Function -> Calls -> Decisions`.
-- **Graph queries as agent tools:** All 15 tools generate and execute OpenCypher queries against FalkorDB.
+- **Graph queries as agent tools:** All 17 tools generate and execute OpenCypher queries against FalkorDB.
 - **Tool selection through MCP:** Standardized MCP 2.x protocol allows seamless tool discovery and invocation by any agent client.
 - **Actions based on graph shows:** Produces concrete safety verdicts (`SAFE` vs `UNSAFE`), RCAs with line numbers, and PR merge gating (`REQUEST_CHANGES` vs `APPROVE`).
 - **Explainable results:** Every tool response includes `cypher_query` and `traversal_path` demonstrating exact data lineage.
@@ -295,4 +304,5 @@ Foundational architectural decisions for every CodeGraph component are documente
 * [**ADR-005:** Deterministic AST and Markdown Ingestion Pipeline](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/005-deterministic-ast-and-document-ingestion.md)
 * [**ADR-006:** Human-in-the-Loop Quality Approval Gate for Operations](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/006-human-in-the-loop-approval-workflow.md)
 * [**ADR-007:** Dual-Transport Deployment Strategy (Stdio vs Streamable-HTTP)](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/007-dual-transport-deployment-strategy.md)
+* [**ADR-008:** Comprehensive Verification & Test Strategy](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/008-comprehensive-verification-and-test-strategy.md)
 

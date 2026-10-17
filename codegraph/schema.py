@@ -133,6 +133,7 @@ class FunctionNode(BaseModel):
     id: str  # e.g. "func:validate_card"
     name: str
     class_id: Optional[str] = None
+    class_name: Optional[str] = None
     file_path: str
     signature: str
     line_start: int
@@ -216,12 +217,12 @@ class ArchitectureNode(BaseModel):
 
 class DecisionNode(BaseModel):
     id: str  # e.g. "decision:ADR-001:retry_ceiling"
-    arch_id: str
+    arch_id: str = "arch:default"
     adr_id: str  # e.g. "ADR-001"
-    title: str
+    title: str = "Architectural Decision"
     statement: str
     rationale: str
-    invariants: str
+    invariants: str = ""
 
 
 class ADRResultNode(BaseModel):
@@ -349,6 +350,18 @@ class Relationships:
     MOTIVATED_BY_ADR = "MOTIVATED_BY_ADR"             # (ChangeTimeline) -> (Decision)
     MOTIVATED_BY_FIX = "MOTIVATED_BY_FIX"             # (ChangeTimeline) -> (Fix)
     PRECEDED_BY = "PRECEDED_BY"                       # (ChangeTimeline) -> (ChangeTimeline)
+
+    # --- Compatibility & Convenience Aliases ---
+    CONTAINS_CLASS = "ROUTED_TO_CLASS"
+    CONTAINS_FUNC = "CONTAINS_FUNCTION"
+    CLASS_METHOD = "CONTAINS_FUNCTION"
+    CONTAINS_REQ = "SPECIFIES_REQUIREMENT"
+    HAS_SCENARIO = "ENFORCES_GUARDRAIL"
+    DOCUMENTS_DECISION = "LEADS_TO_DECISION"
+    RESOLVES_BUG = "RESOLVED_BY_FIX"
+    CHANGED_BY = "CHANGED_NODE"
+    IMPLEMENTS_PRD = "IMPLEMENTED_BY_FUNCTION"
+    VALIDATES_SCENARIO = "VERIFIED_BY_LOGIC"
 
 
 # -------------------------------------------------------------

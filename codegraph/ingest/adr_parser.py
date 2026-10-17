@@ -54,10 +54,12 @@ class ADRParser:
         dec_id = f"dec:{adr_id}:core"
         dec_node = DecisionNode(
             id=dec_id,
+            arch_id=f"arch:{adr_id}",
             adr_id=adr_id,
+            title=f"Decision for {title}",
             statement=decision,
             rationale=context,
-            rule_type="ARCHITECTURAL_CONSTRAINT"
+            invariants=consequences
         )
         db.create_node(dec_id, "Decision", dec_node.model_dump())
         db.create_edge(adr_id, Relationships.DOCUMENTS_DECISION, dec_id)

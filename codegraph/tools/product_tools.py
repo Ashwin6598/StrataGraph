@@ -129,16 +129,16 @@ def simulate_scenario(scenario_query: str) -> Dict[str, Any]:
             rule = props.get("rule_statement", "").lower()
             v_code = props.get("violation_code", "").lower()
 
+            stopwords = {"with", "from", "user", "payment", "when", "that", "this", "have", "been", "card", "test", "into", "after", "then", "than", "more", "less", "over", "under", "code", "must", "should", "will", "the", "and", "for"}
             score = 0
             if query_lower in title or query_lower in rule:
                 score += 100
             for k in query_lower.split():
-                if len(k) > 2:
+                if len(k) > 2 and k not in stopwords:
                     if k in title or k in rule or k in v_code:
-                        weight = 10 if k not in ("card", "with", "from", "user") else 1
-                        score += weight
+                        score += 10
 
-            if score > 0:
+            if score >= 10:
                 req_id = props.get("req_id")
                 req_node = db.memory_graph.nodes.get(req_id, {})
                 req_props = req_node.get("properties", {})

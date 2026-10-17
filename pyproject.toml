@@ -25,3 +25,12 @@ dev = [
 
 [project.scripts]
 codegraph = "codegraph.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["codegraph*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+

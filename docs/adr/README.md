@@ -15,6 +15,7 @@ This directory documents all foundational architectural decisions made for the *
 | [**ADR-005**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/005-deterministic-ast-and-document-ingestion.md) | Deterministic AST and Markdown Ingestion Pipeline | Ingestion Pipeline (`codegraph/ingest/`) | `ACCEPTED` | 2026-10-17 |
 | [**ADR-006**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/006-human-in-the-loop-approval-workflow.md) | Human-in-the-Loop Quality Approval Gate for Operations | Operational Mutations (`codegraph/tools/ingest_tools.py`) | `ACCEPTED` | 2026-10-17 |
 | [**ADR-007**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/007-dual-transport-deployment-strategy.md) | Dual-Transport Deployment Strategy (Stdio vs HTTP) | Transport & Deployment Layer (`codegraph/config.py`) | `ACCEPTED` | 2026-10-17 |
+| [**ADR-008**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/008-comprehensive-verification-and-test-strategy.md) | Comprehensive Verification & Test Strategy | Quality & Test Suite (`tests/`) | `ACCEPTED` | 2026-10-17 |
 
 ---
 

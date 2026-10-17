@@ -48,6 +48,7 @@ class CodebaseParser:
                 class_id = f"class:{path_obj.name}:{node.name}"
                 doc = ast.get_docstring(node)
                 class_node = ClassNode(
+                    id=class_id,
                     name=node.name,
                     file_path=file_path,
                     line_start=node.lineno,
@@ -75,13 +76,15 @@ class CodebaseParser:
                 sig = f"{node.name}({', '.join(args)})"
 
                 func_node = FunctionNode(
+                    id=func_id,
                     name=node.name,
                     file_path=file_path,
                     signature=sig,
                     line_start=node.lineno,
                     line_end=node.end_lineno or node.lineno,
                     docstring=doc,
-                    class_name=v_self.current_class
+                    class_name=v_self.current_class,
+                    class_id=f"class:{path_obj.name}:{v_self.current_class}" if v_self.current_class else None
                 )
                 db.create_node(
                     node_id=func_id,

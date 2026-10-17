@@ -374,15 +374,18 @@ def cross_org_bug_check(symptom_pattern: str) -> Dict[str, Any]:
         if node["label"] == "Issue":
             props = node["properties"]
             rca_text = ""
+            trigger_text = ""
             for edge in db.memory_graph.edges:
                 if edge["from"] == nid and edge["rel"] == Relationships.ANALYZED_BY_RCA:
                     rca_node = db.memory_graph.nodes.get(edge["to"], {})
                     rca_text = rca_node.get("properties", {}).get("root_cause", "")
+                    trigger_text = rca_node.get("properties", {}).get("trigger_condition", "")
 
             if (pattern_lower in props.get("symptom", "").lower() or 
                 pattern_lower in props.get("title", "").lower() or 
-                pattern_lower in rca_text.lower()):
-                matches.append({**props, "rca": rca_text})
+                pattern_lower in rca_text.lower() or
+                pattern_lower in trigger_text.lower()):
+                matches.append({**props, "rca": rca_text, "trigger_condition": trigger_text})
 
     return ExplainableResult(
         result={
