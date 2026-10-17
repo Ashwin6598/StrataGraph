@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codegraph"
+version = "0.1.0"
+description = "Connected Knowledge Graph for Code, PRD, and ADR with Multi-Persona MCP Agents"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "falkordb>=1.8.0",
+    "mcp>=2.3.0",
+    "pydantic>=2.10.0",
+    "python-dotenv>=1.0.0",
+    "uvicorn>=0.30.0",
+    "starlette>=0.38.0",
+    "click>=8.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[project.scripts]
+codegraph = "codegraph.__main__:main"

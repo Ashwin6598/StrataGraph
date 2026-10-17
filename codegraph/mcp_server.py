@@ -1,0 +1,268 @@
+"""
+CodeGraph Model Context Protocol (MCP) Server.
+Exposes graph reasoning, PRD verification, and engineering safety tools to AI agents.
+Supports both stdio (for local Claude/Antigravity/Cursor) and streamable-http/sse (for cloud/production microservices).
+"""
+
+import sys
+import logging
+from typing import Dict, Any, List, Optional
+from mcp.server.mcpserver import MCPServer
+from .config import settings
+from .db import db
+from .tools.product_tools import (
+    query_prd_coverage as _query_prd_coverage,
+    simulate_scenario as _simulate_scenario,
+    get_change_history as _get_change_history,
+    list_uncovered_requirements as _list_uncovered_requirements,
+)
+from .tools.developer_tools import (
+    debug_issue as _debug_issue,
+    check_safe_to_change as _check_safe_to_change,
+    get_function_lineage as _get_function_lineage,
+    review_pr_diff as _review_pr_diff,
+    cross_org_bug_check as _cross_org_bug_check,
+)
+from .tools.shared_tools import (
+    search_graph as _search_graph,
+    get_related_entities as _get_related_entities,
+    explain_traversal as _explain_traversal,
+)
+from .tools.ingest_tools import (
+    ingest_codebase as _ingest_codebase,
+    ingest_prd as _ingest_prd,
+    ingest_adr as _ingest_adr,
+    ingest_runbook as _ingest_runbook,
+    record_bugfix as _record_bugfix,
+)
+
+logger = logging.getLogger("codegraph.mcp")
+
+# Initialize MCP Server
+server = MCPServer(
+    name="codegraph",
+    instructions=(
+        "CodeGraph MCP Server: Connected Knowledge Graph bridging Code AST, PRDs, and ADRs. "
+        "Use Product Tools (query_prd_coverage, simulate_scenario, get_change_history, list_uncovered_requirements) "
+        "for business/product queries. "
+        "Use Developer Tools (debug_issue, check_safe_to_change, get_function_lineage, review_pr_diff, cross_org_bug_check) "
+        "for engineering diagnostics and safety checks. "
+        "Every tool returns explainable results with the underlying Cypher query and graph traversal path."
+    )
+)
+
+
+# =========================================================================
+# Product Persona Tools
+# =========================================================================
+
+@server.tool(
+    name="query_prd_coverage",
+    description="Calculate PRD requirement coverage across the codebase. Returns percentage implemented, active functions, and missing requirements in plain English."
+)
+def query_prd_coverage(prd_id: Optional[str] = None) -> Dict[str, Any]:
+    return _query_prd_coverage(prd_id=prd_id)
+
+
+@server.tool(
+    name="simulate_scenario",
+    description="Simulate how the system behaves for a business scenario (e.g. 'expired card', 'refund after 30 days') using multi-hop graph traversal. Explains in plain English without raw code."
+)
+def simulate_scenario(scenario_query: str) -> Dict[str, Any]:
+    return _simulate_scenario(scenario_query=scenario_query)
+
+
+@server.tool(
+    name="get_change_history",
+    description="Retrieve the chronological timeline of changes with explicit reasons (PRD requirement, bug fix, or ADR architecture decision). Ideal for understanding WHAT changed and WHY."
+)
+def get_change_history(from_date: Optional[str] = None, keyword: Optional[str] = None) -> Dict[str, Any]:
+    return _get_change_history(from_date=from_date, keyword=keyword)
+
+
+@server.tool(
+    name="list_uncovered_requirements",
+    description="List all PRD business requirements that currently have zero implementing code functions in the graph. Useful for gap analysis."
+)
+def list_uncovered_requirements() -> Dict[str, Any]:
+    return _list_uncovered_requirements()
+
+
+# =========================================================================
+# Developer Persona Tools
+# =========================================================================
+
+@server.tool(
+    name="debug_issue",
+    description="Diagnose a production error or stack trace (e.g. 'REFUND_TIMEOUT'). Matches past BugFixes and Runbooks, providing Root Cause Analysis (RCA), affected files/lines, and verified fix steps."
+)
+def debug_issue(error_logs: str) -> Dict[str, Any]:
+    return _debug_issue(error_logs=error_logs)
+
+
+@server.tool(
+    name="check_safe_to_change",
+    description="Audit whether modifying a function is safe. Cross-references governing ADR architectural constraints, past regression bugs, and PRD dependencies."
+)
+def check_safe_to_change(function_name: str, proposed_change: Optional[str] = None) -> Dict[str, Any]:
+    return _check_safe_to_change(function_name=function_name, proposed_change=proposed_change)
+
+
+@server.tool(
+    name="get_function_lineage",
+    description="Retrieve full history and lineage of a function: why it was built, which PRD requirements it serves, which ADRs govern it, and all past commits and bug fixes."
+)
+def get_function_lineage(function_name: str) -> Dict[str, Any]:
+    return _get_function_lineage(function_name=function_name)
+
+
+@server.tool(
+    name="review_pr_diff",
+    description="Audit a list of modified functions in a PR. Flags any touched functions that violate architectural decisions or have known historical regression bug patterns."
+)
+def review_pr_diff(modified_functions: List[str], diff_summary: Optional[str] = None) -> Dict[str, Any]:
+    return _review_pr_diff(modified_functions=modified_functions, diff_summary=diff_summary)
+
+
+@server.tool(
+    name="cross_org_bug_check",
+    description="Search past bug fixes and RCAs across services in the organization by symptom or keyword pattern."
+)
+def cross_org_bug_check(symptom_pattern: str) -> Dict[str, Any]:
+    return _cross_org_bug_check(symptom_pattern=symptom_pattern)
+
+
+# =========================================================================
+# Shared Exploration Tools
+# =========================================================================
+
+@server.tool(
+    name="search_graph",
+    description="Full-text search across all nodes in the knowledge graph (PRDs, Requirements, Code, ADRs, BugFixes, Runbooks)."
+)
+def search_graph(query: str, entity_type: Optional[str] = None, limit: int = 15) -> Dict[str, Any]:
+    return _search_graph(query=query, entity_type=entity_type, limit=limit)
+
+
+@server.tool(
+    name="get_related_entities",
+    description="Explore the graph neighborhood up to N hops from any node ID to discover connected business and code entities."
+)
+def get_related_entities(node_id: str, hops: int = 2) -> Dict[str, Any]:
+    return _get_related_entities(node_id=node_id, hops=hops)
+
+
+@server.tool(
+    name="explain_traversal",
+    description="Visualizes a list of traversal steps as an ASCII diagram to explain how an answer was derived from connected graph nodes."
+)
+def explain_traversal(steps: List[Dict[str, Any]]) -> str:
+    return _explain_traversal(steps=steps)
+
+
+# =========================================================================
+# Ingestion Tools (Live Graph Updates)
+# =========================================================================
+
+@server.tool(
+    name="ingest_codebase",
+    description="Ingest source code files from a directory into AST graph nodes (Files, Classes, Functions, and Call edges)."
+)
+def ingest_codebase(directory_path: str) -> Dict[str, Any]:
+    return _ingest_codebase(directory_path=directory_path)
+
+
+@server.tool(
+    name="ingest_prd",
+    description="Ingest a PRD markdown document into PRD, Requirement, and Scenario graph nodes."
+)
+def ingest_prd(file_path: str) -> Dict[str, Any]:
+    return _ingest_prd(file_path=file_path)
+
+
+@server.tool(
+    name="ingest_adr",
+    description="Ingest an Architecture Decision Record markdown file into ADR, Decision, and Constraint nodes."
+)
+def ingest_adr(file_path: str) -> Dict[str, Any]:
+    return _ingest_adr(file_path=file_path)
+
+
+@server.tool(
+    name="ingest_runbook",
+    description="Ingest an operational runbook markdown file into Runbooks, BugFixes, and verified recovery procedures."
+)
+def ingest_runbook(file_path: str) -> Dict[str, Any]:
+    return _ingest_runbook(file_path=file_path)
+
+
+@server.tool(
+    name="record_bugfix",
+    description="Record a resolved production bug, RCA, and fix into the graph. Has a mandatory human lead approval flag."
+)
+def record_bugfix(
+    ticket_id: str,
+    symptom: str,
+    rca: str,
+    fix_summary: str,
+    affected_function_name: str,
+    approved_by_lead: bool = False,
+    date: str = "2026-10-17"
+) -> Dict[str, Any]:
+    return _record_bugfix(
+        ticket_id=ticket_id,
+        symptom=symptom,
+        rca=rca,
+        fix_summary=fix_summary,
+        affected_function_name=affected_function_name,
+        approved_by_lead=approved_by_lead,
+        date=date
+    )
+
+
+# =========================================================================
+# Predefined Agent Prompts
+# =========================================================================
+
+@server.prompt(name="product_advisor", description="Persona for Product Managers: Plain English, no code snippets")
+def product_advisor_prompt() -> str:
+    return (
+        "You are CodeGraph Product Advisor, an expert assistant for Product Managers. "
+        "Your role is to verify PRD compliance, simulate business scenarios, and explain changes. "
+        "RULES: "
+        "1. NEVER output code snippets, programming syntax, or function names directly unless explicitly asked. "
+        "2. Explain everything in plain English using business concepts and percentage metrics. "
+        "3. Always call query_prd_coverage, simulate_scenario, or list_uncovered_requirements to ground your answers in the graph. "
+        "4. Include the explainable traversal path summary to show which business requirements were analyzed."
+    )
+
+
+@server.prompt(name="developer_assistant", description="Persona for Engineers: Technical diagnostics, code locations, ADR constraints")
+def developer_assistant_prompt() -> str:
+    return (
+        "You are CodeGraph Senior Engineering Assistant. "
+        "Your role is to triage production incidents, provide Root Cause Analyses (RCA), and conduct safety audits before developers override code. "
+        "RULES: "
+        "1. Always include exact file paths, line numbers, and error codes when answering. "
+        "2. Before recommending modifying any function, ALWAYS call check_safe_to_change to inspect governing ADRs and past regression bugs. "
+        "3. When debugging incidents, query debug_issue to match past incident runbooks. "
+        "4. Ground all recommendations in the graph data and cite governing ADR IDs (e.g. ADR-001, ADR-002)."
+    )
+
+
+def start_server():
+    """Starts the MCP server based on configured transport."""
+    transport = settings.mcp_transport
+    logger.info(f"Starting CodeGraph MCP server on transport: {transport}")
+
+    if transport in ("streamable-http", "http"):
+        server.run(transport="streamable-http", host=settings.mcp_http_host, port=settings.mcp_http_port)
+    elif transport == "sse":
+        server.run(transport="sse", host=settings.mcp_http_host, port=settings.mcp_http_port)
+    else:
+        # Default: stdio
+        server.run(transport="stdio")
+
+
+if __name__ == "__main__":
+    start_server()
