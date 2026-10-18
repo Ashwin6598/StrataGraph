@@ -24,6 +24,8 @@ This directory documents all foundational architectural decisions made for the *
 | [**ADR-014**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/014-program-manager-persona-and-agile-execution-flow.md) | Program Manager Persona & Agile Execution Flow (5th Pillar) | Delivery Intelligence & Jira Ingestion (`codegraph/tools/program_tools.py`) | `ACCEPTED` | 2026-10-18 |
 | [**ADR-015**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/015-cross-team-capability-unlocking-and-domain-synergy.md) | Cross-Team Capability Unlocking & Domain Synergy Architecture | Delivery Acceleration & Cross-Team Synergy (`codegraph/tools/program_tools.py`) | `ACCEPTED` | 2026-10-18 |
 | [**ADR-016**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/016-role-based-access-control-and-architectural-governance.md) | Role-Based Access Control (RBAC) and Architectural Governance | IAM & Governance (`codegraph/iam.py`, `codegraph/tools/architect_tools.py`) | `ACCEPTED` | 2026-10-18 |
+| [**ADR-017**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/017-agent-security-harness-and-ingestion-guardrails.md) | Agent Security Harness and Ingestion Guardrails | Security & Ingestion Guardrails (`codegraph/guardrails.py`, `codegraph/tools/ingest_tools.py`) | `ACCEPTED` | 2026-10-18 |
+| [**ADR-018**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/018-falkordb-graphblas-performance-optimization.md) | FalkorDB GraphBLAS Performance Optimization & High-Throughput Cypher Execution | Database & Performance Engine (`codegraph/db.py`, `codegraph/tools/`) | `ACCEPTED` | 2026-10-18 |
 
 ---
 
