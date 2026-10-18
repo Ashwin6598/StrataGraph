@@ -36,3 +36,6 @@ htmlcov/
 data/
 .codegraph_email_outbox.json
 
+# Presentation demo scenarios
+HACKATHON_DEMO_SCENARIOS.md
+
