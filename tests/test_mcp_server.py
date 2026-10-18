@@ -136,3 +136,15 @@ async def test_mcp_call_tool_unlock_cross_team():
     res = await server.call_tool("unlock_cross_team_capabilities", {"project_id": "project:payflow"})
     assert res is not None
     assert len(res.content) > 0
+
+
+@pytest.mark.anyio
+async def test_mcp_call_tool_prd_coverage():
+    """Verify executing query_prd_coverage with default and explicit parameters."""
+    res = await server.call_tool("query_prd_coverage", {})
+    assert res is not None
+    assert len(res.content) > 0
+
+    res_with_id = await server.call_tool("query_prd_coverage", {"project_id": "project:payflow"})
+    assert res_with_id is not None
+    assert len(res_with_id.content) > 0

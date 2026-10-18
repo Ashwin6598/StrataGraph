@@ -186,56 +186,67 @@ def status():
 
 @main.command()
 def demo():
-    """Run an automated demonstration of Product and Developer scenarios."""
-    from .tools.product_tools import query_prd_coverage, simulate_scenario, get_change_history
-    from .tools.developer_tools import debug_issue, check_safe_to_change
+    """Run an automated demonstration of Product, Developer, and Program scenarios through the MCP Server."""
+    import asyncio
+    import json
+    from .mcp_server import server
 
-    click.echo("\n========================================================")
-    click.echo("🎬 CodeGraph Demonstration: Connected Data in Action")
-    click.echo("========================================================\n")
+    async def _run_demo():
+        async def call(name: str, args: dict) -> dict:
+            res = await server.call_tool(name, args)
+            raw = res.content[0].text if res and res.content else "{}"
+            try:
+                return json.loads(raw)
+            except Exception:
+                return {"result": raw, "explanation": raw, "cypher_query": "N/A"}
 
-    # Product Scenario 1
-    click.echo("--- [Product Persona] Scenario 1: How complete is the code vs PRD? ---")
-    cov = query_prd_coverage()
-    click.echo(cov["result"]["summary"])
-    click.echo(f"Cypher Query Executed:\n  {cov['cypher_query']}\n")
+        click.echo("\n========================================================")
+        click.echo("🎬 CodeGraph Demonstration: Connected Data in Action via MCP Server")
+        click.echo("========================================================\n")
 
-    # Product Scenario 2
-    click.echo("--- [Product Persona] Scenario 2: What happens if user pays with expired card? ---")
-    sim = simulate_scenario("expired card")
-    click.echo(sim["result"]["plain_english_assessment"])
-    click.echo(f"Cypher Query Executed:\n  {sim['cypher_query']}\n")
+        # Product Scenario 1
+        click.echo("--- [Product Persona] Scenario 1: How complete is the code vs PRD? ---")
+        cov = await call("query_prd_coverage", {})
+        click.echo(cov.get("result", {}).get("summary", cov.get("explanation", "")))
+        click.echo(f"Cypher Query Executed:\n  {cov.get('cypher_query', 'N/A')}\n")
 
-    # Developer Scenario 1
-    click.echo("--- [Developer Persona] Scenario 3: Debug production error REFUND_TIMEOUT ---")
-    dbg = debug_issue("REFUND_TIMEOUT")
-    click.echo(dbg["result"]["technical_diagnostic_summary"])
-    click.echo(f"Cypher Query Executed:\n  {dbg['cypher_query']}\n")
+        # Product Scenario 2
+        click.echo("--- [Product Persona] Scenario 2: What happens if user pays with expired card? ---")
+        sim = await call("simulate_scenario", {"scenario_query": "expired card"})
+        click.echo(sim.get("result", {}).get("plain_english_assessment", sim.get("explanation", "")))
+        click.echo(f"Cypher Query Executed:\n  {sim.get('cypher_query', 'N/A')}\n")
 
-    # Developer Scenario 2
-    click.echo("--- [Developer Persona] Scenario 4: Is it safe to change retry logic in fraud_detector.py? ---")
-    safe = check_safe_to_change("retry_with_backoff")
-    click.echo(safe["result"]["recommendation"])
-    click.echo(f"Cypher Query Executed:\n  {safe['cypher_query']}\n")
+        # Developer Scenario 1
+        click.echo("--- [Developer Persona] Scenario 3: Debug production error REFUND_TIMEOUT ---")
+        dbg = await call("debug_issue", {"error_logs": "REFUND_TIMEOUT"})
+        click.echo(dbg.get("result", {}).get("technical_diagnostic_summary", dbg.get("explanation", "")))
+        click.echo(f"Cypher Query Executed:\n  {dbg.get('cypher_query', 'N/A')}\n")
 
-    # Program Scenario 1
-    click.echo("--- [Program Persona] Scenario 5: What is the delivery progress and where are the bottlenecks? ---")
-    from .tools.program_tools import query_program_delivery_status, diagnose_delivery_bottlenecks, unlock_cross_team_capabilities
-    prog = query_program_delivery_status()
-    click.echo(prog["explanation"])
-    bottlenecks = diagnose_delivery_bottlenecks()
-    click.echo(bottlenecks["explanation"])
-    click.echo(f"Cypher Query Executed:\n  {prog['cypher_query']}\n")
+        # Developer Scenario 2
+        click.echo("--- [Developer Persona] Scenario 4: Is it safe to change retry logic in fraud_detector.py? ---")
+        safe = await call("check_safe_to_change", {"function_name": "retry_with_backoff"})
+        click.echo(safe.get("result", {}).get("recommendation", safe.get("explanation", "")))
+        click.echo(f"Cypher Query Executed:\n  {safe.get('cypher_query', 'N/A')}\n")
 
-    # Program Scenario 2
-    click.echo("--- [Program Persona] Scenario 6: How can we unlock cross-team capabilities to accelerate delivery? ---")
-    cross_team = unlock_cross_team_capabilities()
-    click.echo(cross_team["explanation"])
-    click.echo(f"Cypher Query Executed:\n  {cross_team['cypher_query']}\n")
+        # Program Scenario 1
+        click.echo("--- [Program Persona] Scenario 5: What is the delivery progress and where are the bottlenecks? ---")
+        prog = await call("query_program_delivery_status", {"project_id": "project:payflow"})
+        click.echo(prog.get("explanation", ""))
+        bottlenecks = await call("diagnose_delivery_bottlenecks", {"project_id": "project:payflow"})
+        click.echo(bottlenecks.get("explanation", ""))
+        click.echo(f"Cypher Query Executed:\n  {prog.get('cypher_query', 'N/A')}\n")
 
-    click.echo("========================================================")
-    click.echo("✅ Demo completed with 100% graph explainability across 3 Personas!")
-    click.echo("========================================================\n")
+        # Program Scenario 2
+        click.echo("--- [Program Persona] Scenario 6: How can we unlock cross-team capabilities to accelerate delivery? ---")
+        cross_team = await call("unlock_cross_team_capabilities", {"project_id": "project:payflow"})
+        click.echo(cross_team.get("explanation", ""))
+        click.echo(f"Cypher Query Executed:\n  {cross_team.get('cypher_query', 'N/A')}\n")
+
+        click.echo("========================================================")
+        click.echo("✅ Demo completed with 100% graph explainability via MCP Server dispatch!")
+        click.echo("========================================================\n")
+
+    asyncio.run(_run_demo())
 
 
 if __name__ == "__main__":

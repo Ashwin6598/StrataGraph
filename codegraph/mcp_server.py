@@ -55,7 +55,44 @@ from .tools.architect_tools import (
 )
 from .iam import iam, Permission, Role
 
+import time
+from pathlib import Path
+
+class ImmediateFlushStreamHandler(logging.StreamHandler):
+    """StreamHandler that flushes immediately after every emit for real-time terminal display."""
+    def emit(self, record):
+        super().emit(record)
+        self.flush()
+
+# Configure robust dual logging (stderr for instant terminal visibility + persistent project log file)
+# Note: stdio MCP transport requires stdout to remain strictly binary/JSON-RPC only.
+# Stderr safely renders logs live in the user's terminal window without corrupting stdio.
+LOG_FORMAT = "%(asctime)s [%(levelname)s] [CodeGraph.MCP] %(message)s"
+formatter = logging.Formatter(LOG_FORMAT, datefmt="%Y-%m-%d %H:%M:%S")
+
 logger = logging.getLogger("codegraph.mcp")
+logger.setLevel(logging.INFO)
+logger.propagate = False
+logger.handlers.clear()
+
+# 1. Live Terminal Console Handler (sys.stderr)
+console_handler = ImmediateFlushStreamHandler(sys.stderr)
+console_handler.setLevel(logging.INFO)
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
+
+# 2. Persistent File Handler (codegraph.log)
+try:
+    log_file_path = Path(__file__).resolve().parent.parent / "codegraph.log"
+    file_handler = logging.FileHandler(str(log_file_path), encoding="utf-8")
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+except Exception:
+    pass
+
+# Ensure root logger also routes through console handler
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, handlers=[console_handler], force=True)
 
 # Initialize MCP Server
 server = MCPServer(
@@ -72,6 +109,31 @@ server = MCPServer(
     )
 )
 
+# Intercept tool calls and prompt requests for real-time logging observability
+_orig_call_tool = server.call_tool
+_orig_get_prompt = server.get_prompt
+
+async def logged_call_tool(name: str, arguments: dict, context=None):
+    arg_summary = ", ".join(f"{k}={v!r}" for k, v in (arguments or {}).items())
+    logger.info(f"⚡ [INCOMING MCP REQUEST] Tool: '{name}' | Args: ({arg_summary})")
+    t0 = time.time()
+    try:
+        res = await _orig_call_tool(name, arguments, context)
+        duration = (time.time() - t0) * 1000
+        logger.info(f"✅ [SUCCESS] Tool '{name}' completed in {duration:.1f}ms")
+        return res
+    except Exception as e:
+        duration = (time.time() - t0) * 1000
+        logger.error(f"❌ [ERROR] Tool '{name}' failed after {duration:.1f}ms: {e}", exc_info=True)
+        raise
+
+async def logged_get_prompt(name: str, arguments: dict = None, context=None):
+    logger.info(f"📜 [MCP PROMPT REQUEST] Persona Prompt: '{name}'")
+    return await _orig_get_prompt(name, arguments, context)
+
+server.call_tool = logged_call_tool
+server.get_prompt = logged_get_prompt
+
 
 # =========================================================================
 # Product Persona Tools
@@ -81,8 +143,8 @@ server = MCPServer(
     name="query_prd_coverage",
     description="Calculate PRD requirement coverage across the codebase. Returns percentage implemented, active functions, and missing requirements in plain English."
 )
-def query_prd_coverage(prd_id: Optional[str] = None) -> Dict[str, Any]:
-    return _query_prd_coverage(prd_id=prd_id)
+def query_prd_coverage(project_id: Optional[str] = "project:payflow", prd_id: Optional[str] = None) -> Dict[str, Any]:
+    return _query_prd_coverage(project_id=project_id or "project:payflow")
 
 
 @server.tool(
@@ -612,7 +674,22 @@ def program_manager_prompt() -> str:
 def start_server():
     """Starts the MCP server based on configured transport."""
     transport = settings.mcp_transport
-    logger.info(f"Starting CodeGraph MCP server on transport: {transport}")
+    log_path = Path(__file__).resolve().parent.parent / "codegraph.log"
+    tool_count = len(server._tool_manager._tools)
+
+    banner = (
+        f"\n=======================================================\n"
+        f"🚀 CodeGraph MCP Server Running\n"
+        f"  • Transport:   {transport}\n"
+        f"  • Tools:       {tool_count} registered tools\n"
+        f"  • Log File:    {log_path}\n"
+        f"  • Real-time:   Incoming requests log to stderr & {log_path.name}\n"
+        f"=======================================================\n"
+    )
+    # Write banner to stderr so stdio JSON-RPC on stdout remains pristine
+    sys.stderr.write(banner)
+    sys.stderr.flush()
+    logger.info(f"CodeGraph MCP server listening via '{transport}' transport with {tool_count} tools.")
 
     if transport in ("streamable-http", "http"):
         server.run(transport="streamable-http", host=settings.mcp_http_host, port=settings.mcp_http_port)
