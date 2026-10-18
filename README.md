@@ -1,4 +1,4 @@
-# 🧠 CodeGraph: Connected Knowledge Graph for Code, PRD, and ADR
+# 🧠 StrataGraph: Connected Knowledge Graph for Code, PRD, and ADR
 
 > **Hackathon Track 01: Agents That Act on Connected Data**  
 > *Multi-hop reasoning · Graph queries as agent tools · Tool selection through MCP · Actions based on graph data · Explainable results*
@@ -114,8 +114,8 @@ All entities stem from **`Project`** (which explicitly records the **`codebase_o
 Clone the repository and set up a virtual environment (Python 3.10+):
 
 ```bash
-git clone https://github.com/your-org/GraphHack.git
-cd GraphHack
+git clone https://github.com/Ashwin6598/StrataGraph.git
+cd StrataGraph
 
 # Create virtualenv using uv or standard python
 uv venv --python 3.11 .venv
