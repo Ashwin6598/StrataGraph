@@ -68,25 +68,39 @@ async def test_mcp_prompts_registry():
 
 @pytest.mark.anyio
 async def test_mcp_product_advisor_prompt_rules():
-    """Verify product advisor prompt enforces plain English, no code, and graph grounding."""
+    """Verify product advisor prompt enforces plain English, no code, roles/responsibilities, and graph grounding."""
     prompt = await server.get_prompt("product_advisor")
     assert prompt is not None
     # Check messages in prompt
     messages_text = " ".join([m.content.text for m in prompt.messages if hasattr(m.content, "text")])
     assert "Product Advisor" in messages_text
+    assert "ROLES AND RESPONSIBILITIES" in messages_text
     assert "NEVER output code snippets" in messages_text
     assert "query_prd_coverage" in messages_text
 
 
 @pytest.mark.anyio
 async def test_mcp_developer_assistant_prompt_rules():
-    """Verify developer assistant prompt enforces line numbers, ADR constraints, and safety checks."""
+    """Verify developer assistant prompt enforces line numbers, ADR constraints, roles/responsibilities, and safety checks."""
     prompt = await server.get_prompt("developer_assistant")
     assert prompt is not None
     messages_text = " ".join([m.content.text for m in prompt.messages if hasattr(m.content, "text")])
     assert "Engineering Assistant" in messages_text
+    assert "ROLES AND RESPONSIBILITIES" in messages_text
     assert "check_safe_to_change" in messages_text
     assert "ADR" in messages_text
+
+
+@pytest.mark.anyio
+async def test_mcp_program_manager_prompt_rules():
+    """Verify program manager prompt enforces delivery vocabulary, gap diagnosis, and roles/responsibilities."""
+    prompt = await server.get_prompt("program_manager")
+    assert prompt is not None
+    messages_text = " ".join([m.content.text for m in prompt.messages if hasattr(m.content, "text")])
+    assert "Program Advisor" in messages_text
+    assert "ROLES AND RESPONSIBILITIES" in messages_text
+    assert "query_program_delivery_status" in messages_text
+    assert "diagnose_delivery_bottlenecks" in messages_text
 
 
 @pytest.mark.anyio

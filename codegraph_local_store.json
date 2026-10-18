@@ -1471,6 +1471,22 @@
         "prd_owner": "cli-pm@payflow.internal"
       }
     },
+    "timeline:commit:4e0f4d5": {
+      "id": "timeline:commit:4e0f4d5",
+      "label": "ChangeTimeline",
+      "properties": {
+        "id": "timeline:commit:4e0f4d5",
+        "project_id": "project:test_ent",
+        "commit_hash": "4e0f4d5e700a626a5bc8d3e10e60590d3055ccda",
+        "author": "Ashwin",
+        "timestamp": "2026-10-18T12:00:00Z",
+        "date": "2026-10-18",
+        "what_changed": "feat: add Program Manager persona, 5th pillar agile execution flow, Jira ingestion, ADR-014, and 83 tests",
+        "why_changed": "Recorded from git commit message: feat: add Program Manager persona, 5th pillar agile execution flow, Jira ingestion, ADR-014, and 83 tests",
+        "change_category": "PRD_FEATURE",
+        "diff_summary": "feat: add Program Manager persona, 5th pillar agile execution flow, Jira ingestion, ADR-014, and 83 tests"
+      }
+    },
     "timeline:commit:0941cdb": {
       "id": "timeline:commit:0941cdb",
       "label": "ChangeTimeline",
@@ -1533,22 +1549,6 @@
         "why_changed": "Recorded from git commit message: feat: add multi-format document converter (HTML, JSON, TXT, PDF, DOCX), ADR-010, and 56 tests",
         "change_category": "PRD_FEATURE",
         "diff_summary": "feat: add multi-format document converter (HTML, JSON, TXT, PDF, DOCX), ADR-010, and 56 tests"
-      }
-    },
-    "timeline:commit:4b051ea": {
-      "id": "timeline:commit:4b051ea",
-      "label": "ChangeTimeline",
-      "properties": {
-        "id": "timeline:commit:4b051ea",
-        "project_id": "project:test_ent",
-        "commit_hash": "4b051eaf2608011cfc053029f7362a5258f4b53e",
-        "author": "Ashwin",
-        "timestamp": "2026-10-18T12:00:00Z",
-        "date": "2026-10-18",
-        "what_changed": "feat: add zero-dependency multi-language code parser (TS, JS, Go, Java, Kotlin, Rust) and 52 tests",
-        "why_changed": "Recorded from git commit message: feat: add zero-dependency multi-language code parser (TS, JS, Go, Java, Kotlin, Rust) and 52 tests",
-        "change_category": "PRD_FEATURE",
-        "diff_summary": "feat: add zero-dependency multi-language code parser (TS, JS, Go, Java, Kotlin, Rust) and 52 tests"
       }
     },
     "PRD-PAYFLOW-101": {
@@ -1915,7 +1915,7 @@
         "approved_by": "unapproved",
         "approval_status": "PENDING_APPROVAL",
         "domain_owner_email": "payment-domain-owner@payflow.internal",
-        "approval_token": "ea6d45633c0bf3861bf571a4272eab4b"
+        "approval_token": "837091e824c889a5dbfe72fa66b575a6"
       }
     },
     "issue:BUG-1000-TEST": {
@@ -2064,6 +2064,22 @@
         "rca": "A junior developer reduced `MAX_RETRIES` from 3 to 1 in `fraud_detector.py` to \"speed up checkout responses\". Because third-party credit card fraud networks experience 1-2% momentary packet drops, removing retry attempts caused 1 out of every 50 checkout requests to fail immediately.",
         "resolution_steps": "1. Refer to `ADR-001` (Fraud Risk Scoring and Mandatory Retry Ceiling).\n  2. Restore `MAX_RETRIES = 3` and `INITIAL_BACKOFF_SECONDS = 0.5`.\n  3. Run verification test suite.",
         "raw_content": "# Runbook RB-PAY-001: Triage and Resolution for Payment and Refund Timeouts\n\n- **Runbook ID:** RB-PAY-001\n- **Service:** PayFlow Payment & Refund Gateway\n- **Audience:** On-Call Engineers & Senior Developers\n- **Last Verified:** 2026-03-01\n\n---\n\n## 1. Incident: REFUND_TIMEOUT Under Load\n- **Error Code / Symptom:** `REFUND_TIMEOUT`, `HTTP 504 Gateway Timeout` on `/v1/refunds` endpoint.\n- **Historical Reference:** `BUG-342` (Black Friday incident).\n- **Root Cause Analysis (RCA):**\n  The `RefundProcessor.WORKER_POOL_CONCURRENCY` was accidentally reduced from 5 to 2 in a hotfix PR. At concurrency 2, the async consumer queue becomes saturated whenever request volume exceeds 80 refunds/sec. Messages queue up, consumer lag reaches >120s, and API gateways drop connections with `REFUND_TIMEOUT`.\n- **Immediate Diagnostic Command:**\n  Check queue depth and consumer concurrency in `refund_processor.py`.\n- **Verified Resolution:**\n  1. Open `demo_data/code/refund_processor.py`.\n  2. Ensure `WORKER_POOL_CONCURRENCY` is set to `5` as specified in `ADR-002`.\n  3. Restart worker pool service.\n  4. Never set concurrency > 10 (triggers partner HTTP 429).\n\n---\n\n## 2. Incident: CASCADE_FRAUD_CHECK_FAILURES\n- **Error Code / Symptom:** `FRAUD_SERVICE_UNAVAILABLE`, spikes in legitimate card declines.\n- **Historical References:** `BUG-112`, `BUG-298`.\n- **Root Cause Analysis (RCA):**\n  A junior developer reduced `MAX_RETRIES` from 3 to 1 in `fraud_detector.py` to \"speed up checkout responses\". Because third-party credit card fraud networks experience 1-2% momentary packet drops, removing retry attempts caused 1 out of every 50 checkout requests to fail immediately.\n- **Verified Resolution:**\n  1. Refer to `ADR-001` (Fraud Risk Scoring and Mandatory Retry Ceiling).\n  2. Restore `MAX_RETRIES = 3` and `INITIAL_BACKOFF_SECONDS = 0.5`.\n  3. Run verification test suite.\n"
+      }
+    },
+    "timeline:commit:4b051ea": {
+      "id": "timeline:commit:4b051ea",
+      "label": "ChangeTimeline",
+      "properties": {
+        "id": "timeline:commit:4b051ea",
+        "project_id": "project:test_ent",
+        "commit_hash": "4b051eaf2608011cfc053029f7362a5258f4b53e",
+        "author": "Ashwin",
+        "timestamp": "2026-10-18T12:00:00Z",
+        "date": "2026-10-18",
+        "what_changed": "feat: add zero-dependency multi-language code parser (TS, JS, Go, Java, Kotlin, Rust) and 52 tests",
+        "why_changed": "Recorded from git commit message: feat: add zero-dependency multi-language code parser (TS, JS, Go, Java, Kotlin, Rust) and 52 tests",
+        "change_category": "PRD_FEATURE",
+        "diff_summary": "feat: add zero-dependency multi-language code parser (TS, JS, Go, Java, Kotlin, Rust) and 52 tests"
       }
     },
     "timeline:commit:a1b29fd": {
@@ -4333,6 +4349,12 @@
     {
       "from": "project:cli_test",
       "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:4e0f4d5",
+      "properties": {}
+    },
+    {
+      "from": "project:cli_test",
+      "rel": "HAS_TIMELINE_RECORD",
       "to": "timeline:commit:0941cdb",
       "properties": {}
     },
@@ -4352,12 +4374,6 @@
       "from": "project:cli_test",
       "rel": "HAS_TIMELINE_RECORD",
       "to": "timeline:commit:8a4aaf8",
-      "properties": {}
-    },
-    {
-      "from": "project:cli_test",
-      "rel": "HAS_TIMELINE_RECORD",
-      "to": "timeline:commit:4b051ea",
       "properties": {}
     },
     {
@@ -6170,6 +6186,12 @@
       "from": "proc:RB-PAY-001:BUG-298",
       "rel": "RESOLVED_BY_FIX",
       "to": "BUG-298",
+      "properties": {}
+    },
+    {
+      "from": "project:test_ent",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:4e0f4d5",
       "properties": {}
     },
     {

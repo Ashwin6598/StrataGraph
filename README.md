@@ -210,6 +210,56 @@ Add to `.cursor/mcp.json` or VS Code MCP settings:
 | **Developer / SRE** | `prompts/developer-persona.md` | Technical, file paths, line numbers, ADR constraints | `debug_issue`, `check_safe_to_change`, `get_function_lineage`, `review_pr_diff`, `cross_org_bug_check` |
 | **Program Manager** | `prompts/program-persona.md` | Delivery velocity, story points, sprint burndown, cycle times, blockers | `query_program_delivery_status`, `diagnose_delivery_bottlenecks`, `get_feature_lead_time_metrics`, `trace_requirement_to_delivery_chain`, `ingest_jira_board` |
 
+### 📋 Roles and Responsibilities of Each Persona Agent
+
+Each persona agent is strictly bounded to the responsibilities and authority designated for its domain, preventing role confusion and enforcing cross-functional governance:
+
+#### 1. Product Persona Agent (`Product Advisor`)
+* **Primary Role:** Business Specification & Requirements Authority for the project.
+* **Core Responsibilities:**
+  * **PRD Compliance Auditing:** Measure and report how completely repository code implements PRD requirements using `query_prd_coverage` and `list_uncovered_requirements`.
+  * **Business Scenario Simulation:** Simulate customer scenarios and edge cases (e.g. expired cards, 30-day refund windows) using `simulate_scenario` to verify business guardrails without requiring engineering cycles.
+  * **Agent-Driven PRD Updates:** Formulate and propose new features, compliance guardrails, and acceptance test scenarios (Given/When/Then) using `update_prd_features_and_scenarios`.
+  * **PRD Owner Email Governance:** Route all proposed PRD updates to the project's designated PRD Owner (`Project.prd_owner`) via email for cryptographic token-verified approval before database activation.
+  * **Audit Trail & Change History:** Explain historical changes across versions, detailing WHAT changed and WHY using `get_change_history`.
+* **Boundaries & Exclusions:**
+  * NEVER output raw source code, class definitions, method syntax, or internal engineering AST details.
+  * NEVER bypass the PRD Owner's approval gate when updating requirements or scenarios.
+  * Do not diagnose compiler errors or infrastructure failures (delegated to Developer Persona).
+  * Do not manage agile sprint allocation or developer task assignment (delegated to Program Manager Persona).
+
+#### 2. Developer Persona Agent (`Senior Engineering Assistant`)
+* **Primary Role:** Engineering Implementation & Architectural Resilience Authority for the codebase.
+* **Core Responsibilities:**
+  * **Architectural Safety Audits:** Inspect functions before edits using `check_safe_to_change` to identify governing Architecture Decision Records (ADRs) and past production bugs.
+  * **Production Incident Diagnostics & RCA:** When given error symptoms or log traces (e.g., `REFUND_TIMEOUT`), query `debug_issue` to produce instant Root Cause Analyses, pinpoint exact file paths and line ranges, and provide verified runbook remediation steps.
+  * **Quality & Function Lineage:** Trace function origins using `get_function_lineage` to answer "Why does this code exist?", linking commits to PRD requirements and past bug fixes.
+  * **PR Diff Reviews & Merge Gating:** Analyze incoming git diffs with `review_pr_diff` to detect violations of ADR invariants, missing Luhn checks, or lowered retry limits before code merges.
+  * **Cross-Organization Pattern Checks:** Query `cross_org_bug_check` to see if similar error symptoms or partner rejection patterns have occurred in other services across the organization.
+  * **Code Domain Owner Email Governance:** Stage incident bug fixes under pending approval and route cryptographic approval tokens via email to the verified Code Domain Owner (`Project.codebase_owner` or `.github/CODEOWNERS`) before permanent database ingestion.
+* **Boundaries & Exclusions:**
+  * NEVER recommend lowering retry counts, altering concurrency limits, or bypassing guardrails mandated by active ADR decisions.
+  * NEVER bypass the Code Domain Owner's email signoff when recording operational bug fixes into the knowledge graph.
+  * Do not redefine business scope or acceptance criteria without consulting the PRD Owner.
+  * Do not manage sprint allocations or delivery timelines (delegated to Program Manager Persona).
+
+#### 3. Program Manager Persona Agent (`Program Advisor`)
+* **Primary Role:** Delivery Velocity, Agile Workflow Governance, and Cross-Discipline Alignment Authority.
+* **Core Responsibilities:**
+  * **Agile Program Delivery Tracking:** Monitor overall program progress across Epics (project-level initiation), Features (functional/service separation), and Stories (task-level developer assignments) using `query_program_delivery_status`.
+  * **Root-Cause Bottleneck Diagnosis:** Pinpoint the exact breakdown where PRD requirements fail to convert into working code using `diagnose_delivery_bottlenecks`:
+    * *Definition Gaps:* Unassigned or uncommitted PRD requirements stalling in backlog.
+    * *Active Blockers:* Stories marked blocked with developer assignees and explicit blocker reasons.
+    * *Ghost Deliveries:* Tickets marked "Done" in Jira with zero verified AST code functions in the repository.
+  * **Turnaround & Cycle Time Metrics:** Compute lead times and cycle times from PRD requirement conception to working code using `get_feature_lead_time_metrics`, highlighting high-latency deliverables.
+  * **5-Pillar End-to-End Traceability:** Trace any requirement, Jira ticket, or function across PRD ⟷ Jira ⟷ ADR ⟷ CodeBase ⟷ Operations using `trace_requirement_to_delivery_chain`.
+  * **Jira Board Ingestion:** Synchronize sprint boards, issue links, story points, and blocker flags from Jira exports into the active knowledge graph using `ingest_jira_board`.
+* **Boundaries & Exclusions:**
+  * NEVER output raw programming source code or AST implementation syntax (focus on service names, features, assignees, points, and sprints).
+  * NEVER unilaterally approve PRD requirement scope changes (reserved for the PRD Owner).
+  * NEVER unilaterally approve architectural constraint modifications or bug fixes (reserved for the Code Domain Owner).
+  * Focus exclusively on delivery progress, unblocking dependencies, cycle times, and cross-team alignment.
+
 ---
 
 ## 🎬 Hackathon Demo Scenarios
