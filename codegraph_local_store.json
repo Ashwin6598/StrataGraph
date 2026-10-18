@@ -431,7 +431,8 @@
         "line_start": 20,
         "line_end": 48,
         "docstring": "Validates card structure, expiration date, and Luhn checksum.",
-        "source_code": null
+        "source_code": null,
+        "domain_owner": null
       }
     },
     "func:authorize_payment": {
@@ -447,7 +448,8 @@
         "line_start": 50,
         "line_end": 94,
         "docstring": "Main entry point for authorizing customer charge.",
-        "source_code": null
+        "source_code": null,
+        "domain_owner": null
       }
     },
     "func:assess_risk": {
@@ -463,7 +465,8 @@
         "line_start": 45,
         "line_end": 68,
         "docstring": "Calculates transaction risk score and decides risk action.",
-        "source_code": null
+        "source_code": null,
+        "domain_owner": null
       }
     },
     "func:retry_with_backoff": {
@@ -479,7 +482,8 @@
         "line_start": 24,
         "line_end": 44,
         "docstring": "Executes a network operation with exponential retry backoff per ADR-001.",
-        "source_code": null
+        "source_code": null,
+        "domain_owner": null
       }
     },
     "func:validate_refund_eligibility": {
@@ -495,7 +499,8 @@
         "line_start": 22,
         "line_end": 40,
         "docstring": "Validates whether transaction falls within the 30-day refund window.",
-        "source_code": null
+        "source_code": null,
+        "domain_owner": null
       }
     },
     "func:queue_refund_job": {
@@ -511,7 +516,8 @@
         "line_start": 42,
         "line_end": 56,
         "docstring": "Enqueues refund into async queue governed by ADR-002.",
-        "source_code": null
+        "source_code": null,
+        "domain_owner": null
       }
     },
     "func:execute_refund": {
@@ -527,7 +533,8 @@
         "line_start": 58,
         "line_end": 84,
         "docstring": "Executes full refund for an order.",
-        "source_code": null
+        "source_code": null,
+        "domain_owner": null
       }
     },
     "func:send_webhook": {
@@ -543,7 +550,8 @@
         "line_start": 15,
         "line_end": 28,
         "docstring": "Dispatches signed webhook event to registered merchant endpoints.",
-        "source_code": null
+        "source_code": null,
+        "domain_owner": null
       }
     },
     "logic:luhn_and_expiry_check": {
@@ -695,7 +703,9 @@
         "action_taken": "Restored WORKER_POOL_CONCURRENCY to 5 in refund_processor.py as strictly mandated by ADR-002.",
         "commit_hash": "b7c8d9e0f1",
         "approved_by": "david.infra@payflow.internal",
-        "approval_status": "APPROVED"
+        "approval_status": "APPROVED",
+        "domain_owner_email": null,
+        "approval_token": null
       }
     },
     "fix:BUG-112:restore_retries_3": {
@@ -707,7 +717,9 @@
         "action_taken": "Restored MAX_RETRIES = 3 and INITIAL_BACKOFF_SECONDS = 0.5 per ADR-001.",
         "commit_hash": "f1e2d3c4b5",
         "approved_by": "marcus.sec@payflow.internal",
-        "approval_status": "APPROVED"
+        "approval_status": "APPROVED",
+        "domain_owner_email": null,
+        "approval_token": null
       }
     },
     "op_result:BUG-342:lag_cleared": {
@@ -839,7 +851,8 @@
         "line_start": 21,
         "line_end": 22,
         "docstring": null,
-        "source_code": "def __init__(self):\n        pass"
+        "source_code": "def __init__(self):\n        pass",
+        "domain_owner": null
       }
     },
     "func:fraud_detector.py:retry_with_backoff": {
@@ -855,7 +868,8 @@
         "line_start": 24,
         "line_end": 44,
         "docstring": "Executes a network operation with exponential retry backoff.\nGoverned by ADR-001.\nWARNING: Reducing MAX_RETRIES below 3 violates partner SLA and causes cascade failures.",
-        "source_code": "def retry_with_backoff(self, operation: Callable[[], Dict[str, Any]], operation_name: str = \"fraud_check\") -> Dict[str, Any]:\n        \"\"\"\n        Executes a network operation with exponential retry backoff.\n        Governed by ADR-001.\n        WARNING: Reducing MAX_RETRIES below 3 violates partner SLA and causes cascade failures.\n        \"\"\"\n        attempts = 0\n        current_delay = self.INITIAL_BACKOFF_SECONDS\n\n        while attempts < self.MAX_RETRIES:\n            try:\n                attempts += 1\n                return operation()\n            except Exception as exc:\n                if attempts >= self.MAX_RETRIES:\n                    # Final attempt failed\n                    raise RuntimeError(f\"Operation {operation_name} failed after {self.MAX_RETRIES} retries: {str(exc)}\") from exc\n                time.sleep(current_delay)\n                current_delay *= self.BACKOFF_MULTIPLIER\n\n        raise RuntimeError(f\"Operation {operation_name} exceeded max retry limit\")"
+        "source_code": "def retry_with_backoff(self, operation: Callable[[], Dict[str, Any]], operation_name: str = \"fraud_check\") -> Dict[str, Any]:\n        \"\"\"\n        Executes a network operation with exponential retry backoff.\n        Governed by ADR-001.\n        WARNING: Reducing MAX_RETRIES below 3 violates partner SLA and causes cascade failures.\n        \"\"\"\n        attempts = 0\n        current_delay = self.INITIAL_BACKOFF_SECONDS\n\n        while attempts < self.MAX_RETRIES:\n            try:\n                attempts += 1\n                return operation()\n            except Exception as exc:\n                if attempts >= self.MAX_RETRIES:\n                    # Final attempt failed\n                    raise RuntimeError(f\"Operation {operation_name} failed after {self.MAX_RETRIES} retries: {str(exc)}\") from exc\n                time.sleep(current_delay)\n                current_delay *= self.BACKOFF_MULTIPLIER\n\n        raise RuntimeError(f\"Operation {operation_name} exceeded max retry limit\")",
+        "domain_owner": null
       }
     },
     "func:fraud_detector.py:assess_risk": {
@@ -871,7 +885,8 @@
         "line_start": 46,
         "line_end": 74,
         "docstring": "Calculates transaction risk score (0-100) and decides risk action.\nImplements REQ-003 (SCEN-005, SCEN-006, SCEN-007).\nGoverned by ADR-001.",
-        "source_code": "def assess_risk(self, card_number: str, amount_cents: int, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:\n        \"\"\"\n        Calculates transaction risk score (0-100) and decides risk action.\n        Implements REQ-003 (SCEN-005, SCEN-006, SCEN-007).\n        Governed by ADR-001.\n        \"\"\"\n        def _call_risk_engine() -> Dict[str, Any]:\n            # Simulated risk calculation\n            score = 15\n            if amount_cents > 100000:  # > $1,000\n                score += 40\n            if metadata and metadata.get(\"is_vpn\"):\n                score += 35\n            if metadata and metadata.get(\"rapid_velocity\"):\n                score += 45\n\n            score = min(100, score)\n            return {\"score\": score}\n\n        # Wrap in mandatory retry with backoff as per ADR-001\n        res = self.retry_with_backoff(_call_risk_engine, operation_name=\"assess_risk\")\n        score = res[\"score\"]\n\n        if score > self.RISK_THRESHOLD_REJECT:\n            return {\"score\": score, \"action\": \"REJECT\", \"reason\": \"Score exceeds risk threshold\"}\n        elif score >= self.RISK_THRESHOLD_CHALLENGE:\n            return {\"score\": score, \"action\": \"CHALLENGE_3DS\", \"reason\": \"Requires two-factor verification\"}\n        else:\n            return {\"score\": score, \"action\": \"ALLOW\", \"reason\": \"Transaction low risk\"}"
+        "source_code": "def assess_risk(self, card_number: str, amount_cents: int, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:\n        \"\"\"\n        Calculates transaction risk score (0-100) and decides risk action.\n        Implements REQ-003 (SCEN-005, SCEN-006, SCEN-007).\n        Governed by ADR-001.\n        \"\"\"\n        def _call_risk_engine() -> Dict[str, Any]:\n            # Simulated risk calculation\n            score = 15\n            if amount_cents > 100000:  # > $1,000\n                score += 40\n            if metadata and metadata.get(\"is_vpn\"):\n                score += 35\n            if metadata and metadata.get(\"rapid_velocity\"):\n                score += 45\n\n            score = min(100, score)\n            return {\"score\": score}\n\n        # Wrap in mandatory retry with backoff as per ADR-001\n        res = self.retry_with_backoff(_call_risk_engine, operation_name=\"assess_risk\")\n        score = res[\"score\"]\n\n        if score > self.RISK_THRESHOLD_REJECT:\n            return {\"score\": score, \"action\": \"REJECT\", \"reason\": \"Score exceeds risk threshold\"}\n        elif score >= self.RISK_THRESHOLD_CHALLENGE:\n            return {\"score\": score, \"action\": \"CHALLENGE_3DS\", \"reason\": \"Requires two-factor verification\"}\n        else:\n            return {\"score\": score, \"action\": \"ALLOW\", \"reason\": \"Transaction low risk\"}",
+        "domain_owner": null
       }
     },
     "func:fraud_detector.py:_call_risk_engine": {
@@ -887,7 +902,8 @@
         "line_start": 52,
         "line_end": 63,
         "docstring": null,
-        "source_code": "def _call_risk_engine() -> Dict[str, Any]:\n            # Simulated risk calculation\n            score = 15\n            if amount_cents > 100000:  # > $1,000\n                score += 40\n            if metadata and metadata.get(\"is_vpn\"):\n                score += 35\n            if metadata and metadata.get(\"rapid_velocity\"):\n                score += 45\n\n            score = min(100, score)\n            return {\"score\": score}"
+        "source_code": "def _call_risk_engine() -> Dict[str, Any]:\n            # Simulated risk calculation\n            score = 15\n            if amount_cents > 100000:  # > $1,000\n                score += 40\n            if metadata and metadata.get(\"is_vpn\"):\n                score += 35\n            if metadata and metadata.get(\"rapid_velocity\"):\n                score += 45\n\n            score = min(100, score)\n            return {\"score\": score}",
+        "domain_owner": null
       }
     },
     "file:notification_service.py": {
@@ -924,7 +940,8 @@
         "line_start": 11,
         "line_end": 12,
         "docstring": null,
-        "source_code": "def __init__(self):\n        self.sent_events: List[Dict[str, Any]] = []"
+        "source_code": "def __init__(self):\n        self.sent_events: List[Dict[str, Any]] = []",
+        "domain_owner": null
       }
     },
     "func:notification_service.py:send_webhook": {
@@ -940,7 +957,8 @@
         "line_start": 14,
         "line_end": 26,
         "docstring": "Dispatches signed webhook event to registered merchant endpoints.\nImplements REQ-006.",
-        "source_code": "def send_webhook(self, event_type: str, payload: Dict[str, Any]) -> Dict[str, Any]:\n        \"\"\"\n        Dispatches signed webhook event to registered merchant endpoints.\n        Implements REQ-006.\n        \"\"\"\n        event = {\n            \"event_type\": event_type,\n            \"payload\": payload,\n            \"dispatched\": True,\n            \"http_status\": 200\n        }\n        self.sent_events.append(event)\n        return event"
+        "source_code": "def send_webhook(self, event_type: str, payload: Dict[str, Any]) -> Dict[str, Any]:\n        \"\"\"\n        Dispatches signed webhook event to registered merchant endpoints.\n        Implements REQ-006.\n        \"\"\"\n        event = {\n            \"event_type\": event_type,\n            \"payload\": payload,\n            \"dispatched\": True,\n            \"http_status\": 200\n        }\n        self.sent_events.append(event)\n        return event",
+        "domain_owner": null
       }
     },
     "func:notification_service.py:send_receipt": {
@@ -956,7 +974,8 @@
         "line_start": 28,
         "line_end": 37,
         "docstring": "Sends email confirmation receipt to customer.",
-        "source_code": "def send_receipt(self, email: str, transaction_id: str, amount_cents: int) -> Dict[str, Any]:\n        \"\"\"\n        Sends email confirmation receipt to customer.\n        \"\"\"\n        return {\n            \"recipient\": email,\n            \"transaction_id\": transaction_id,\n            \"amount_cents\": amount_cents,\n            \"status\": \"SENT\"\n        }"
+        "source_code": "def send_receipt(self, email: str, transaction_id: str, amount_cents: int) -> Dict[str, Any]:\n        \"\"\"\n        Sends email confirmation receipt to customer.\n        \"\"\"\n        return {\n            \"recipient\": email,\n            \"transaction_id\": transaction_id,\n            \"amount_cents\": amount_cents,\n            \"status\": \"SENT\"\n        }",
+        "domain_owner": null
       }
     },
     "file:payment_service.py": {
@@ -993,7 +1012,8 @@
         "line_start": 14,
         "line_end": 17,
         "docstring": null,
-        "source_code": "def __init__(self, fraud_detector: Optional[FraudDetector] = None, notifier: Optional[NotificationService] = None):\n        self.fraud_detector = fraud_detector or FraudDetector()\n        self.notifier = notifier or NotificationService()\n        self.idempotency_cache: Dict[str, Dict[str, Any]] = {}"
+        "source_code": "def __init__(self, fraud_detector: Optional[FraudDetector] = None, notifier: Optional[NotificationService] = None):\n        self.fraud_detector = fraud_detector or FraudDetector()\n        self.notifier = notifier or NotificationService()\n        self.idempotency_cache: Dict[str, Dict[str, Any]] = {}",
+        "domain_owner": null
       }
     },
     "func:payment_service.py:validate_card": {
@@ -1009,7 +1029,8 @@
         "line_start": 19,
         "line_end": 48,
         "docstring": "Validates card structure, expiration date, and Luhn checksum.\nImplements REQ-002 (SCEN-003, SCEN-004).",
-        "source_code": "def validate_card(self, card_number: str, expiry_month: int, expiry_year: int) -> Dict[str, Any]:\n        \"\"\"\n        Validates card structure, expiration date, and Luhn checksum.\n        Implements REQ-002 (SCEN-003, SCEN-004).\n        \"\"\"\n        current_year = 2026\n        current_month = 10\n\n        if expiry_year < current_year or (expiry_year == current_year and expiry_month < current_month):\n            return {\"valid\": False, \"error_code\": \"CARD_EXPIRED\", \"message\": \"Card has expired\"}\n\n        cleaned = card_number.replace(\" \", \"\").replace(\"-\", \"\")\n        if not cleaned.isdigit() or len(cleaned) < 13:\n            return {\"valid\": False, \"error_code\": \"INVALID_CARD_NUMBER\", \"message\": \"Card number format invalid\"}\n\n        # Luhn Algorithm Check\n        digits = [int(d) for d in cleaned]\n        checksum = 0\n        reverse_digits = digits[::-1]\n        for i, digit in enumerate(reverse_digits):\n            if i % 2 == 1:\n                doubled = digit * 2\n                checksum += doubled - 9 if doubled > 9 else doubled\n            else:\n                checksum += digit\n\n        if checksum % 10 != 0:\n            return {\"valid\": False, \"error_code\": \"INVALID_CARD_NUMBER\", \"message\": \"Luhn check failed\"}\n\n        return {\"valid\": True, \"error_code\": None, \"message\": \"Card validation passed\"}"
+        "source_code": "def validate_card(self, card_number: str, expiry_month: int, expiry_year: int) -> Dict[str, Any]:\n        \"\"\"\n        Validates card structure, expiration date, and Luhn checksum.\n        Implements REQ-002 (SCEN-003, SCEN-004).\n        \"\"\"\n        current_year = 2026\n        current_month = 10\n\n        if expiry_year < current_year or (expiry_year == current_year and expiry_month < current_month):\n            return {\"valid\": False, \"error_code\": \"CARD_EXPIRED\", \"message\": \"Card has expired\"}\n\n        cleaned = card_number.replace(\" \", \"\").replace(\"-\", \"\")\n        if not cleaned.isdigit() or len(cleaned) < 13:\n            return {\"valid\": False, \"error_code\": \"INVALID_CARD_NUMBER\", \"message\": \"Card number format invalid\"}\n\n        # Luhn Algorithm Check\n        digits = [int(d) for d in cleaned]\n        checksum = 0\n        reverse_digits = digits[::-1]\n        for i, digit in enumerate(reverse_digits):\n            if i % 2 == 1:\n                doubled = digit * 2\n                checksum += doubled - 9 if doubled > 9 else doubled\n            else:\n                checksum += digit\n\n        if checksum % 10 != 0:\n            return {\"valid\": False, \"error_code\": \"INVALID_CARD_NUMBER\", \"message\": \"Luhn check failed\"}\n\n        return {\"valid\": True, \"error_code\": None, \"message\": \"Card validation passed\"}",
+        "domain_owner": null
       }
     },
     "func:payment_service.py:authorize_payment": {
@@ -1025,7 +1046,8 @@
         "line_start": 50,
         "line_end": 106,
         "docstring": "Main entry point for authorizing a customer charge.\nImplements REQ-001, REQ-002, REQ-003, REQ-005.\nCalls validate_card -> assess_risk -> execute_charge -> send_webhook.",
-        "source_code": "def authorize_payment(\n        self,\n        order_id: str,\n        amount_cents: int,\n        card_number: str,\n        expiry_month: int,\n        expiry_year: int,\n        idempotency_key: Optional[str] = None,\n        user_metadata: Optional[Dict[str, Any]] = None\n    ) -> Dict[str, Any]:\n        \"\"\"\n        Main entry point for authorizing a customer charge.\n        Implements REQ-001, REQ-002, REQ-003, REQ-005.\n        Calls validate_card -> assess_risk -> execute_charge -> send_webhook.\n        \"\"\"\n        # Idempotency check (REQ-005)\n        if idempotency_key and idempotency_key in self.idempotency_cache:\n            cached = self.idempotency_cache[idempotency_key]\n            return {\"status\": \"SUCCESS\", \"cached\": True, **cached}\n\n        # Step 1: Pre-validation (REQ-002)\n        val_result = self.validate_card(card_number, expiry_month, expiry_year)\n        if not val_result[\"valid\"]:\n            return {\n                \"status\": \"REJECTED\",\n                \"error_code\": val_result[\"error_code\"],\n                \"message\": val_result[\"message\"],\n                \"order_id\": order_id\n            }\n\n        # Step 2: Fraud Risk Scoring (REQ-003 & ADR-001)\n        risk_result = self.fraud_detector.assess_risk(card_number=card_number, amount_cents=amount_cents, metadata=user_metadata)\n        if risk_result[\"action\"] == \"REJECT\":\n            return {\n                \"status\": \"FRAUD_REJECTED\",\n                \"error_code\": \"FRAUD_RISK_REJECTED\",\n                \"message\": f\"Fraud score {risk_result['score']} exceeds allowed limit\",\n                \"order_id\": order_id\n            }\n\n        # Step 3: Authorization Execution\n        txn_id = f\"txn_{order_id}_{int(time.time())}\"\n        response = {\n            \"status\": \"SUCCESS\",\n            \"transaction_id\": txn_id,\n            \"order_id\": order_id,\n            \"amount_cents\": amount_cents,\n            \"authorized_at\": time.time(),\n            \"risk_score\": risk_result[\"score\"]\n        }\n\n        if idempotency_key:\n            self.idempotency_cache[idempotency_key] = response\n\n        # Step 4: Dispatch Notification (REQ-006)\n        self.notifier.send_webhook(event_type=\"payment.authorized\", payload=response)\n        return response"
+        "source_code": "def authorize_payment(\n        self,\n        order_id: str,\n        amount_cents: int,\n        card_number: str,\n        expiry_month: int,\n        expiry_year: int,\n        idempotency_key: Optional[str] = None,\n        user_metadata: Optional[Dict[str, Any]] = None\n    ) -> Dict[str, Any]:\n        \"\"\"\n        Main entry point for authorizing a customer charge.\n        Implements REQ-001, REQ-002, REQ-003, REQ-005.\n        Calls validate_card -> assess_risk -> execute_charge -> send_webhook.\n        \"\"\"\n        # Idempotency check (REQ-005)\n        if idempotency_key and idempotency_key in self.idempotency_cache:\n            cached = self.idempotency_cache[idempotency_key]\n            return {\"status\": \"SUCCESS\", \"cached\": True, **cached}\n\n        # Step 1: Pre-validation (REQ-002)\n        val_result = self.validate_card(card_number, expiry_month, expiry_year)\n        if not val_result[\"valid\"]:\n            return {\n                \"status\": \"REJECTED\",\n                \"error_code\": val_result[\"error_code\"],\n                \"message\": val_result[\"message\"],\n                \"order_id\": order_id\n            }\n\n        # Step 2: Fraud Risk Scoring (REQ-003 & ADR-001)\n        risk_result = self.fraud_detector.assess_risk(card_number=card_number, amount_cents=amount_cents, metadata=user_metadata)\n        if risk_result[\"action\"] == \"REJECT\":\n            return {\n                \"status\": \"FRAUD_REJECTED\",\n                \"error_code\": \"FRAUD_RISK_REJECTED\",\n                \"message\": f\"Fraud score {risk_result['score']} exceeds allowed limit\",\n                \"order_id\": order_id\n            }\n\n        # Step 3: Authorization Execution\n        txn_id = f\"txn_{order_id}_{int(time.time())}\"\n        response = {\n            \"status\": \"SUCCESS\",\n            \"transaction_id\": txn_id,\n            \"order_id\": order_id,\n            \"amount_cents\": amount_cents,\n            \"authorized_at\": time.time(),\n            \"risk_score\": risk_result[\"score\"]\n        }\n\n        if idempotency_key:\n            self.idempotency_cache[idempotency_key] = response\n\n        # Step 4: Dispatch Notification (REQ-006)\n        self.notifier.send_webhook(event_type=\"payment.authorized\", payload=response)\n        return response",
+        "domain_owner": null
       }
     },
     "file:refund_processor.py": {
@@ -1062,7 +1084,8 @@
         "line_start": 20,
         "line_end": 22,
         "docstring": null,
-        "source_code": "def __init__(self, notifier: Optional[NotificationService] = None):\n        self.notifier = notifier or NotificationService()\n        self.refund_queue = []"
+        "source_code": "def __init__(self, notifier: Optional[NotificationService] = None):\n        self.notifier = notifier or NotificationService()\n        self.refund_queue = []",
+        "domain_owner": null
       }
     },
     "func:refund_processor.py:validate_refund_eligibility": {
@@ -1078,7 +1101,8 @@
         "line_start": 24,
         "line_end": 40,
         "docstring": "Validates whether transaction falls within the 30-day refund window.\nImplements REQ-007 (SCEN-011, SCEN-012).",
-        "source_code": "def validate_refund_eligibility(self, settled_timestamp: float) -> Dict[str, Any]:\n        \"\"\"\n        Validates whether transaction falls within the 30-day refund window.\n        Implements REQ-007 (SCEN-011, SCEN-012).\n        \"\"\"\n        now = time.time()\n        age_in_seconds = now - settled_timestamp\n        age_in_days = age_in_seconds / (24 * 3600)\n\n        if age_in_days > self.MAX_REFUND_AGE_DAYS:\n            return {\n                \"eligible\": False,\n                \"error_code\": \"REFUND_WINDOW_EXPIRED\",\n                \"message\": f\"Transaction age ({age_in_days:.1f} days) exceeds the 30-day refund limit.\"\n            }\n\n        return {\"eligible\": True, \"error_code\": None, \"message\": \"Eligible for refund\"}"
+        "source_code": "def validate_refund_eligibility(self, settled_timestamp: float) -> Dict[str, Any]:\n        \"\"\"\n        Validates whether transaction falls within the 30-day refund window.\n        Implements REQ-007 (SCEN-011, SCEN-012).\n        \"\"\"\n        now = time.time()\n        age_in_seconds = now - settled_timestamp\n        age_in_days = age_in_seconds / (24 * 3600)\n\n        if age_in_days > self.MAX_REFUND_AGE_DAYS:\n            return {\n                \"eligible\": False,\n                \"error_code\": \"REFUND_WINDOW_EXPIRED\",\n                \"message\": f\"Transaction age ({age_in_days:.1f} days) exceeds the 30-day refund limit.\"\n            }\n\n        return {\"eligible\": True, \"error_code\": None, \"message\": \"Eligible for refund\"}",
+        "domain_owner": null
       }
     },
     "func:refund_processor.py:queue_refund_job": {
@@ -1094,7 +1118,8 @@
         "line_start": 42,
         "line_end": 56,
         "docstring": "Enqueues refund into async queue. Governed by ADR-002.",
-        "source_code": "def queue_refund_job(self, order_id: str, amount_cents: int, settled_timestamp: float) -> Dict[str, Any]:\n        \"\"\"\n        Enqueues refund into async queue. Governed by ADR-002.\n        \"\"\"\n        job_id = f\"rfjob_{order_id}_{int(time.time())}\"\n        job = {\n            \"job_id\": job_id,\n            \"order_id\": order_id,\n            \"amount_cents\": amount_cents,\n            \"status\": \"QUEUED\",\n            \"enqueued_at\": time.time(),\n            \"concurrency_limit\": self.WORKER_POOL_CONCURRENCY\n        }\n        self.refund_queue.append(job)\n        return job"
+        "source_code": "def queue_refund_job(self, order_id: str, amount_cents: int, settled_timestamp: float) -> Dict[str, Any]:\n        \"\"\"\n        Enqueues refund into async queue. Governed by ADR-002.\n        \"\"\"\n        job_id = f\"rfjob_{order_id}_{int(time.time())}\"\n        job = {\n            \"job_id\": job_id,\n            \"order_id\": order_id,\n            \"amount_cents\": amount_cents,\n            \"status\": \"QUEUED\",\n            \"enqueued_at\": time.time(),\n            \"concurrency_limit\": self.WORKER_POOL_CONCURRENCY\n        }\n        self.refund_queue.append(job)\n        return job",
+        "domain_owner": null
       }
     },
     "func:refund_processor.py:execute_refund": {
@@ -1110,7 +1135,8 @@
         "line_start": 58,
         "line_end": 83,
         "docstring": "Executes full refund for an order.\nValidates 30-day limit -> enqueues async job -> notifies merchant.",
-        "source_code": "def execute_refund(self, order_id: str, amount_cents: int, settled_timestamp: float) -> Dict[str, Any]:\n        \"\"\"\n        Executes full refund for an order.\n        Validates 30-day limit -> enqueues async job -> notifies merchant.\n        \"\"\"\n        eligibility = self.validate_refund_eligibility(settled_timestamp)\n        if not eligibility[\"eligible\"]:\n            return {\n                \"status\": \"REJECTED\",\n                \"error_code\": eligibility[\"error_code\"],\n                \"message\": eligibility[\"message\"],\n                \"order_id\": order_id\n            }\n\n        job = self.queue_refund_job(order_id, amount_cents, settled_timestamp)\n\n        # Immediate async receipt\n        result = {\n            \"status\": \"PROCESSING\",\n            \"refund_job_id\": job[\"job_id\"],\n            \"order_id\": order_id,\n            \"amount_refunded_cents\": amount_cents,\n            \"message\": \"Refund enqueued for batch settlement.\"\n        }\n        self.notifier.send_webhook(event_type=\"refund.processed\", payload=result)\n        return result"
+        "source_code": "def execute_refund(self, order_id: str, amount_cents: int, settled_timestamp: float) -> Dict[str, Any]:\n        \"\"\"\n        Executes full refund for an order.\n        Validates 30-day limit -> enqueues async job -> notifies merchant.\n        \"\"\"\n        eligibility = self.validate_refund_eligibility(settled_timestamp)\n        if not eligibility[\"eligible\"]:\n            return {\n                \"status\": \"REJECTED\",\n                \"error_code\": eligibility[\"error_code\"],\n                \"message\": eligibility[\"message\"],\n                \"order_id\": order_id\n            }\n\n        job = self.queue_refund_job(order_id, amount_cents, settled_timestamp)\n\n        # Immediate async receipt\n        result = {\n            \"status\": \"PROCESSING\",\n            \"refund_job_id\": job[\"job_id\"],\n            \"order_id\": order_id,\n            \"amount_refunded_cents\": amount_cents,\n            \"message\": \"Refund enqueued for batch settlement.\"\n        }\n        self.notifier.send_webhook(event_type=\"refund.processed\", payload=result)\n        return result",
+        "domain_owner": null
       }
     },
     "PRD-PAYFLOW-101": {
@@ -1465,6 +1491,22 @@
         "invariants": "- Prevents refund spikes from impacting real-time checkout availability.\n- Requires careful worker pool tuning: decreasing concurrency below 5 was the direct root cause of incident `BUG-342`."
       }
     },
+    "timeline:commit:8a4aaf8": {
+      "id": "timeline:commit:8a4aaf8",
+      "label": "ChangeTimeline",
+      "properties": {
+        "id": "timeline:commit:8a4aaf8",
+        "project_id": "project:test_ent",
+        "commit_hash": "8a4aaf87cbfa05a9b2a295dc1b6f86a066035e9f",
+        "author": "Ashwin",
+        "timestamp": "2026-10-18T12:00:00Z",
+        "date": "2026-10-18",
+        "what_changed": "feat: add multi-format document converter (HTML, JSON, TXT, PDF, DOCX), ADR-010, and 56 tests",
+        "why_changed": "Recorded from git commit message: feat: add multi-format document converter (HTML, JSON, TXT, PDF, DOCX), ADR-010, and 56 tests",
+        "change_category": "PRD_FEATURE",
+        "diff_summary": "feat: add multi-format document converter (HTML, JSON, TXT, PDF, DOCX), ADR-010, and 56 tests"
+      }
+    },
     "timeline:commit:4b051ea": {
       "id": "timeline:commit:4b051ea",
       "label": "ChangeTimeline",
@@ -1577,6 +1619,141 @@
         "diff_summary": "feat: initial implementation of CodeGraph MCP Server and Knowledge Graph"
       }
     },
+    "issue:BUG-777-EMAIL": {
+      "id": "issue:BUG-777-EMAIL",
+      "label": "Issue",
+      "properties": {
+        "id": "issue:BUG-777-EMAIL",
+        "project_id": "project:payflow",
+        "ticket": "BUG-777-EMAIL",
+        "title": "Incident BUG-777-EMAIL: Currency precision discrepancy in billing",
+        "symptom": "Currency precision discrepancy in billing",
+        "severity": "HIGH",
+        "reported_at": "2026-10-17"
+      }
+    },
+    "fix:BUG-777-EMAIL": {
+      "id": "fix:BUG-777-EMAIL",
+      "label": "Fix",
+      "properties": {
+        "id": "fix:BUG-777-EMAIL",
+        "rca_id": "rca:BUG-777-EMAIL",
+        "action_taken": "Switched to decimal.Decimal arithmetic",
+        "commit_hash": "pending",
+        "approved_by": "unapproved",
+        "approval_status": "PENDING_APPROVAL",
+        "domain_owner_email": "payment-domain-owner@payflow.internal",
+        "approval_token": "8171833e79a47841ff4a9ba38bf94276"
+      }
+    },
+    "issue:BUG-888-APPROVE": {
+      "id": "issue:BUG-888-APPROVE",
+      "label": "Issue",
+      "properties": {
+        "id": "issue:BUG-888-APPROVE",
+        "project_id": "project:payflow",
+        "ticket": "BUG-888-APPROVE",
+        "title": "Incident BUG-888-APPROVE: Race condition in ledger balance",
+        "symptom": "Race condition in ledger balance",
+        "severity": "HIGH",
+        "reported_at": "2026-10-17"
+      }
+    },
+    "fix:BUG-888-APPROVE": {
+      "id": "fix:BUG-888-APPROVE",
+      "label": "Fix",
+      "properties": {
+        "id": "fix:BUG-888-APPROVE",
+        "rca_id": "rca:BUG-888-APPROVE",
+        "action_taken": "Added Redis distributed lock",
+        "commit_hash": "approved_bda2fbbe",
+        "approved_by": "payment-domain-owner@payflow.internal",
+        "approval_status": "APPROVED",
+        "domain_owner_email": "payment-domain-owner@payflow.internal",
+        "approval_token": "bda2fbbe1549edb71dde21159e724e9e"
+      }
+    },
+    "issue:BUG-999-TAMPER": {
+      "id": "issue:BUG-999-TAMPER",
+      "label": "Issue",
+      "properties": {
+        "id": "issue:BUG-999-TAMPER",
+        "project_id": "project:payflow",
+        "ticket": "BUG-999-TAMPER",
+        "title": "Incident BUG-999-TAMPER: Unchecked buffer allocation",
+        "symptom": "Unchecked buffer allocation",
+        "severity": "HIGH",
+        "reported_at": "2026-10-17"
+      }
+    },
+    "fix:BUG-999-TAMPER": {
+      "id": "fix:BUG-999-TAMPER",
+      "label": "Fix",
+      "properties": {
+        "id": "fix:BUG-999-TAMPER",
+        "rca_id": "rca:BUG-999-TAMPER",
+        "action_taken": "Restricted buffer size",
+        "commit_hash": "pending",
+        "approved_by": "unapproved",
+        "approval_status": "PENDING_APPROVAL",
+        "domain_owner_email": "payment-domain-owner@payflow.internal",
+        "approval_token": "6949375bb57970a8d1558bffbb0521c3"
+      }
+    },
+    "issue:BUG-1010-DOUBLE": {
+      "id": "issue:BUG-1010-DOUBLE",
+      "label": "Issue",
+      "properties": {
+        "id": "issue:BUG-1010-DOUBLE",
+        "project_id": "project:payflow",
+        "ticket": "BUG-1010-DOUBLE",
+        "title": "Incident BUG-1010-DOUBLE: Timeout on third-party webhook",
+        "symptom": "Timeout on third-party webhook",
+        "severity": "HIGH",
+        "reported_at": "2026-10-17"
+      }
+    },
+    "fix:BUG-1010-DOUBLE": {
+      "id": "fix:BUG-1010-DOUBLE",
+      "label": "Fix",
+      "properties": {
+        "id": "fix:BUG-1010-DOUBLE",
+        "rca_id": "rca:BUG-1010-DOUBLE",
+        "action_taken": "Added timeout retry policy",
+        "commit_hash": "approved_f84dc5f7",
+        "approved_by": "payment-domain-owner@payflow.internal",
+        "approval_status": "APPROVED",
+        "domain_owner_email": "payment-domain-owner@payflow.internal",
+        "approval_token": "f84dc5f793bda95fb301aa42010fd148"
+      }
+    },
+    "issue:BUG-2020-CLI": {
+      "id": "issue:BUG-2020-CLI",
+      "label": "Issue",
+      "properties": {
+        "id": "issue:BUG-2020-CLI",
+        "project_id": "project:payflow",
+        "ticket": "BUG-2020-CLI",
+        "title": "Incident BUG-2020-CLI: CLI approval test",
+        "symptom": "CLI approval test",
+        "severity": "HIGH",
+        "reported_at": "2026-10-17"
+      }
+    },
+    "fix:BUG-2020-CLI": {
+      "id": "fix:BUG-2020-CLI",
+      "label": "Fix",
+      "properties": {
+        "id": "fix:BUG-2020-CLI",
+        "rca_id": "rca:BUG-2020-CLI",
+        "action_taken": "CLI verification",
+        "commit_hash": "approved_6913350a",
+        "approved_by": "lead@payflow.internal",
+        "approval_status": "APPROVED",
+        "domain_owner_email": "payment-domain-owner@payflow.internal",
+        "approval_token": "6913350a1b97bb148ec385b2d94f02e0"
+      }
+    },
     "BUG-342": {
       "id": "BUG-342",
       "label": "BugFix",
@@ -1662,7 +1839,7 @@
       "id": "file:billing.ts",
       "label": "File",
       "properties": {
-        "path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-5/test_typescript_parser0/billing.ts",
+        "path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-8/test_typescript_parser0/billing.ts",
         "filename": "billing.ts",
         "language": "typescript"
       }
@@ -1673,7 +1850,7 @@
       "properties": {
         "id": "class:billing.ts:BillingService",
         "name": "BillingService",
-        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-5/test_typescript_parser0/billing.ts",
+        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-8/test_typescript_parser0/billing.ts",
         "line_start": 7,
         "line_end": 19,
         "docstring": "Typescript class/struct BillingService"
@@ -1687,12 +1864,13 @@
         "name": "processSubscription",
         "class_id": "class:billing.ts:BillingService",
         "class_name": "BillingService",
-        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-5/test_typescript_parser0/billing.ts",
+        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-8/test_typescript_parser0/billing.ts",
         "signature": "processSubscription(userId: string, planId: string)",
         "line_start": 10,
         "line_end": 13,
         "docstring": null,
-        "source_code": "        async processSubscription(userId: string, planId: string): Promise<boolean> {\n            console.log(\"Processing subscription\");\n            return true;\n        }"
+        "source_code": "        async processSubscription(userId: string, planId: string): Promise<boolean> {\n            console.log(\"Processing subscription\");\n            return true;\n        }",
+        "domain_owner": null
       }
     },
     "func:billing.ts:cancelSubscription": {
@@ -1703,19 +1881,20 @@
         "name": "cancelSubscription",
         "class_id": "class:billing.ts:BillingService",
         "class_name": "BillingService",
-        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-5/test_typescript_parser0/billing.ts",
+        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-8/test_typescript_parser0/billing.ts",
         "signature": "cancelSubscription(subId: string)",
         "line_start": 16,
         "line_end": 18,
         "docstring": null,
-        "source_code": "    export const cancelSubscription = async (subId: string): Promise<void> => {\n        console.log(\"Cancelled\");\n    };"
+        "source_code": "    export const cancelSubscription = async (subId: string): Promise<void> => {\n        console.log(\"Cancelled\");\n    };",
+        "domain_owner": null
       }
     },
     "file:handler.go": {
       "id": "file:handler.go",
       "label": "File",
       "properties": {
-        "path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-5/test_go_parser0/handler.go",
+        "path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-8/test_go_parser0/handler.go",
         "filename": "handler.go",
         "language": "go"
       }
@@ -1726,7 +1905,7 @@
       "properties": {
         "id": "class:handler.go:PaymentHandler",
         "name": "PaymentHandler",
-        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-5/test_go_parser0/handler.go",
+        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-8/test_go_parser0/handler.go",
         "line_start": 8,
         "line_end": 20,
         "docstring": "Go class/struct PaymentHandler"
@@ -1740,12 +1919,13 @@
         "name": "ProcessCharge",
         "class_id": "class:handler.go:PaymentHandler",
         "class_name": "PaymentHandler",
-        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-5/test_go_parser0/handler.go",
+        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-8/test_go_parser0/handler.go",
         "signature": "ProcessCharge(amount int)",
         "line_start": 12,
         "line_end": 15,
         "docstring": null,
-        "source_code": "    func (p *PaymentHandler) ProcessCharge(amount int) error {\n        fmt.Println(amount)\n        return nil\n    }"
+        "source_code": "    func (p *PaymentHandler) ProcessCharge(amount int) error {\n        fmt.Println(amount)\n        return nil\n    }",
+        "domain_owner": null
       }
     },
     "func:handler.go:HealthCheck": {
@@ -1756,12 +1936,13 @@
         "name": "HealthCheck",
         "class_id": "class:handler.go:PaymentHandler",
         "class_name": "PaymentHandler",
-        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-5/test_go_parser0/handler.go",
+        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-8/test_go_parser0/handler.go",
         "signature": "HealthCheck()",
         "line_start": 17,
         "line_end": 19,
         "docstring": null,
-        "source_code": "    func HealthCheck() string {\n        return \"OK\"\n    }"
+        "source_code": "    func HealthCheck() string {\n        return \"OK\"\n    }",
+        "domain_owner": null
       }
     },
     "PRD-CONF-202": {
@@ -1858,7 +2039,9 @@
         "action_taken": "Added garbage collection hook",
         "commit_hash": "pending",
         "approved_by": "unapproved",
-        "approval_status": "PENDING_APPROVAL"
+        "approval_status": "PENDING_APPROVAL",
+        "domain_owner_email": "payment-domain-owner@payflow.internal",
+        "approval_token": "5e95464ed444007b744d60276e3e94ad"
       }
     },
     "issue:BUG-1000-TEST": {
@@ -1883,7 +2066,9 @@
         "action_taken": "Used decimal.Decimal representation",
         "commit_hash": "approved_hash",
         "approved_by": "lead_reviewer",
-        "approval_status": "APPROVED"
+        "approval_status": "APPROVED",
+        "domain_owner_email": "payment-domain-owner@payflow.internal",
+        "approval_token": null
       }
     },
     "project:test_ent": {
@@ -3332,6 +3517,12 @@
     {
       "from": "project:enterprise",
       "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:8a4aaf8",
+      "properties": {}
+    },
+    {
+      "from": "project:enterprise",
+      "rel": "HAS_TIMELINE_RECORD",
       "to": "timeline:commit:4b051ea",
       "properties": {}
     },
@@ -3454,6 +3645,109 @@
       "rel": "MOTIVATED_BY_ADR",
       "to": "dec:ADR-001:core",
       "properties": {}
+    },
+    {
+      "from": "project:payflow",
+      "rel": "HAS_ISSUE",
+      "to": "issue:BUG-777-EMAIL",
+      "properties": {}
+    },
+    {
+      "from": "issue:BUG-777-EMAIL",
+      "rel": "MANIFESTED_IN_FUNCTION",
+      "to": "func:validate_card",
+      "properties": {}
+    },
+    {
+      "from": "fix:BUG-777-EMAIL",
+      "rel": "FIXES_FUNCTION",
+      "to": "func:validate_card",
+      "properties": {
+        "approval_status": "PENDING_APPROVAL"
+      }
+    },
+    {
+      "from": "project:payflow",
+      "rel": "HAS_ISSUE",
+      "to": "issue:BUG-888-APPROVE",
+      "properties": {}
+    },
+    {
+      "from": "issue:BUG-888-APPROVE",
+      "rel": "MANIFESTED_IN_FUNCTION",
+      "to": "func:validate_card",
+      "properties": {}
+    },
+    {
+      "from": "fix:BUG-888-APPROVE",
+      "rel": "FIXES_FUNCTION",
+      "to": "func:validate_card",
+      "properties": {
+        "approval_status": "APPROVED",
+        "status": "APPROVED"
+      }
+    },
+    {
+      "from": "project:payflow",
+      "rel": "HAS_ISSUE",
+      "to": "issue:BUG-999-TAMPER",
+      "properties": {}
+    },
+    {
+      "from": "issue:BUG-999-TAMPER",
+      "rel": "MANIFESTED_IN_FUNCTION",
+      "to": "func:validate_card",
+      "properties": {}
+    },
+    {
+      "from": "fix:BUG-999-TAMPER",
+      "rel": "FIXES_FUNCTION",
+      "to": "func:validate_card",
+      "properties": {
+        "approval_status": "PENDING_APPROVAL"
+      }
+    },
+    {
+      "from": "project:payflow",
+      "rel": "HAS_ISSUE",
+      "to": "issue:BUG-1010-DOUBLE",
+      "properties": {}
+    },
+    {
+      "from": "issue:BUG-1010-DOUBLE",
+      "rel": "MANIFESTED_IN_FUNCTION",
+      "to": "func:validate_card",
+      "properties": {}
+    },
+    {
+      "from": "fix:BUG-1010-DOUBLE",
+      "rel": "FIXES_FUNCTION",
+      "to": "func:validate_card",
+      "properties": {
+        "approval_status": "APPROVED",
+        "status": "APPROVED"
+      }
+    },
+    {
+      "from": "project:payflow",
+      "rel": "HAS_ISSUE",
+      "to": "issue:BUG-2020-CLI",
+      "properties": {}
+    },
+    {
+      "from": "issue:BUG-2020-CLI",
+      "rel": "MANIFESTED_IN_FUNCTION",
+      "to": "func:validate_card",
+      "properties": {}
+    },
+    {
+      "from": "fix:BUG-2020-CLI",
+      "rel": "FIXES_FUNCTION",
+      "to": "func:validate_card",
+      "properties": {
+        "approval_status": "APPROVED",
+        "status": "APPROVED"
+      }
     },
     {
       "from": "file:payment_service.py",
@@ -5569,6 +5863,12 @@
       "from": "proc:RB-PAY-001:BUG-298",
       "rel": "RESOLVED_BY_FIX",
       "to": "BUG-298",
+      "properties": {}
+    },
+    {
+      "from": "project:test_ent",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:8a4aaf8",
       "properties": {}
     },
     {

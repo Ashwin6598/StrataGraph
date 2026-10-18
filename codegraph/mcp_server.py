@@ -34,6 +34,7 @@ from .tools.ingest_tools import (
     ingest_adr as _ingest_adr,
     ingest_runbook as _ingest_runbook,
     record_bugfix as _record_bugfix,
+    approve_bugfix_via_email as _approve_bugfix_via_email,
 )
 
 logger = logging.getLogger("codegraph.mcp")
@@ -217,6 +218,22 @@ def record_bugfix(
         affected_function_name=affected_function_name,
         approved_by_lead=approved_by_lead,
         date=date
+    )
+
+
+@server.tool(
+    name="approve_bugfix_via_email",
+    description="Validate Code Domain Owner's email approval token and permanently ingest the BugFix/RCA into FalkorDB."
+)
+def approve_bugfix_via_email(
+    ticket_id: str,
+    approval_token: str,
+    approver_email: Optional[str] = None
+) -> Dict[str, Any]:
+    return _approve_bugfix_via_email(
+        ticket_id=ticket_id,
+        approval_token=approval_token,
+        approver_email=approver_email
     )
 
 

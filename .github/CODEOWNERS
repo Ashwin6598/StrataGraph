@@ -1,0 +1,17 @@
+# Code Domain Ownership for PayFlow & CodeGraph
+# Standard GitHub / GitLab CODEOWNERS format
+
+# Payment Core Domain
+demo_data/code/payment_service.py payment-domain-owner@payflow.internal
+
+# Fraud & Risk Domain
+demo_data/code/fraud_detector.py fraud-security-owner@payflow.internal
+
+# Refunds & Settlements Domain
+demo_data/code/refund_processor.py settlements-owner@payflow.internal
+
+# Communications & Notifications Domain
+demo_data/code/notification_service.py notifications-team@payflow.internal
+
+# Default Fallback Domain Owner
+* domain.owner@payflow.internal

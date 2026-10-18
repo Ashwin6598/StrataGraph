@@ -26,6 +26,7 @@ from .ingest_tools import (
     ingest_adr,
     ingest_runbook,
     record_bugfix,
+    approve_bugfix_via_email,
 )
 
 __all__ = [
@@ -46,4 +47,6 @@ __all__ = [
     "ingest_adr",
     "ingest_runbook",
     "record_bugfix",
+    "approve_bugfix_via_email",
 ]
+

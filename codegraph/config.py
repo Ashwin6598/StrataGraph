@@ -31,6 +31,15 @@ class Settings(BaseModel):
     mcp_http_port: int = Field(default_factory=lambda: int(os.getenv("MCP_HTTP_PORT", "8000")))
     mcp_auth_token: str = Field(default_factory=lambda: os.getenv("MCP_AUTH_TOKEN", ""))
 
+    # Code Domain Ownership & Email Approval
+    code_domain_owner: str = Field(default_factory=lambda: os.getenv("CODE_DOMAIN_OWNER", "payment-lead@payflow.internal"))
+    smtp_host: str = Field(default_factory=lambda: os.getenv("SMTP_HOST", ""))
+    smtp_port: int = Field(default_factory=lambda: int(os.getenv("SMTP_PORT", "587")))
+    smtp_user: str = Field(default_factory=lambda: os.getenv("SMTP_USER", ""))
+    smtp_password: str = Field(default_factory=lambda: os.getenv("SMTP_PASSWORD", ""))
+    smtp_from: str = Field(default_factory=lambda: os.getenv("SMTP_FROM", "codegraph-alerts@payflow.internal"))
+    approval_base_url: str = Field(default_factory=lambda: os.getenv("APPROVAL_BASE_URL", "http://localhost:8000"))
+
     # Paths
     base_dir: Path = Field(default_factory=lambda: Path(__file__).resolve().parent.parent)
 

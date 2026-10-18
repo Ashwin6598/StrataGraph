@@ -4,6 +4,7 @@ Allows AI Agents and CI/CD pipelines to dynamically mutate and update the knowle
 Includes an explicit human approval workflow for recording new BugFixes and Root Cause Analyses.
 """
 
+import secrets
 from typing import Dict, Any, Optional
 from ..db import db
 from ..schema import IssueNode, FixNode, Relationships, ExplainableResult
@@ -11,6 +12,7 @@ from ..ingest.code_parser import CodebaseParser
 from ..ingest.prd_parser import PRDParser
 from ..ingest.adr_parser import ADRParser
 from ..ingest.change_tracker import ChangeTracker
+from ..approval_service import resolve_domain_owner, send_approval_email, approve_bugfix_and_ingest
 
 
 def ingest_codebase(directory_path: str) -> Dict[str, Any]:
@@ -61,12 +63,15 @@ def record_bugfix(
 ) -> Dict[str, Any]:
     """
     Records a resolved production bug, RCA, and verified fix into the Operations chain of the knowledge graph.
-    Enforces the mandatory approval workflow: unapproved bug fixes are flagged as PENDING_APPROVAL.
+    Enforces the mandatory approval workflow: unapproved bug fixes dispatch an approval email to the Code Domain Owner.
     """
-    status = "APPROVED" if approved_by_lead else "PENDING_APPROVAL"
     clean_func = affected_function_name.replace("func:", "")
     issue_id = f"issue:{ticket_id}"
     fix_id = f"fix:{ticket_id}"
+
+    domain_owner = resolve_domain_owner(function_name=clean_func)
+    approval_token = secrets.token_hex(16) if not approved_by_lead else None
+    status = "APPROVED" if approved_by_lead else "PENDING_APPROVAL"
 
     # Create Issue
     issue_node = IssueNode(
@@ -88,7 +93,9 @@ def record_bugfix(
         action_taken=fix_summary,
         commit_hash="pending" if not approved_by_lead else "approved_hash",
         approved_by="lead_reviewer" if approved_by_lead else "unapproved",
-        approval_status=status
+        approval_status=status,
+        domain_owner_email=domain_owner,
+        approval_token=approval_token
     )
     db.create_node(fix_id, "Fix", fix_node.model_dump())
 
@@ -99,6 +106,20 @@ def record_bugfix(
         db.create_edge(fix_id, Relationships.FIXES_FUNCTION, target_fn_id, {"approval_status": status})
 
     db.flush()
+
+    # If unapproved, dispatch email to the Code Domain Owner
+    email_dispatched = False
+    if not approved_by_lead:
+        email_res = send_approval_email(
+            to_email=domain_owner,
+            ticket_id=ticket_id,
+            symptom=symptom,
+            rca=rca,
+            fix_summary=fix_summary,
+            affected_function_name=clean_func,
+            approval_token=approval_token
+        )
+        email_dispatched = email_res.get("dispatched", False)
 
     cypher = f"""
     MERGE (i:Issue {{id: '{issue_id}'}})
@@ -111,16 +132,41 @@ def record_bugfix(
     MERGE (fx)-[:FIXES_FUNCTION {{status: '{status}'}}]->(f)
     """
 
+    msg = (
+        "BugFix and RCA successfully registered in knowledge graph Operations chain."
+        if approved_by_lead
+        else f"Approval request dispatched to Code Domain Owner <{domain_owner}> via email. Fix recorded under PENDING_APPROVAL and will be ingested once approved."
+    )
+
     return ExplainableResult(
         result={
             "ticket_id": ticket_id,
             "status": status,
             "approved": approved_by_lead,
+            "domain_owner": domain_owner,
+            "approval_token": approval_token,
+            "email_dispatched": email_dispatched,
             "affected_function": clean_func,
-            "message": "BugFix and RCA successfully registered in knowledge graph Operations chain."
-            if approved_by_lead else "BugFix recorded under PENDING_APPROVAL. Architectural lead review required before permanent indexing."
+            "message": msg
         },
         cypher_query=cypher.strip(),
         traversal_path=[],
         explanation="Graph mutation: Issue and Fix node creation linked to Function via MANIFESTED_IN_FUNCTION and FIXES_FUNCTION."
     ).model_dump()
+
+
+def approve_bugfix_via_email(
+    ticket_id: str,
+    approval_token: str,
+    approver_email: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Approves a pending BugFix using the secure token received via email and ingests it into FalkorDB.
+    Activates the (:Fix)-[:FIXES_FUNCTION {status: 'APPROVED'}]->(:Function) edge.
+    """
+    return approve_bugfix_and_ingest(
+        ticket_id=ticket_id,
+        approval_token=approval_token,
+        approver_email=approver_email
+    )
+

@@ -34,3 +34,5 @@ htmlcov/
 
 # Local cache & data
 data/
+.codegraph_email_outbox.json
+

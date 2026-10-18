@@ -292,30 +292,43 @@ In customer environments, clients simply point their MCP config to the URL:
 
 ---
 
+### 4. Code Domain Owner Email Approval & Ingestion Workflow
+When an AI agent or engineer fixes an incident via `record_bugfix()`, unapproved bug fixes do NOT immediately pollute the central knowledge graph:
+1. **Domain Owner Lookup:** The affected file/function is resolved against [`.github/CODEOWNERS`](file:///Users/ashwin/Documents/Projects/GraphHack/.github/CODEOWNERS) (e.g. `demo_data/code/payment_service.py` $\to$ `payment-domain-owner@payflow.internal`).
+2. **Email Dispatch:** A cryptographic approval token is generated and an actionable approval email is sent to the Code Domain Owner via standard library `smtplib`.
+3. **Verified DB Ingestion:** The owner can approve via:
+   - One-Click HTTP link: `http://localhost:8000/api/approve?ticket=BUG-342&token=<token>`
+   - CLI command: `uv run python -m codegraph approve-bugfix --ticket BUG-342 --token <token>`
+   - MCP tool: `approve_bugfix_via_email(ticket_id="BUG-342", approval_token="<token>")`
+4. **Graph Activation:** Upon validation, the fix status is upgraded to `APPROVED`, `approved_by` is bound to the owner's email, and the relationship `(:Fix)-[:FIXES_FUNCTION {status: 'APPROVED'}]->(:Function)` is permanently activated in FalkorDB.
+
+---
+
 ## 🧪 Running Automated Tests
 
-Run the full 56-test pytest suite:
+Run the full 63-test pytest suite:
 
 ```bash
 uv run pytest -v
-# 56 passed in 0.49s
+# 63 passed in 0.56s
 ```
 
 The modular test suite in [`tests/`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/) provides comprehensive test coverage:
 * `test_db_engine.py`: Graph database engine, CRUD, neighbor traversal, and fallback storage
 * `test_parsers.py`: Multi-language code parser (Python AST, TypeScript, Go), document converter (HTML, JSON/Jira, Markdown, Plain Text), PRD & ADR parsers, runbooks
+* `test_email_approval.py`: Code Domain Owner resolution (.github/CODEOWNERS), email dispatch, token verification, and DB ingestion
 * `test_product_tools.py`: PRD compliance metrics, plain-English scenario simulation, change timeline
 * `test_developer_tools.py`: Incident diagnostics, safe-to-change checks, 4-pillar lineage, PR diff audits
 * `test_shared_and_ingest.py`: Full-text search, N-hop neighborhood expansion, unified pipeline, approval workflow
-* `test_mcp_server.py`: Async MCP 2.x server initialization, 17 tools registry, persona prompts
-* `test_cli.py`: Click CLI commands (`status`, `demo`, `seed`, `ingest`, `help`)
+* `test_mcp_server.py`: Async MCP 2.x server initialization, 18 tools registry, persona prompts
+* `test_cli.py`: Click CLI commands (`status`, `demo`, `seed`, `ingest`, `approve-bugfix`, `help`)
 
 ---
 
 ## 🏆 Hackathon Track Criteria Alignment
 
 - **Multi-hop reasoning:** `simulate_scenario` and `get_related_entities` traverse chains: `Scenario -> Requirement -> Function -> Calls -> Decisions`.
-- **Graph queries as agent tools:** All 17 tools generate and execute OpenCypher queries against FalkorDB.
+- **Graph queries as agent tools:** All 18 tools generate and execute OpenCypher queries against FalkorDB.
 - **Tool selection through MCP:** Standardized MCP 2.x protocol allows seamless tool discovery and invocation by any agent client.
 - **Actions based on graph shows:** Produces concrete safety verdicts (`SAFE` vs `UNSAFE`), RCAs with line numbers, and PR merge gating (`REQUEST_CHANGES` vs `APPROVE`).
 - **Explainable results:** Every tool response includes `cypher_query` and `traversal_path` demonstrating exact data lineage.
@@ -336,6 +349,8 @@ Foundational architectural decisions for every CodeGraph component are documente
 * [**ADR-008:** Comprehensive Verification & Test Strategy](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/008-comprehensive-verification-and-test-strategy.md)
 * [**ADR-009:** Unified Production Ingestion Pipeline & Auto-Linker](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/009-unified-production-ingestion-pipeline.md)
 * [**ADR-010:** Multi-Format Enterprise Document & Polyglot Ingestion Adapter](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/010-multi-format-enterprise-document-and-polyglot-ingestion.md)
+* [**ADR-011:** Code Domain Owner Email Approval & Ingestion Workflow](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/011-domain-owner-email-approval-and-ingestion-flow.md)
+
 
 
 

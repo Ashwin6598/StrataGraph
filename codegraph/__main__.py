@@ -69,10 +69,31 @@ def ingest(project_name: str, project_id: str, code: str, prd: str, adr: str, ru
 
 
 @main.command()
+@click.option("--ticket", "-t", required=True, help="Incident ticket ID (e.g. BUG-342)")
+@click.option("--token", "-k", required=True, help="Secure approval token received in email")
+@click.option("--approver", "-a", default=None, help="Email of approving Code Domain Owner")
+def approve_bugfix(ticket: str, token: str, approver: str):
+    """Approve a pending BugFix/RCA using the email token and ingest it into the DB."""
+    from .tools.ingest_tools import approve_bugfix_via_email
+    click.echo(f"\n🔐 Processing Code Domain Owner Approval for '{ticket}'...")
+    res = approve_bugfix_via_email(ticket_id=ticket, approval_token=token, approver_email=approver)
+    result_data = res.get("result", {})
+    if result_data.get("status") == "APPROVED":
+        click.echo("✅ Ingestion Successful!")
+        click.echo(f"  • Ticket:    {result_data.get('ticket_id')}")
+        click.echo(f"  • Approver:  {result_data.get('approved_by')}")
+        click.echo(f"  • Status:    {result_data.get('status')}")
+        click.echo(f"  • Message:   {result_data.get('message')}\n")
+    else:
+        click.echo(f"❌ Approval Failed: {result_data.get('message')}\n")
+
+
+@main.command()
 def seed():
     """Seed the knowledge graph with the PayFlow demo dataset."""
     from seed import seed_all
     seed_all()
+
 
 
 

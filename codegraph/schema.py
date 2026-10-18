@@ -143,6 +143,7 @@ class FunctionNode(BaseModel):
     line_end: int
     docstring: Optional[str] = None
     source_code: Optional[str] = None
+    domain_owner: Optional[str] = None
 
 
 class CodeLogicNode(BaseModel):
@@ -265,6 +266,8 @@ class FixNode(BaseModel):
     commit_hash: str
     approved_by: str
     approval_status: str = "APPROVED"  # "APPROVED", "PENDING_APPROVAL"
+    domain_owner_email: Optional[str] = None
+    approval_token: Optional[str] = None
 
 
 class OpResultNode(BaseModel):
