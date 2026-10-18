@@ -23,100 +23,42 @@ StrataGraph is designed with two distinct operational planes:
 2. **Standalone Production Ingestion Plane (CLI & CI/CD):** An independent core subsystem (`codegraph/ingest/`) indexes arbitrary polyglot codebases (ASTs), enterprise documentation formats (Markdown, PDF, Confluence, Word, Jira), and git commit histories directly into FalkorDB without requiring an active LLM or MCP session.
 
 ```
-=============================================================================================================
-                                     STRATAGRAPH SYSTEM ARCHITECTURE
-=============================================================================================================
-
- ┌─────────────────────────────────────────────────────────┐  ┌────────────────────────────────────────────┐
- │                  Interactive MCP Clients                │  │    Standalone Automation, CLI & CI/CD      │
- │     (Claude Desktop / Cursor / Antigravity / Copilot)   │  │ (python -m codegraph ingest / Git Hooks)   │
- └────────────────────────────┬────────────────────────────┘  └─────────────────────┬──────────────────────┘
-                              │ JSON-RPC (stdio or HTTP/SSE)                        │ Direct CLI Ingestion
-                              ▼                                                     ▼
- ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
- │                       🛡️ Agent Security Harness & Ingestion Guardrails (ADR-017)                         │
- │  • Pre-Execution IAM RBAC Gate (enforce_permission)     • Anti-DoS Payload Limit (10MB Cap)             │
- │  • Canonical Path Sandboxing (Path.resolve / LFI)       • Adversarial Prompt Injection Sanitizer        │
- │  • Sensitive Secret Shield (.env, id_rsa, keys)         • Staged Quarantine Gate (PENDING_APPROVAL)     │
- └────────────────────────────┬─────────────────────────────────────────────────────┬──────────────────────┘
-                              │                                                     │
-                              ▼                                                     ▼
- ┌─────────────────────────────────────────────────────────┐  ┌────────────────────────────────────────────┐
- │               StrataGraph MCP Server Layer              │  │        Standalone Ingestion Engine         │
- │                  (codegraph/mcp_server.py)              │  │           (codegraph/ingest/)              │
- │                                                         │  ├────────────────────────────────────────────┤
- │ 🏛️ Systems Architect Persona (architect_advisor)        │  │ • CodebaseParser (AST: Py, TS, Go, Java)   │
- │   • propose_architectural_change • list_iam_roles       │  │ • DocumentConverter (PDF, DOCX, HTML, TXT) │
- │   • approve_architectural_prop   • check_safe_to_change │  │ • PRDParser & ADRParser & ChangeTracker    │
- │   • check_iam_permission         • search_graph         │  │ • JiraParser (Epics, Features, Stories)    │
- │                                                         │  │ • GitCommitLogExtractor (git log lineage)  │
- │ 📋 Product Manager Persona (product_advisor)            │  │ • Heuristic Cross-Entity Auto-Linker       │
- │   • query_prd_coverage           • list_uncovered_req   │  └─────────────────────┬──────────────────────┘
- │   • simulate_scenario (NL)       • update_prd_features  │                        │
- │   • get_change_history           • approve_prd_update   │                        │
- │                                                         │                        │
- │ 💻 Software Engineer Persona (developer_assistant)      │                        │
- │   • debug_issue (RCA matching)   • review_pr_diff       │                        │
- │   • check_safe_to_change         • cross_org_bug_check  │                        │
- │   • get_function_lineage         • record_bugfix        │                        │
- │                                                         │                        │
- │ 📊 Program Manager (TPM) Persona (program_manager)      │                        │
- │   • query_program_delivery_status• get_lead_time_metrics│                        │
- │   • diagnose_delivery_bottlenecks• trace_delivery_chain │                        │
- │   • unlock_cross_team_cap        • create_epic/feat/st  │                        │
- │                                                         │                        │
- │ 🔍 Shared Exploration Tools                             │                        │
- │   • search_graph  • get_related_entities  • explain_path│                        │
- └────────────────────────────┬────────────────────────────┘                        │
-                              │                                                     │
-                              │               ┌─────────────────────────────────────┴──────────────────────┐
-                              │               │   🔐 Cryptographic Human-in-the-Loop Approval Gateway      │
-                              │               │   • Code Domain Owner (.github/CODEOWNERS) ➔ BugFix Gate   │
-                              │               │   • PRD Owner (Project.prd_owner) ➔ Requirements Gate      │
-                              │               │   • Architect Lead (Project.architect_owner) ➔ ADR Gate    │
-                              │               │   Channels: 1-Click HTTP Link / CLI / MCP Approval Tools   │
-                              │               └─────────────────────────────────────┬──────────────────────┘
-                              │                                                     │
-                              ▼                                                     ▼
- ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
- │                               🗄️ Dual-Engine Graph Persistence Layer                                     │
- │                                                                                                         │
- │   Primary: FalkorDB (SuiteSparse:GraphBLAS)           Fallback: LocalMemoryGraph (Zero-Dependency)      │
- │   • Matrix Multiplication (C = A · B) over semirings  • Deterministic In-Memory Property Graph Engine    │
- │   • 24 Single-Property Indexes (O(1) lookups)         • Multi-Hop BFS Neighborhood Traverser            │
- │   • Categorical String Interning (intern($val))       • Atomic State File (codegraph_local_store.json)  │
- │   • Parameterized Plan Caching ($params)              • 100% Offline Resilience (No Docker Required)    │
- └────────────────────────────────────────────────────┬────────────────────────────────────────────────────┘
-                                                      │
-                                                      ▼
- ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
- │                               🧠 5-Pillar Connected Knowledge Graph Data Model                           │
- │                                                                                                         │
- │                     ┌─────────────────────────── [ Root: Project ] ───────────────────────────┐         │
- │                     │   • codebase_owner       • prd_owner       • architect_owner            │         │
- │                     ▼                           ▼                           ▼                 │         │
- │    ┌───────────────────────────┐ ┌───────────────────────────┐ ┌───────────────────────────┐ │         │
- │    │     1. CodeBase Pillar    │ │       2. PRD Pillar       │ │       3. ADR Pillar       │ │         │
- │    │ CodeInput ➔ LogicFlow     │ │ PRDInput ➔ Requirement    │ │ ADRRequirement ➔ Architecture│         │
- │    │ ➔ Class ➔ Function        │ │ ➔ Guardrail ➔ PRDOutput   │ │ ➔ Decision ➔ ADRResult    │ │         │
- │    │ ➔ CodeLogic ➔ CodeOutput  │ │                           │ │ (Governing Invariants)    │ │         │
- │    └─────────────┬─────────────┘ └─────────────┬─────────────┘ └─────────────┬─────────────┘ │         │
- │                  │                             │                             │               │         │
- │                  ▼                             ▼                             ▼               │         │
- │    ┌───────────────────────────┐                 ┌───────────────────────────┐               │         │
- │    │    4. Operations Pillar   │                 │   5. Program Flow Pillar  │◄──────────────┘         │
- │    │ Issue (Incident/Bug)      │                 │ Epic ➔ AgileFeature       │                         │
- │    │ ➔ RCA (Root Cause)        │                 │ ➔ Story (Agile Task)      │                         │
- │    │ ➔ Fix ➔ OpResult          │                 │ ➔ Developer / Function    │                         │
- │    └─────────────┬─────────────┘                 └─────────────┬─────────────┘                         │
- │                  │                                             │                                       │
- │                  └───────────────────────┬─────────────────────┘                                       │
- │                                          ▼                                                             │
- │               ┌─────────────────────────────────────────────────────────────────────┐                  │
- │               │             Temporal Lineage Anchor: ChangeTimeline                 │                  │
- │               │      (Captures WHAT changed and WHY it changed across all pillars)  │                  │
- │               └─────────────────────────────────────────────────────────────────────┘                  │
- └─────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────┐        ┌──────────────────────────────┐
+│ Interactive MCP Clients      │        │ Standalone Automation / CI   │
+│ (Claude / Cursor / IDEs)     │        │ (CLI: codegraph ingest / Git)│
+└───────────────┬──────────────┘        └───────────────┬──────────────┘
+                │ stdio / HTTP                          │ Direct CLI Ingestion
+                ▼                                       ▼
+┌───────────────┴──────────────┐        ┌───────────────┴──────────────┐
+│ StrataGraph MCP Server       │        │ Standalone Ingestion Engine  │
+│ • 4 Persona Agents           │        │ • Multi-Language AST Parsers │
+│ • 33 Analytical Tools        │        │ • PRD, ADR, Jira, Runbooks   │
+└───────────────┬──────────────┘        └───────────────┬──────────────┘
+                │                                       │
+                ▼                                       ▼
+┌───────────────┴───────────────────────────────────────┴──────────────┐
+│                 Security Harness & Approval Gateway                  │
+│   • Pre-Execution IAM RBAC Gate        • Anti-DoS & Sandbox Shield   │
+│   • Multi-Persona Approval Gateway     • HMAC-SHA256 Token Approvals │
+└──────────────────────────────────┬───────────────────────────────────┘
+                                   │ OpenCypher Mutations & Queries
+                                   ▼
+┌──────────────────────────────────┴───────────────────────────────────┐
+│                 Dual-Engine Graph Persistence Layer                  │
+│  Primary: FalkorDB (GraphBLAS)    │    Fallback: LocalMemoryGraph    │
+└──────────────────────────────────┬───────────────────────────────────┘
+                                   │
+                                   ▼
+┌──────────────────────────────────┴───────────────────────────────────┐
+│            5-Pillar Connected Knowledge Graph Data Model             │
+│                                                                      │
+│      1. CodeBase  ◄───►  2. PRD Specs  ◄───►  3. ADR Invariants      │
+│          ▲                      ▲                      ▲             │
+│          │                      │                      │             │
+│      4. Operations (RCA) ───┴─── 5. Program Flow (Agile / Jira)      │
+│                                  │                                   │
+│         Temporal Lineage Anchor: ChangeTimeline (WHAT & WHY)         │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
 ```mermaid
