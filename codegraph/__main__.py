@@ -196,12 +196,18 @@ def demo():
 
     # Program Scenario 1
     click.echo("--- [Program Persona] Scenario 5: What is the delivery progress and where are the bottlenecks? ---")
-    from .tools.program_tools import query_program_delivery_status, diagnose_delivery_bottlenecks
+    from .tools.program_tools import query_program_delivery_status, diagnose_delivery_bottlenecks, unlock_cross_team_capabilities
     prog = query_program_delivery_status()
     click.echo(prog["explanation"])
     bottlenecks = diagnose_delivery_bottlenecks()
     click.echo(bottlenecks["explanation"])
     click.echo(f"Cypher Query Executed:\n  {prog['cypher_query']}\n")
+
+    # Program Scenario 2
+    click.echo("--- [Program Persona] Scenario 6: How can we unlock cross-team capabilities to accelerate delivery? ---")
+    cross_team = unlock_cross_team_capabilities()
+    click.echo(cross_team["explanation"])
+    click.echo(f"Cypher Query Executed:\n  {cross_team['cypher_query']}\n")
 
     click.echo("========================================================")
     click.echo("✅ Demo completed with 100% graph explainability across 3 Personas!")

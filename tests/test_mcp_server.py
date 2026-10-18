@@ -53,6 +53,7 @@ async def test_mcp_tool_registry():
     assert "get_feature_lead_time_metrics" in tool_names
     assert "trace_requirement_to_delivery_chain" in tool_names
     assert "ingest_jira_board" in tool_names
+    assert "unlock_cross_team_capabilities" in tool_names
 
 
 @pytest.mark.anyio
@@ -101,6 +102,7 @@ async def test_mcp_program_manager_prompt_rules():
     assert "ROLES AND RESPONSIBILITIES" in messages_text
     assert "query_program_delivery_status" in messages_text
     assert "diagnose_delivery_bottlenecks" in messages_text
+    assert "unlock_cross_team_capabilities" in messages_text
 
 
 @pytest.mark.anyio
@@ -123,5 +125,13 @@ async def test_mcp_call_tool_developer():
 async def test_mcp_call_tool_program():
     """Verify executing a program manager tool via MCP returns valid content."""
     res = await server.call_tool("query_program_delivery_status", {"project_id": "project:payflow"})
+    assert res is not None
+    assert len(res.content) > 0
+
+
+@pytest.mark.anyio
+async def test_mcp_call_tool_unlock_cross_team():
+    """Verify executing unlock_cross_team_capabilities via MCP returns valid content."""
+    res = await server.call_tool("unlock_cross_team_capabilities", {"project_id": "project:payflow"})
     assert res is not None
     assert len(res.content) > 0

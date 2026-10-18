@@ -44,6 +44,7 @@ from .tools.program_tools import (
     get_feature_lead_time_metrics as _get_feature_lead_time_metrics,
     trace_requirement_to_delivery_chain as _trace_requirement_to_delivery_chain,
     ingest_jira_board as _ingest_jira_board,
+    unlock_cross_team_capabilities as _unlock_cross_team_capabilities,
 )
 
 logger = logging.getLogger("codegraph.mcp")
@@ -57,8 +58,8 @@ server = MCPServer(
         "for business/product queries. "
         "Use Developer Tools (debug_issue, check_safe_to_change, get_function_lineage, review_pr_diff, cross_org_bug_check) "
         "for engineering diagnostics and safety checks. "
-        "Use Program Tools (query_program_delivery_status, diagnose_delivery_bottlenecks, get_feature_lead_time_metrics, trace_requirement_to_delivery_chain) "
-        "for agile sprint velocity, blocked dependency diagnosis, and PRD-to-code delivery tracking. "
+        "Use Program Tools (query_program_delivery_status, diagnose_delivery_bottlenecks, get_feature_lead_time_metrics, trace_requirement_to_delivery_chain, unlock_cross_team_capabilities) "
+        "for agile sprint velocity, blocked dependency diagnosis, cross-team capability unlocking, and PRD-to-code delivery tracking. "
         "Every tool returns explainable results with the underlying Cypher query and graph traversal path."
     )
 )
@@ -349,6 +350,17 @@ def ingest_jira_board(
     return _ingest_jira_board(jira_file_path=jira_file_path, project_id=project_id)
 
 
+@server.tool(
+    name="unlock_cross_team_capabilities",
+    description="Analyze cross-team domains and services across the connected knowledge graph to discover reusable capabilities, break down team silos, and provide concrete acceleration recommendations to deliver features faster."
+)
+def unlock_cross_team_capabilities(
+    project_id: str = "project:payflow",
+    target_service_or_feature: Optional[str] = None
+) -> Dict[str, Any]:
+    return _unlock_cross_team_capabilities(project_id=project_id, target_service_or_feature=target_service_or_feature)
+
+
 # =========================================================================
 # Predefined Agent Prompts
 # =========================================================================
@@ -391,16 +403,16 @@ def developer_assistant_prompt() -> str:
 def program_manager_prompt() -> str:
     return (
         "You are CodeGraph Program Advisor, an autonomous delivery intelligence assistant for Technical Program Managers (TPMs) and Agile Delivery Leads. "
-        "Your role is to monitor project velocity, sprint health, cycle time, blocked dependencies, and diagnose root-cause bottlenecks between PRDs and code. "
+        "Your role is to monitor project velocity, sprint health, cycle time, blocked dependencies, diagnose root-cause bottlenecks between PRDs and code, and unlock cross-team capabilities to accelerate delivery. "
         "ROLES AND RESPONSIBILITIES: "
-        "1. Primary Role: Delivery Velocity, Agile Workflow Governance, and Cross-Discipline Alignment Authority. "
-        "2. Core Responsibilities: Agile program delivery tracking across Epics, Features, and Stories (query_program_delivery_status), root-cause bottleneck diagnosis (diagnose_delivery_bottlenecks for definition gaps, active blockers, ghost deliveries), feature lead time and cycle time metrics (get_feature_lead_time_metrics), 5-pillar bidirectional requirement-to-code traceability (trace_requirement_to_delivery_chain), and Jira sprint board ingestion (ingest_jira_board). "
-        "3. Boundaries & Exclusions: NEVER output raw programming source code or AST syntax. NEVER unilaterally approve PRD scope changes (reserved for PRD Owner) or architectural fixes (reserved for Code Domain Owner). Focus exclusively on delivery progress, unblocking dependencies, cycle times, and cross-team alignment. "
+        "1. Primary Role: Delivery Velocity, Agile Workflow Governance, Cross-Team Capability Unlocking, and Cross-Discipline Alignment Authority. "
+        "2. Core Responsibilities: Agile program delivery tracking across Epics, Features, and Stories (query_program_delivery_status), root-cause bottleneck diagnosis (diagnose_delivery_bottlenecks for definition gaps, active blockers, ghost deliveries), unlocking cross-team domain capabilities and pattern reuse (unlock_cross_team_capabilities), feature lead time and cycle time metrics (get_feature_lead_time_metrics), 5-pillar bidirectional requirement-to-code traceability (trace_requirement_to_delivery_chain), and Jira sprint board ingestion (ingest_jira_board). "
+        "3. Boundaries & Exclusions: NEVER output raw programming source code or AST syntax. NEVER unilaterally approve PRD scope changes (reserved for PRD Owner) or architectural fixes (reserved for Code Domain Owner). Focus exclusively on delivery progress, unblocking dependencies, cycle times, cross-team capability reuse, and cross-team alignment. "
         "RULES: "
         "1. Speak in program management language: story points, sprint burndown, cycle times, blocked dependencies, release readiness %. "
         "2. Pinpoint the exact breakdown: definition gap, architecture delay, active engineering blocker, or ghost delivery. "
-        "3. Always ground answers by calling query_program_delivery_status, diagnose_delivery_bottlenecks, get_feature_lead_time_metrics, or trace_requirement_to_delivery_chain. "
-        "4. Proactively surface blocked stories with assignee names and specific blocker reasons."
+        "3. Always ground answers by calling query_program_delivery_status, diagnose_delivery_bottlenecks, get_feature_lead_time_metrics, trace_requirement_to_delivery_chain, or unlock_cross_team_capabilities. "
+        "4. Proactively surface blocked stories with assignee names, specific blocker reasons, and cross-team capability reuse opportunities to accelerate delivery."
     )
 
 

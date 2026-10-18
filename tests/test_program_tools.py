@@ -14,6 +14,7 @@ from codegraph.tools.program_tools import (
     get_feature_lead_time_metrics,
     trace_requirement_to_delivery_chain,
     ingest_jira_board,
+    unlock_cross_team_capabilities,
 )
 from codegraph.mcp_server import server
 
@@ -160,9 +161,51 @@ async def test_mcp_server_program_tools_and_prompt():
     assert "get_feature_lead_time_metrics" in tool_names
     assert "trace_requirement_to_delivery_chain" in tool_names
     assert "ingest_jira_board" in tool_names
+    assert "unlock_cross_team_capabilities" in tool_names
 
     prompts = await server.list_prompts()
     prompt_names = [p.name for p in prompts]
     assert "program_manager" in prompt_names
     assert "product_advisor" in prompt_names
     assert "developer_assistant" in prompt_names
+
+
+def test_unlock_cross_team_capabilities_all():
+    res = unlock_cross_team_capabilities(project_id="project:payflow")
+    data = res["result"]
+
+    assert data["project_id"] == "project:payflow"
+    assert data["total_cross_team_domains"] >= 3
+    assert len(data["reusable_cross_team_capabilities"]) >= 4
+    assert len(data["acceleration_opportunities"]) >= 2
+
+    # Verify key domains are recognized
+    domains = data["team_domain_matrix"]
+    assert "payment_service" in domains or "fraud_detector" in domains
+    assert "fraud_detector" in domains
+
+    # Verify Bob Martinez's retry capability is cataloged
+    caps = {c["capability"]: c for c in data["reusable_cross_team_capabilities"]}
+    assert "Resilient Network Retries with Exponential Backoff" in caps
+    assert caps["Resilient Network Retries with Exponential Backoff"]["owner_domain"] == "fraud_detector"
+
+    # Verify acceleration opportunities
+    opp_targets = [o["target_initiative"] for o in data["acceleration_opportunities"]]
+    assert any("PAY-FEAT-204" in t or "Dynamic Currency Conversion" in t for t in opp_targets)
+    assert any("PAY-FEAT-205" in t or "Partial Refund" in t for t in opp_targets)
+
+    assert "MATCH" in res["cypher_query"]
+    assert len(res["traversal_path"]) == 5
+    assert "Cross-Team Capability Analysis" in res["explanation"]
+
+
+def test_unlock_cross_team_capabilities_filtered():
+    res = unlock_cross_team_capabilities(
+        project_id="project:payflow",
+        target_service_or_feature="fraud_detector"
+    )
+    data = res["result"]
+    domains = data["team_domain_matrix"]
+    assert "fraud_detector" in domains
+    assert "payment_service" not in domains
+

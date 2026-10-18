@@ -208,7 +208,7 @@ Add to `.cursor/mcp.json` or VS Code MCP settings:
 |---------|---------------|---------------------|---------------|
 | **Product Manager** | `prompts/product-persona.md` | Plain English, business terms, completion %, zero code | `query_prd_coverage`, `simulate_scenario`, `get_change_history`, `list_uncovered_requirements`, `update_prd_features_and_scenarios`, `approve_prd_update_via_email` |
 | **Developer / SRE** | `prompts/developer-persona.md` | Technical, file paths, line numbers, ADR constraints | `debug_issue`, `check_safe_to_change`, `get_function_lineage`, `review_pr_diff`, `cross_org_bug_check` |
-| **Program Manager** | `prompts/program-persona.md` | Delivery velocity, story points, sprint burndown, cycle times, blockers | `query_program_delivery_status`, `diagnose_delivery_bottlenecks`, `get_feature_lead_time_metrics`, `trace_requirement_to_delivery_chain`, `ingest_jira_board` |
+| **Program Manager** | `prompts/program-persona.md` | Delivery velocity, story points, sprint burndown, cycle times, blockers, cross-team capability reuse | `query_program_delivery_status`, `diagnose_delivery_bottlenecks`, `unlock_cross_team_capabilities`, `get_feature_lead_time_metrics`, `trace_requirement_to_delivery_chain`, `ingest_jira_board` |
 
 ### 📋 Roles and Responsibilities of Each Persona Agent
 
@@ -244,13 +244,14 @@ Each persona agent is strictly bounded to the responsibilities and authority des
   * Do not manage sprint allocations or delivery timelines (delegated to Program Manager Persona).
 
 #### 3. Program Manager Persona Agent (`Program Advisor`)
-* **Primary Role:** Delivery Velocity, Agile Workflow Governance, and Cross-Discipline Alignment Authority.
+* **Primary Role:** Delivery Velocity, Agile Workflow Governance, Cross-Team Capability Unlocking, and Cross-Discipline Alignment Authority.
 * **Core Responsibilities:**
   * **Agile Program Delivery Tracking:** Monitor overall program progress across Epics (project-level initiation), Features (functional/service separation), and Stories (task-level developer assignments) using `query_program_delivery_status`.
   * **Root-Cause Bottleneck Diagnosis:** Pinpoint the exact breakdown where PRD requirements fail to convert into working code using `diagnose_delivery_bottlenecks`:
     * *Definition Gaps:* Unassigned or uncommitted PRD requirements stalling in backlog.
     * *Active Blockers:* Stories marked blocked with developer assignees and explicit blocker reasons.
     * *Ghost Deliveries:* Tickets marked "Done" in Jira with zero verified AST code functions in the repository.
+  * **Cross-Team Capability & Synergy Unlocking:** Analyze domain services and developer allocations across the entire project using `unlock_cross_team_capabilities` to discover reusable production code (e.g. retry loops, concurrency throttles, idempotency locks) and connect blocked engineers with domain owners to accelerate time-to-market.
   * **Turnaround & Cycle Time Metrics:** Compute lead times and cycle times from PRD requirement conception to working code using `get_feature_lead_time_metrics`, highlighting high-latency deliverables.
   * **5-Pillar End-to-End Traceability:** Trace any requirement, Jira ticket, or function across PRD ⟷ Jira ⟷ ADR ⟷ CodeBase ⟷ Operations using `trace_requirement_to_delivery_chain`.
   * **Jira Board Ingestion:** Synchronize sprint boards, issue links, story points, and blocker flags from Jira exports into the active knowledge graph using `ingest_jira_board`.
@@ -258,7 +259,7 @@ Each persona agent is strictly bounded to the responsibilities and authority des
   * NEVER output raw programming source code or AST implementation syntax (focus on service names, features, assignees, points, and sprints).
   * NEVER unilaterally approve PRD requirement scope changes (reserved for the PRD Owner).
   * NEVER unilaterally approve architectural constraint modifications or bug fixes (reserved for the Code Domain Owner).
-  * Focus exclusively on delivery progress, unblocking dependencies, cycle times, and cross-team alignment.
+  * Focus exclusively on delivery progress, unblocking dependencies, cycle times, cross-team capability reuse, and cross-team alignment.
 
 ---
 
@@ -304,6 +305,15 @@ Each persona agent is strictly bounded to the responsibilities and authority des
   > 🚨 **2 Delivery Bottlenecks Identified:**  
   > 1. **[Active Blocker] REQ-008 (Partial Refund Support):** Halted on ticket `PAY-307` assigned to Sarah Jenkins in Sprint 25. Reason: *Awaiting legal & accounting clearance on merchant interchange fee clawback accounting rule.*  
   > 2. **[Definition Gap] REQ-004 (Dynamic Currency Conversion):** Stalled in backlog; ticket `PAY-306` is unassigned and not committed to any active engineering sprint."
+
+### Scenario 6: Unlocking Cross-Team Capabilities to Accelerate Delivery
+- **User Prompt:** *"How can we unlock cross-team capabilities to accelerate delivery across our active domains?"*
+- **Agent Action:** Calls `unlock_cross_team_capabilities()`.
+- **Agent Output (Delivery Intelligence):**
+  > "🚀 **Cross-Team Synergy & Capability Discovery:**  
+  > • **Acceleration Opportunity 1 (Dynamic Currency Conversion - `PAY-306`):** The unassigned DCC Forex feature needs resilient HTTP calls to ECB rate feeds. Reusing Bob Martinez's `retry_with_backoff` (`ADR-001`) from `fraud_detector` saves **~5-8 story points** of boilerplate.  
+  > • **Cross-Domain Unblocking 2 (Partial Refunds - `PAY-307`):** Sarah Jenkins is blocked on merchant interchange fee clawback accounting rules. Alice Chen's team (`payment_service`) already implemented merchant fee breakdowns in `PAY-FEAT-201`. The TPM connects Sarah with Alice to adapt the fee calculations, immediately unblocking Sprint 25 delivery.  
+  > • **Duplicate Protection 3 (Idempotency Locks):** The partial refund flow directly reuses the Redis idempotency key middleware from `PAY-308` to prevent duplicate payouts."
 
 ---
 
