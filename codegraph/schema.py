@@ -25,6 +25,7 @@ class ProjectNode(BaseModel):
     created_at: str = "2025-10-01"
     codebase_owner: str = "payment-tech-lead@payflow.internal"
     prd_owner: str = "product-lead@payflow.internal"
+    architect_owner: str = "architect-lead@payflow.internal"
 
 
 
@@ -238,6 +239,11 @@ class DecisionNode(BaseModel):
     statement: str
     rationale: str
     invariants: str = ""
+    status: str = "APPROVED"  # "APPROVED", "PENDING_APPROVAL", "PROPOSED"
+    proposed_by: Optional[str] = None
+    approved_by: Optional[str] = None
+    approval_token: Optional[str] = None
+    architect_owner_email: Optional[str] = None
 
 
 class ADRResultNode(BaseModel):

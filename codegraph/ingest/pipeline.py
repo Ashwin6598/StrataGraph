@@ -27,13 +27,15 @@ class IngestionPipeline:
         project_id: str = "project:enterprise",
         repo_url: str = "https://github.com/organization/repo",
         codebase_owner: Optional[str] = None,
-        prd_owner: Optional[str] = None
+        prd_owner: Optional[str] = None,
+        architect_owner: Optional[str] = None
     ):
         self.project_name = project_name
         self.project_id = project_id
         self.repo_url = repo_url
         self.codebase_owner = codebase_owner or settings.codebase_owner
         self.prd_owner = prd_owner or settings.prd_owner
+        self.architect_owner = architect_owner or settings.architect_owner
         self.code_parser = CodebaseParser()
         self.prd_parser = PRDParser()
         self.adr_parser = ADRParser()
@@ -56,6 +58,7 @@ class IngestionPipeline:
             "project_id": self.project_id,
             "codebase_owner": self.codebase_owner,
             "prd_owner": self.prd_owner,
+            "architect_owner": self.architect_owner,
             "code_files_processed": 0,
             "prds_processed": 0,
             "adrs_processed": 0,
@@ -74,7 +77,8 @@ class IngestionPipeline:
             description=f"Automated knowledge graph for {self.project_name}",
             repository=self.repo_url,
             codebase_owner=self.codebase_owner,
-            prd_owner=self.prd_owner
+            prd_owner=self.prd_owner,
+            architect_owner=self.architect_owner
         )
         db.create_node(self.project_id, "Project", project_node.model_dump())
 

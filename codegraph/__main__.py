@@ -38,6 +38,7 @@ def serve(transport: str, port: int):
 @click.option("--project-id", "-i", default="project:enterprise", help="Unique ID of the project node")
 @click.option("--codebase-owner", default=None, help="Email of the Codebase Owner")
 @click.option("--prd-owner", default=None, help="Email of the PRD / Product Owner")
+@click.option("--architect-owner", default=None, help="Email of the Systems Architect Owner")
 @click.option("--code", "-c", default=None, help="Directory containing source code files")
 @click.option("--prd", default=None, help="Directory containing PRD markdown files")
 @click.option("--adr", default=None, help="Directory containing ADR markdown files")
@@ -45,14 +46,15 @@ def serve(transport: str, port: int):
 @click.option("--git", "-g", default=".", help="Path to git repository for commit extraction")
 @click.option("--jira", default=None, help="Path to Jira board export JSON file")
 @click.option("--max-commits", default=50, type=int, help="Maximum recent commits to extract")
-def ingest(project_name: str, project_id: str, codebase_owner: str, prd_owner: str, code: str, prd: str, adr: str, runbooks: str, git: str, jira: str, max_commits: int):
+def ingest(project_name: str, project_id: str, codebase_owner: str, prd_owner: str, architect_owner: str, code: str, prd: str, adr: str, runbooks: str, git: str, jira: str, max_commits: int):
     """Run the unified ingestion pipeline on arbitrary repositories and documents."""
     from .ingest.pipeline import IngestionPipeline
     pipeline = IngestionPipeline(
         project_name=project_name,
         project_id=project_id,
         codebase_owner=codebase_owner,
-        prd_owner=prd_owner
+        prd_owner=prd_owner,
+        architect_owner=architect_owner
     )
     click.echo(f"\n🚀 Running CodeGraph Ingestion Pipeline for '{project_name}'...")
     res = pipeline.run(
@@ -69,6 +71,7 @@ def ingest(project_name: str, project_id: str, codebase_owner: str, prd_owner: s
     click.echo("✅ Ingestion & Auto-Linking Complete!")
     click.echo(f"  • Codebase Owner:       {s['codebase_owner']}")
     click.echo(f"  • PRD Owner:            {s['prd_owner']}")
+    click.echo(f"  • Architect Owner:      {s.get('architect_owner', 'N/A')}")
     click.echo(f"  • Code Files Processed: {s['code_files_processed']}")
     click.echo(f"  • PRD Documents:        {s['prds_processed']}")
     click.echo(f"  • ADR Documents:        {s['adrs_processed']}")
@@ -123,6 +126,26 @@ def approve_prd(feature_id: str, token: str, approver: str):
 
 
 @main.command()
+@click.option("--decision-id", "-d", required=True, help="ADR Decision ID (e.g. ADR-003:multi_region_failover)")
+@click.option("--token", "-k", required=True, help="Secure approval token received in email")
+@click.option("--approver", "-a", default="architect-lead@payflow.internal", help="Email of approving Architect")
+def approve_architecture(decision_id: str, token: str, approver: str):
+    """Approve a proposed architectural decision (ADR) using the email token and ingest it into the DB."""
+    from .tools.architect_tools import approve_architectural_proposal_via_email
+    click.echo(f"\n🔐 Processing Architect Approval for Decision '{decision_id}'...")
+    res = approve_architectural_proposal_via_email(decision_id=decision_id, approval_token=token, actor=approver)
+    result_data = res.get("result", {})
+    if result_data.get("status") == "APPROVED":
+        click.echo("✅ Ingestion Successful!")
+        click.echo(f"  • Decision:  {result_data.get('decision_id')}")
+        click.echo(f"  • Approver:  {result_data.get('approved_by')}")
+        click.echo(f"  • Status:    {result_data.get('status')}")
+        click.echo(f"  • Message:   {result_data.get('message')}\n")
+    else:
+        click.echo(f"❌ Approval Failed: {res.get('message') or result_data.get('message')}\n")
+
+
+@main.command()
 def seed():
     """Seed the knowledge graph with the PayFlow demo dataset."""
     from seed import seed_all
@@ -154,7 +177,8 @@ def status():
     if project_props:
         click.echo(f"  • Project Name:    {project_props.get('name')}")
         click.echo(f"  • Codebase Owner:  {project_props.get('codebase_owner', 'N/A')}")
-        click.echo(f"  • PRD Owner:       {project_props.get('prd_owner', 'N/A')}\n")
+        click.echo(f"  • PRD Owner:       {project_props.get('prd_owner', 'N/A')}")
+        click.echo(f"  • Architect Owner: {project_props.get('architect_owner', 'N/A')}\n")
     else:
         click.echo("")
 

@@ -35,16 +35,24 @@ Instead of a siloed custom UI, CodeGraph is an **MCP (Model Context Protocol) Se
 │  │  • get_change_history │      • get_function_lineage   │  │
 │  │  • list_uncovered_req │      • review_pr_diff         │  │
 │  │  • update_prd_features│      • cross_org_bug_check    │  │
-│  │  • approve_prd_update │                               │  │
+│  │  • approve_prd_update │      • propose_architecture   │  │
 │  └───────────────────────┴───────────────────────────────┘  │
 │  ┌───────────────────────┬───────────────────────────────┐  │
-│  │ Program Manager Persona│       Ingestion & Mutations   │  │
-│  │  • query_program_stats │      • ingest_code / prd / adr│  │
-│  │  • diagnose_bottlenecks│      • ingest_jira_board      │  │
-│  │  • get_lead_time_stats │      • record_bugfix (Approval│  │
-│  │  • trace_delivery_chain│      • approve_bugfix_email   │  │
-│  │  • search_graph        │      • approve_prd_email      │  │
+│  │ Program Manager Persona│     Systems Architect Persona │  │
+│  │  • query_program_stats │      • propose_architecture   │  │
+│  │  • diagnose_bottlenecks│      • approve_architecture   │  │
+│  │  • get_lead_time_stats │      • check_iam_permission   │  │
+│  │  • trace_delivery_chain│      • list_iam_roles         │  │
+│  │  • unlock_capabilities │      • search_graph           │  │
+│  │  • create_epic/feat/st │      • check_safe_to_change   │  │
 │  └───────────────────────┴───────────────────────────────┘  │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │          Ingestion, Governance & IAM Mutations        │  │
+│  │  • ingest_code / prd / adr / runbooks / jira_board    │  │
+│  │  • record_bugfix (Code Domain Owner Email Approval)   │  │
+│  │  • update_prd_features (PRD Owner Email Approval)     │  │
+│  │  • propose_architecture (Architect Email Approval)    │  │
+│  └───────────────────────────────────────────────────────┘  │
 └──────────────────────────────┬──────────────────────────────┘
                                 │ OpenCypher
 ┌──────────────────────────────▼──────────────────────────────┐
@@ -74,7 +82,7 @@ Instead of a siloed custom UI, CodeGraph is an **MCP (Model Context Protocol) Se
 
 ### 🔗 The 5-Pillar Connected Data Model
 
-All entities stem from **`Project`** (which explicitly records the **`codebase_owner`** and **`prd_owner`**) and are interconnected across their lifecycle:
+All entities stem from **`Project`** (which explicitly records the **`codebase_owner`**, **`prd_owner`**, and **`architect_owner`**) and are interconnected across their lifecycle:
 
 1. **CodeBase Chain:** `Project` ➔ `CodeInput` ➔ `LogicFlow` ➔ `Class` ➔ `Function` ➔ `CodeLogic` ➔ `CodeOutput`
 2. **PRD Chain:** `Project` ➔ `PRDInput` ➔ `FunctionalRequirement` ➔ `Guardrail` ➔ `PRDOutput`
@@ -83,9 +91,10 @@ All entities stem from **`Project`** (which explicitly records the **`codebase_o
 5. **Program Flow Chain (Agile / Jira Execution):** `Project` ➔ `Epic` ➔ `AgileFeature` ➔ `Story` ➔ `Developer / AST Function`
 6. **Timeline & History:** `ChangeTimeline` records **WHAT** changed and **WHY** it changed, linked to `FunctionalRequirement`, `Decision`, `Fix`, and commits.
 
-#### Dual-Ownership Model on `Project`:
-* **`codebase_owner`** (e.g., `payment-tech-lead@payflow.internal`): Escalation lead for architectural constraints, AST breaks, and code regressions.
-* **`prd_owner`** (e.g., `product-lead@payflow.internal`): Escalation lead for requirement coverage gaps, agile deliverables, and business guardrail failures.
+#### Triple-Ownership & Governance Model on `Project`:
+* **`codebase_owner`** (e.g., `payment-tech-lead@payflow.internal`): Lead Software Engineer accountable for codebase modifications, bug fixes, and AST integrity.
+* **`prd_owner`** (e.g., `product-lead@payflow.internal`): Principal Product Manager accountable for business requirements, acceptance scenarios, and guardrails.
+* **`architect_owner`** (e.g., `architect-lead@payflow.internal`): Chief Systems Architect accountable for architectural patterns, system invariants, and ADR proposal approvals.
 
 #### Cross-Entity Interlinks:
 * **Code is built from ADR:** `Decision` ➔ `CONSTRAINS_FUNCTION` / `ENFORCED_IN_CODE_LOGIC` ➔ `Function` / `CodeLogic`
@@ -414,29 +423,47 @@ The ingestion parser automatically maps:
 - `AgileFeature` ➔ `HAS_STORY` ➔ `Story`
 - Synthesizes `REALIZES_REQUIREMENT` to PRD and `IMPLEMENTS_CODE` to AST functions.
 
+### 7. IAM Role-Based Access Control (RBAC) & Architectural Governance
+CodeGraph enforces strict enterprise separation of duties and individual roles & responsibilities via `codegraph/iam.py`:
+* **Program Manager (`MANAGE_AGILE_FLOW`):** Can create new Epics, Features, and Stories directly via agent tools (`create_epic`, `create_feature`, `create_story`).
+* **Product Manager (`UPDATE_PRD`):** Holds exclusive authority to author/update PRD requirements, scenarios, and guardrails (`update_prd_features_and_scenarios`), routing approvals to `Project.prd_owner`.
+* **Developer (`MODIFY_CODEBASE`, `PROPOSE_ARCHITECTURE`):** Can record bug fixes and modify code (`record_bugfix`), and can *propose* architectural ADR adjustments (`propose_architectural_change`).
+* **Systems Architect (`AUTHOR_ARCHITECTURE`):** Holds exclusive authority to directly author ADRs and approve developer proposals (`approve_architectural_proposal_via_email`), safeguarding system invariants.
+
+#### Developer Proposal & Architect Approval Workflow:
+1. **Proposal:** Developer calls `propose_architectural_change(...)`. IAM checks `PROPOSE_ARCHITECTURE`.
+2. **Staged Isolation:** The decision is created in FalkorDB with status `PENDING_APPROVAL` with a 128-bit approval token.
+3. **Email Dispatch:** An approval email is sent to the project's Lead Systems Architect (`Project.architect_owner`).
+4. **Verified Ingestion:** The Architect approves via:
+   - One-Click HTTP link: `http://localhost:8000/api/approve-architecture?decision_id=<id>&token=<token>&approver=<email>`
+   - CLI command: `uv run python -m codegraph approve-architecture --decision-id <id> --token <token> --approver architect-lead@payflow.internal`
+   - MCP tool: `approve_architectural_proposal_via_email(decision_id="...", approval_token="...")`
+5. **Graph Activation:** Decision status becomes `APPROVED`, `approved_by` records the architect, and edge `(:Architecture)-[:LEADS_TO_DECISION]->(:Decision)` activates. Unauthorized approvers (e.g. developers attempting self-approval) are rejected by IAM.
+
 ---
 
 ## 🧪 Running Automated Tests
 
-Run the full 83-test pytest suite:
+Run the full 100-test pytest suite:
 
 ```bash
 uv run pytest -v
-# 83 passed in 0.71s
+# 100 passed in 0.66s
 ```
 
 The modular test suite in [`tests/`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/) provides comprehensive test coverage:
+* `test_iam_and_governance.py`: Role-Based Access Control (RBAC) permissions, Program Manager agile entity creation, developer architectural proposals, architect token verification, and permission enforcement
 * `test_db_engine.py`: Graph database engine, CRUD, neighbor traversal, and fallback storage
 * `test_parsers.py`: Multi-language code parser (Python AST, TypeScript, Go), document converter (HTML, JSON/Jira, Markdown, Plain Text), PRD & ADR parsers, runbooks
 * `test_email_approval.py`: Code Domain Owner resolution (.github/CODEOWNERS), email dispatch, token verification, and DB ingestion
 * `test_prd_agent_updates.py`: Agent PRD updates, staged status isolation, PRD Owner email dispatch, token verification, and DB ingestion
 * `test_program_tools.py`: Program Manager persona tools, Jira ingestion, velocity metrics, root-cause bottleneck diagnosis, lead time analysis, and 5-pillar traceability
-* `test_project_owners.py`: Project dual-ownership model (`codebase_owner` & `prd_owner`), pipeline ingestion, and status CLI
+* `test_project_owners.py`: Project triple-ownership model (`codebase_owner`, `prd_owner`, `architect_owner`), pipeline ingestion, and status CLI
 * `test_product_tools.py`: PRD compliance metrics, plain-English scenario simulation, change timeline
 * `test_developer_tools.py`: Incident diagnostics, safe-to-change checks, 4-pillar lineage, PR diff audits
 * `test_shared_and_ingest.py`: Full-text search, N-hop neighborhood expansion, unified pipeline, approval workflow
-* `test_mcp_server.py`: Async MCP 2.x server initialization, 25 tools registry, persona prompts (`product_advisor`, `developer_assistant`, `program_manager`)
-* `test_cli.py`: Click CLI commands (`status`, `demo`, `seed`, `ingest`, `approve-bugfix`, `approve-prd`, `help`)
+* `test_mcp_server.py`: Async MCP 2.x server initialization, 30 tools registry, 4 persona prompts (`product_advisor`, `developer_assistant`, `program_manager`, `architect_advisor`)
+* `test_cli.py`: Click CLI commands (`status`, `demo`, `seed`, `ingest`, `approve-bugfix`, `approve-prd`, `approve-architecture`, `help`)
 
 ---
 

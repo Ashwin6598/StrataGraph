@@ -70,3 +70,30 @@ def test_cli_ingest():
     assert "Ingestion & Auto-Linking Complete" in result.output
     assert "Code Files Processed" in result.output
 
+
+def test_cli_approve_architecture():
+    """Verify 'codegraph approve-architecture' CLI validates token and activates ADR decision."""
+    from codegraph.tools.architect_tools import propose_architectural_change
+    runner = CliRunner()
+
+    prop = propose_architectural_change(
+        decision_id="ADR-CLI:test_cli_adr",
+        pattern_name="CLI Pattern Test",
+        decision_statement="Enforce CLI validation",
+        rationale="Automated test check",
+        actor="developer@payflow.internal"
+    )
+    token = prop["result"]["approval_token"]
+
+    result = runner.invoke(main, [
+        "approve-architecture",
+        "--decision-id", "ADR-CLI:test_cli_adr",
+        "--token", token,
+        "--approver", "architect-lead@payflow.internal"
+    ])
+
+    assert result.exit_code == 0
+    assert "Processing Architect Approval" in result.output
+    assert "Ingestion Successful" in result.output
+
+

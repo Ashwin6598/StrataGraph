@@ -9,8 +9,9 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 
 from codegraph.db import db
-from codegraph.schema import ExplainableResult, TraversalStep, Relationships
+from codegraph.schema import ExplainableResult, TraversalStep, Relationships, EpicNode, AgileFeatureNode, StoryNode
 from codegraph.ingest.jira_parser import JiraBoardParser
+from codegraph.iam import iam, Permission
 
 
 def query_program_delivery_status(
@@ -946,4 +947,255 @@ def unlock_cross_team_capabilities(
         cypher_query=cypher_query,
         traversal_path=traversal_path,
         explanation=explanation
+    ).model_dump()
+
+
+def create_epic(
+    epic_key: str,
+    summary: str,
+    description: str = "",
+    project_id: str = "project:payflow",
+    owner: str = "Marcus Vance",
+    target_date: Optional[str] = None,
+    actor: Optional[str] = "tpm-lead@payflow.internal"
+) -> Dict[str, Any]:
+    """
+    Creates a new Agile Epic under a project in the Program Flow.
+    Guarded by IAM: Requires MANAGE_AGILE_FLOW permission (Program Managers / Admins).
+    """
+    clean_actor = actor or "tpm-lead@payflow.internal"
+    denial = iam.enforce_permission(clean_actor, Permission.MANAGE_AGILE_FLOW, "create_epic")
+    if denial:
+        return denial
+
+    clean_pid = project_id if project_id.startswith("project:") else f"project:{project_id}"
+    clean_key = epic_key.replace("epic:", "")
+    epic_id = f"epic:{clean_key}"
+
+    epic_node = EpicNode(
+        id=epic_id,
+        project_id=clean_pid,
+        key=clean_key,
+        summary=summary,
+        description=description,
+        status="IN_PROGRESS",
+        owner=owner,
+        target_date=target_date,
+        created_date=datetime.now().strftime("%Y-%m-%d")
+    )
+
+    db.create_node(epic_id, "Epic", epic_node.model_dump())
+    db.create_edge(clean_pid, Relationships.HAS_EPIC, epic_id)
+    db.flush()
+
+    cypher = f"""
+    MERGE (p:Project {{id: '{clean_pid}'}})
+    MERGE (e:Epic {{id: '{epic_id}'}})
+    SET e.summary = '{summary}', e.key = '{clean_key}', e.owner = '{owner}', e.status = 'IN_PROGRESS'
+    MERGE (p)-[:HAS_EPIC]->(e)
+    """
+
+    return ExplainableResult(
+        result={
+            "epic_id": epic_id,
+            "epic_key": clean_key,
+            "summary": summary,
+            "owner": owner,
+            "project_id": clean_pid,
+            "created_by": clean_actor,
+            "status": "CREATED"
+        },
+        cypher_query=cypher.strip(),
+        traversal_path=[
+            TraversalStep(
+                from_node=clean_pid,
+                relationship=Relationships.HAS_EPIC,
+                to_node=epic_id,
+                explanation=f"Linked Project '{clean_pid}' to new Epic '{clean_key}'"
+            )
+        ],
+        explanation=f"Created Agile Epic '{clean_key}' ({summary}) for project '{clean_pid}' by '{clean_actor}'."
+    ).model_dump()
+
+
+def create_feature(
+    feature_key: str,
+    epic_key_or_id: str,
+    summary: str,
+    description: str = "",
+    service_name: Optional[str] = None,
+    architecture_diagram: Optional[str] = None,
+    req_id: Optional[str] = None,
+    actor: Optional[str] = "tpm-lead@payflow.internal"
+) -> Dict[str, Any]:
+    """
+    Creates a new functional feature under an Epic in the Program Flow, linking to PRD requirements if specified.
+    Guarded by IAM: Requires MANAGE_AGILE_FLOW permission.
+    """
+    clean_actor = actor or "tpm-lead@payflow.internal"
+    denial = iam.enforce_permission(clean_actor, Permission.MANAGE_AGILE_FLOW, "create_feature")
+    if denial:
+        return denial
+
+    clean_eid = epic_key_or_id.replace("epic:", "")
+    epic_id = f"epic:{clean_eid}"
+    clean_fkey = feature_key.replace("feat:", "")
+    feat_id = f"feat:{clean_fkey}"
+
+    clean_req_id = None
+    if req_id:
+        clean_req_id = req_id if req_id.startswith("req:") else f"req:{req_id}"
+
+    feature_node = AgileFeatureNode(
+        id=feat_id,
+        epic_id=epic_id,
+        key=clean_fkey,
+        summary=summary,
+        description=description,
+        service_name=service_name,
+        architecture_diagram=architecture_diagram,
+        status="IN_DEVELOPMENT",
+        req_id=clean_req_id
+    )
+
+    db.create_node(feat_id, "AgileFeature", feature_node.model_dump())
+    db.create_edge(epic_id, Relationships.HAS_FEATURE, feat_id)
+
+    traversal_path = [
+        TraversalStep(
+            from_node=epic_id,
+            relationship=Relationships.HAS_FEATURE,
+            to_node=feat_id,
+            explanation=f"Linked Epic '{clean_eid}' to new Feature '{clean_fkey}'"
+        )
+    ]
+
+    if clean_req_id and clean_req_id in db.memory_graph.nodes:
+        db.create_edge(feat_id, Relationships.REALIZES_REQUIREMENT, clean_req_id)
+        traversal_path.append(
+            TraversalStep(
+                from_node=feat_id,
+                relationship=Relationships.REALIZES_REQUIREMENT,
+                to_node=clean_req_id,
+                explanation=f"Feature '{clean_fkey}' realizes PRD requirement '{clean_req_id}'"
+            )
+        )
+
+    db.flush()
+
+    cypher = f"""
+    MERGE (e:Epic {{id: '{epic_id}'}})
+    MERGE (f:AgileFeature {{id: '{feat_id}'}})
+    SET f.summary = '{summary}', f.key = '{clean_fkey}', f.service_name = '{service_name or ""}'
+    MERGE (e)-[:HAS_FEATURE]->(f)
+    """
+
+    return ExplainableResult(
+        result={
+            "feature_id": feat_id,
+            "feature_key": clean_fkey,
+            "summary": summary,
+            "epic_id": epic_id,
+            "service_name": service_name,
+            "req_id": clean_req_id,
+            "created_by": clean_actor,
+            "status": "CREATED"
+        },
+        cypher_query=cypher.strip(),
+        traversal_path=traversal_path,
+        explanation=f"Created Agile Feature '{clean_fkey}' ({summary}) under Epic '{clean_eid}' by '{clean_actor}'."
+    ).model_dump()
+
+
+def create_story(
+    story_key: str,
+    feature_key_or_id: str,
+    summary: str,
+    description: str = "",
+    story_points: int = 3,
+    assignee: str = "Alice Chen",
+    sprint: str = "Sprint 25",
+    func_id: Optional[str] = None,
+    actor: Optional[str] = "tpm-lead@payflow.internal"
+) -> Dict[str, Any]:
+    """
+    Creates a new developer task story under an Agile Feature in the Program Flow.
+    Guarded by IAM: Requires MANAGE_AGILE_FLOW permission.
+    """
+    clean_actor = actor or "tpm-lead@payflow.internal"
+    denial = iam.enforce_permission(clean_actor, Permission.MANAGE_AGILE_FLOW, "create_story")
+    if denial:
+        return denial
+
+    clean_fid = feature_key_or_id.replace("feat:", "")
+    feature_id = f"feat:{clean_fid}"
+    clean_skey = story_key.replace("story:", "")
+    story_id = f"story:{clean_skey}"
+
+    clean_func_id = None
+    if func_id:
+        clean_func_id = func_id if func_id.startswith("func:") else f"func:{func_id}"
+
+    story_node = StoryNode(
+        id=story_id,
+        feature_id=feature_id,
+        key=clean_skey,
+        summary=summary,
+        description=description,
+        story_points=story_points,
+        assignee=assignee,
+        status="TODO",
+        sprint=sprint,
+        created_date=datetime.now().strftime("%Y-%m-%d"),
+        func_id=clean_func_id
+    )
+
+    db.create_node(story_id, "Story", story_node.model_dump())
+    db.create_edge(feature_id, Relationships.HAS_STORY, story_id)
+
+    traversal_path = [
+        TraversalStep(
+            from_node=feature_id,
+            relationship=Relationships.HAS_STORY,
+            to_node=story_id,
+            explanation=f"Linked Feature '{clean_fid}' to new Story '{clean_skey}'"
+        )
+    ]
+
+    if clean_func_id and clean_func_id in db.memory_graph.nodes:
+        db.create_edge(story_id, Relationships.IMPLEMENTS_CODE, clean_func_id)
+        traversal_path.append(
+            TraversalStep(
+                from_node=story_id,
+                relationship=Relationships.IMPLEMENTS_CODE,
+                to_node=clean_func_id,
+                explanation=f"Story '{clean_skey}' linked to implementing code function '{clean_func_id}'"
+            )
+        )
+
+    db.flush()
+
+    cypher = f"""
+    MERGE (f:AgileFeature {{id: '{feature_id}'}})
+    MERGE (s:Story {{id: '{story_id}'}})
+    SET s.summary = '{summary}', s.key = '{clean_skey}', s.assignee = '{assignee}', s.story_points = {story_points}
+    MERGE (f)-[:HAS_STORY]->(s)
+    """
+
+    return ExplainableResult(
+        result={
+            "story_id": story_id,
+            "story_key": clean_skey,
+            "summary": summary,
+            "feature_id": feature_id,
+            "assignee": assignee,
+            "story_points": story_points,
+            "sprint": sprint,
+            "func_id": clean_func_id,
+            "created_by": clean_actor,
+            "status": "CREATED"
+        },
+        cypher_query=cypher.strip(),
+        traversal_path=traversal_path,
+        explanation=f"Created Agile Story '{clean_skey}' ({summary}, {story_points} pts) assigned to '{assignee}' by '{clean_actor}'."
     ).model_dump()

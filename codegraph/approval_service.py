@@ -475,3 +475,194 @@ def approve_prd_update_and_ingest(
         explanation="Graph mutation: PRD approval token verified. Status upgraded to APPROVED and SPECIFIES_REQUIREMENT / HAS_SCENARIO edges activated."
     ).model_dump()
 
+
+def resolve_architect_owner(project_id: str = "project:payflow") -> str:
+    """Resolves the Architect Owner for a given project from the graph or settings."""
+    clean_pid = project_id if project_id.startswith("project:") else f"project:{project_id}"
+    node = db.memory_graph.nodes.get(clean_pid)
+    if node:
+        owner = node.get("properties", {}).get("architect_owner")
+        if owner:
+            return owner
+
+    for n in db.memory_graph.nodes.values():
+        if n.get("label") == "Project":
+            owner = n.get("properties", {}).get("architect_owner")
+            if owner:
+                return owner
+
+    return settings.architect_owner
+
+
+def send_architect_approval_email(
+    to_email: str,
+    project_id: str,
+    decision_id: str,
+    decision_statement: str,
+    rationale: str,
+    invariants: str,
+    pattern_name: str,
+    proposed_by: str,
+    approval_token: str
+) -> Dict[str, Any]:
+    """
+    Dispatches an architectural change approval request email to the Project Architect.
+    """
+    clean_did = decision_id.replace("decision:", "")
+    subject = f"[Action Required] CodeGraph Architecture Proposal Approval: {clean_did}"
+    approve_url = f"{settings.approval_base_url}/api/approve-architecture?decision_id={clean_did}&token={approval_token}&approver={to_email}"
+    cli_cmd = f"uv run python -m codegraph approve-architecture --decision-id {clean_did} --token {approval_token} --approver {to_email}"
+
+    body_text = f"""Hello Lead Systems Architect,
+
+A developer ({proposed_by}) has proposed an architectural change (ADR) for Project '{project_id}':
+
+--------------------------------------------------------------------------------
+PROPOSED ARCHITECTURAL DECISION (ADR):
+--------------------------------------------------------------------------------
+• Decision ID:        {clean_did}
+• Pattern Name:       {pattern_name}
+• Decision Statement: {decision_statement}
+• Rationale:          {rationale}
+• System Invariants:  {invariants}
+• Proposed By:        {proposed_by}
+• Approval Token:     {approval_token}
+
+--------------------------------------------------------------------------------
+HOW TO APPROVE & INGEST INTO KNOWLEDGE GRAPH:
+--------------------------------------------------------------------------------
+Option 1: One-Click Email Approval Link:
+  {approve_url}
+
+Option 2: Terminal / CLI Approval:
+  {cli_cmd}
+
+Option 3: MCP Agent Tool Call:
+  approve_architectural_proposal_via_email(decision_id="{clean_did}", approval_token="{approval_token}")
+
+Regards,
+CodeGraph Architectural Governance
+"""
+
+    email_record = {
+        "to": to_email,
+        "from": settings.smtp_from,
+        "subject": subject,
+        "project_id": project_id,
+        "decision_id": clean_did,
+        "approval_token": approval_token,
+        "approve_url": approve_url,
+        "cli_cmd": cli_cmd,
+        "body_text": body_text
+    }
+
+    SENT_APPROVAL_EMAILS.append(email_record)
+
+    if settings.smtp_host:
+        try:
+            msg = EmailMessage()
+            msg["Subject"] = subject
+            msg["From"] = settings.smtp_from
+            msg["To"] = to_email
+            msg.set_content(body_text)
+
+            with smtplib.SMTP(settings.smtp_host, settings.smtp_port) as server:
+                if settings.smtp_user and settings.smtp_password:
+                    server.starttls()
+                    server.login(settings.smtp_user, settings.smtp_password)
+                server.send_message(msg)
+        except Exception as e:
+            email_record["smtp_error"] = str(e)
+
+    return {
+        "dispatched": True,
+        "to": to_email,
+        "subject": subject,
+        "approval_token": approval_token,
+        "approve_url": approve_url
+    }
+
+
+def approve_architectural_proposal_and_ingest(
+    decision_id: str,
+    approval_token: str,
+    approver_email: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Validates the Architect's approval token and permanently ingests the proposed architectural decision into the graph.
+    Activates the (:Architecture)-[:LEADS_TO_DECISION]->(:Decision) edge.
+    """
+    clean_did = decision_id.replace("decision:", "")
+    did = f"decision:{clean_did}"
+    node = db.memory_graph.nodes.get(did)
+
+    if not node:
+        return ExplainableResult(
+            result={"status": "ERROR", "message": f"Architectural decision '{did}' not found in knowledge graph."},
+            cypher_query="",
+            traversal_path=[],
+            explanation="Node lookup returned zero matches."
+        ).model_dump()
+
+    props = node.get("properties", {})
+    recorded_token = props.get("approval_token")
+    current_status = props.get("status")
+
+    if current_status == "APPROVED":
+        return ExplainableResult(
+            result={
+                "status": "ALREADY_APPROVED",
+                "decision_id": clean_did,
+                "approved_by": props.get("approved_by"),
+                "message": f"Architectural decision '{clean_did}' was already approved and is actively indexed in the graph."
+            },
+            cypher_query="",
+            traversal_path=[],
+            explanation="Decision is already in an approved state."
+        ).model_dump()
+
+    # Validate approval token
+    if not recorded_token or recorded_token != approval_token.strip():
+        return ExplainableResult(
+            result={
+                "status": "REJECTED",
+                "decision_id": clean_did,
+                "message": "Invalid or expired architectural approval token. Authorization denied."
+            },
+            cypher_query="",
+            traversal_path=[],
+            explanation="Token mismatch: Provided token does not match pending architectural approval token."
+        ).model_dump()
+
+    final_approver = approver_email or props.get("architect_owner_email") or "architect_owner"
+    props["status"] = "APPROVED"
+    props["approved_by"] = final_approver
+
+    # Activate edges to Architecture
+    for edge in db.memory_graph.edges:
+        if edge["to"] == did and edge["rel"] == Relationships.LEADS_TO_DECISION:
+            edge["properties"]["status"] = "APPROVED"
+
+    db.flush()
+
+    cypher = f"""
+    MATCH (d:Decision {{id: '{did}'}})
+    SET d.status = 'APPROVED', d.approved_by = '{final_approver}'
+    WITH d
+    MATCH (a:Architecture)-[rel:LEADS_TO_DECISION]->(d)
+    SET rel.status = 'APPROVED'
+    """
+
+    return ExplainableResult(
+        result={
+            "decision_id": clean_did,
+            "status": "APPROVED",
+            "approved": True,
+            "approved_by": final_approver,
+            "message": f"Architectural decision {clean_did} has been approved by Lead Systems Architect <{final_approver}> and successfully ingested into the knowledge graph."
+        },
+        cypher_query=cypher.strip(),
+        traversal_path=[],
+        explanation="Graph mutation: Architectural approval token verified. Status upgraded to APPROVED and LEADS_TO_DECISION edge activated."
+    ).model_dump()
+

@@ -35,7 +35,8 @@ def seed_all():
         repository="https://github.com/payflow/payflow-core",
         created_at="2025-10-01",
         codebase_owner="payment-tech-lead@payflow.internal",
-        prd_owner="product-lead@payflow.internal"
+        prd_owner="product-lead@payflow.internal",
+        architect_owner="architect-lead@payflow.internal"
     )
     db.create_node(project_id, "Project", project.model_dump())
     print(f"📦 Created Root Project: {project.name}")

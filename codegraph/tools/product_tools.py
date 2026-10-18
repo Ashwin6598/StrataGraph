@@ -16,6 +16,7 @@ from ..schema import (
     GuardrailNode
 )
 from ..approval_service import resolve_prd_owner, send_prd_approval_email, approve_prd_update_and_ingest
+from ..iam import iam, Permission
 
 
 def query_prd_coverage(project_id: str = "project:payflow") -> Dict[str, Any]:
@@ -351,12 +352,18 @@ def update_prd_features_and_scenarios(
     priority: str = "HIGH",
     scenarios: Optional[List[str]] = None,
     guardrails: Optional[List[str]] = None,
-    approved_by_prd_owner: bool = False
+    approved_by_prd_owner: bool = False,
+    actor: Optional[str] = "product-lead@payflow.internal"
 ) -> Dict[str, Any]:
     """
     Updates the PRD by proposing or adding a new feature/requirement and accompanying test scenarios.
-    Enforces the PRD Owner approval workflow: unapproved updates dispatch an approval email to the project's PRD Owner.
+    Enforces the PRD Owner approval workflow and IAM permissions (requires UPDATE_PRD).
     """
+    clean_actor = actor or "product-lead@payflow.internal"
+    denial = iam.enforce_permission(clean_actor, Permission.UPDATE_PRD, "update_prd_features_and_scenarios")
+    if denial:
+        return denial
+
     scenarios = scenarios or []
     guardrails = guardrails or []
     clean_fid = feature_id.replace("req:", "")

@@ -45,7 +45,15 @@ from .tools.program_tools import (
     trace_requirement_to_delivery_chain as _trace_requirement_to_delivery_chain,
     ingest_jira_board as _ingest_jira_board,
     unlock_cross_team_capabilities as _unlock_cross_team_capabilities,
+    create_epic as _create_epic,
+    create_feature as _create_feature,
+    create_story as _create_story,
 )
+from .tools.architect_tools import (
+    propose_architectural_change as _propose_architectural_change,
+    approve_architectural_proposal_via_email as _approve_architectural_proposal_via_email,
+)
+from .iam import iam, Permission, Role
 
 logger = logging.getLogger("codegraph.mcp")
 
@@ -113,7 +121,8 @@ def update_prd_features_and_scenarios(
     priority: str = "HIGH",
     scenarios: Optional[List[str]] = None,
     guardrails: Optional[List[str]] = None,
-    approved_by_prd_owner: bool = False
+    approved_by_prd_owner: bool = False,
+    actor: Optional[str] = "product-lead@payflow.internal"
 ) -> Dict[str, Any]:
     return _update_prd_features_and_scenarios(
         feature_id=feature_id,
@@ -123,7 +132,8 @@ def update_prd_features_and_scenarios(
         priority=priority,
         scenarios=scenarios,
         guardrails=guardrails,
-        approved_by_prd_owner=approved_by_prd_owner
+        approved_by_prd_owner=approved_by_prd_owner,
+        actor=actor
     )
 
 
@@ -263,7 +273,8 @@ def record_bugfix(
     fix_summary: str,
     affected_function_name: str,
     approved_by_lead: bool = False,
-    date: str = "2026-10-17"
+    date: str = "2026-10-17",
+    actor: Optional[str] = "payment-tech-lead@payflow.internal"
 ) -> Dict[str, Any]:
     return _record_bugfix(
         ticket_id=ticket_id,
@@ -272,7 +283,8 @@ def record_bugfix(
         fix_summary=fix_summary,
         affected_function_name=affected_function_name,
         approved_by_lead=approved_by_lead,
-        date=date
+        date=date,
+        actor=actor
     )
 
 
@@ -361,9 +373,177 @@ def unlock_cross_team_capabilities(
     return _unlock_cross_team_capabilities(project_id=project_id, target_service_or_feature=target_service_or_feature)
 
 
+@server.tool(
+    name="create_epic",
+    description="Create a new Agile Epic under a project in the Program Flow. Guarded by IAM (requires MANAGE_AGILE_FLOW permission)."
+)
+def create_epic(
+    epic_key: str,
+    summary: str,
+    description: str = "",
+    project_id: str = "project:payflow",
+    owner: str = "Marcus Vance",
+    target_date: Optional[str] = None,
+    actor: Optional[str] = "tpm-lead@payflow.internal"
+) -> Dict[str, Any]:
+    return _create_epic(
+        epic_key=epic_key,
+        summary=summary,
+        description=description,
+        project_id=project_id,
+        owner=owner,
+        target_date=target_date,
+        actor=actor
+    )
+
+
+@server.tool(
+    name="create_feature",
+    description="Create a new functional feature under an Epic in the Program Flow, linking to PRD requirements if specified. Guarded by IAM (requires MANAGE_AGILE_FLOW permission)."
+)
+def create_feature(
+    feature_key: str,
+    epic_key_or_id: str,
+    summary: str,
+    description: str = "",
+    service_name: Optional[str] = None,
+    architecture_diagram: Optional[str] = None,
+    req_id: Optional[str] = None,
+    actor: Optional[str] = "tpm-lead@payflow.internal"
+) -> Dict[str, Any]:
+    return _create_feature(
+        feature_key=feature_key,
+        epic_key_or_id=epic_key_or_id,
+        summary=summary,
+        description=description,
+        service_name=service_name,
+        architecture_diagram=architecture_diagram,
+        req_id=req_id,
+        actor=actor
+    )
+
+
+@server.tool(
+    name="create_story",
+    description="Create a new developer task story under an Agile Feature in the Program Flow, linking to implementing code. Guarded by IAM (requires MANAGE_AGILE_FLOW permission)."
+)
+def create_story(
+    story_key: str,
+    feature_key_or_id: str,
+    summary: str,
+    description: str = "",
+    story_points: int = 3,
+    assignee: str = "Alice Chen",
+    sprint: str = "Sprint 25",
+    func_id: Optional[str] = None,
+    actor: Optional[str] = "tpm-lead@payflow.internal"
+) -> Dict[str, Any]:
+    return _create_story(
+        story_key=story_key,
+        feature_key_or_id=feature_key_or_id,
+        summary=summary,
+        description=description,
+        story_points=story_points,
+        assignee=assignee,
+        sprint=sprint,
+        func_id=func_id,
+        actor=actor
+    )
+
+
+@server.tool(
+    name="propose_architectural_change",
+    description="Propose or author a new architectural decision (ADR) in the graph. Developers can propose changes awaiting Architect email approval; Architects can directly author and approve."
+)
+def propose_architectural_change(
+    decision_id: str,
+    pattern_name: str,
+    decision_statement: str,
+    rationale: str,
+    invariants: str = "",
+    project_id: str = "project:payflow",
+    adr_req_id: Optional[str] = None,
+    actor: Optional[str] = "developer@payflow.internal",
+    approved_by_architect: bool = False
+) -> Dict[str, Any]:
+    return _propose_architectural_change(
+        decision_id=decision_id,
+        pattern_name=pattern_name,
+        decision_statement=decision_statement,
+        rationale=rationale,
+        invariants=invariants,
+        project_id=project_id,
+        adr_req_id=adr_req_id,
+        actor=actor,
+        approved_by_architect=approved_by_architect
+    )
+
+
+@server.tool(
+    name="approve_architectural_proposal_via_email",
+    description="Validate Architect's email approval token and permanently ingest the proposed architectural decision into the knowledge graph. Guarded by IAM (requires AUTHOR_ARCHITECTURE permission)."
+)
+def approve_architectural_proposal_via_email(
+    decision_id: str,
+    approval_token: str,
+    actor: Optional[str] = "architect-lead@payflow.internal"
+) -> Dict[str, Any]:
+    return _approve_architectural_proposal_via_email(
+        decision_id=decision_id,
+        approval_token=approval_token,
+        actor=actor
+    )
+
+
+@server.tool(
+    name="check_iam_permission",
+    description="Check whether a specific actor or role holds a given IAM permission (e.g. MANAGE_AGILE_FLOW, UPDATE_PRD, MODIFY_CODEBASE, PROPOSE_ARCHITECTURE, AUTHOR_ARCHITECTURE)."
+)
+def check_iam_permission(actor: str, permission: str) -> Dict[str, Any]:
+    try:
+        perm_enum = Permission(permission)
+    except ValueError:
+        return {"authorized": False, "error": f"Unknown permission: {permission}"}
+    role = iam.resolve_role(actor)
+    has_perm = iam.check_permission(actor, perm_enum)
+    return {
+        "actor": actor,
+        "resolved_role": role.value,
+        "permission": permission,
+        "authorized": has_perm
+    }
+
+
+@server.tool(
+    name="list_iam_roles",
+    description="List all available IAM roles, permissions, and assigned user identities in the CodeGraph RBAC registry."
+)
+def list_iam_roles() -> Dict[str, Any]:
+    return {
+        "roles_and_permissions": iam.list_roles_and_permissions(),
+        "registered_users": iam.list_users()
+    }
+
+
 # =========================================================================
 # Predefined Agent Prompts
 # =========================================================================
+
+@server.prompt(name="architect_advisor", description="Persona for Systems Architects: ADR governance, invariants, proposal approvals")
+def architect_advisor_prompt() -> str:
+    return (
+        "You are CodeGraph Lead Systems Architect Advisor. "
+        "Your role is to govern architectural patterns, author ADRs, enforce system invariants, and review developer proposals. "
+        "ROLES AND RESPONSIBILITIES: "
+        "1. Primary Role: Architectural Decision Authority & Governance Lead. "
+        "2. Core Responsibilities: Authoring and approving ADR decisions (propose_architectural_change, approve_architectural_proposal_via_email), enforcing architectural invariants and resilience patterns, reviewing developer architectural proposals, and maintaining cross-pillar ADR integrity. "
+        "3. Boundaries & Exclusions: Never approve architectural changes that violate system invariants or security guardrails. Respect separation of concerns: agile task management belongs to Program Managers, PRD scope belongs to Product Managers. "
+        "RULES: "
+        "1. Ground all decisions in ADR standards and explicit system invariants. "
+        "2. Review all developer architectural proposals thoroughly before approving. "
+        "3. Verify that code functions and logic enforce governing ADR invariants."
+    )
+
 
 @server.prompt(name="product_advisor", description="Persona for Product Managers: Plain English, no code snippets")
 def product_advisor_prompt() -> str:

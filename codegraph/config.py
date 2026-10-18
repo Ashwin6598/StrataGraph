@@ -35,6 +35,7 @@ class Settings(BaseModel):
     code_domain_owner: str = Field(default_factory=lambda: os.getenv("CODE_DOMAIN_OWNER", "payment-lead@payflow.internal"))
     codebase_owner: str = Field(default_factory=lambda: os.getenv("CODEBASE_OWNER", "payment-tech-lead@payflow.internal"))
     prd_owner: str = Field(default_factory=lambda: os.getenv("PRD_OWNER", "product-lead@payflow.internal"))
+    architect_owner: str = Field(default_factory=lambda: os.getenv("ARCHITECT_OWNER", "architect-lead@payflow.internal"))
     smtp_host: str = Field(default_factory=lambda: os.getenv("SMTP_HOST", ""))
     smtp_port: int = Field(default_factory=lambda: int(os.getenv("SMTP_PORT", "587")))
     smtp_user: str = Field(default_factory=lambda: os.getenv("SMTP_USER", ""))

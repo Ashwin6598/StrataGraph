@@ -10,7 +10,8 @@
         "repository": "https://github.com/payflow/payflow-core",
         "created_at": "2025-10-01",
         "codebase_owner": "payment-tech-lead@payflow.internal",
-        "prd_owner": "product-lead@payflow.internal"
+        "prd_owner": "product-lead@payflow.internal",
+        "architect_owner": "architect-lead@payflow.internal"
       }
     },
     "prd_input:checkout_payload": {
@@ -328,7 +329,12 @@
         "title": "Mandatory 3-Retry Ceiling with Exponential Backoff",
         "statement": "Every external fraud evaluation and network call MUST execute exactly 3 retry attempts with exponential backoff (0.5s initial, 2.0x factor). Score > 85 is hard-rejected. Lowering retry count below 3 is strictly prohibited.",
         "rationale": "Eliminates false declines caused by momentary packet loss while avoiding cascade timeout loops.",
-        "invariants": "MAX_RETRIES == 3, INITIAL_BACKOFF == 0.5s, RISK_THRESHOLD_REJECT == 85"
+        "invariants": "MAX_RETRIES == 3, INITIAL_BACKOFF == 0.5s, RISK_THRESHOLD_REJECT == 85",
+        "status": "APPROVED",
+        "proposed_by": null,
+        "approved_by": null,
+        "approval_token": null,
+        "architect_owner_email": null
       }
     },
     "decision:ADR-002:concurrency_5": {
@@ -341,7 +347,12 @@
         "title": "Worker Pool Concurrency of 5 for High-Volume Refunds",
         "statement": "Queue consumers MUST run with exactly 5 concurrent workers per instance. Concurrency < 5 causes message accumulation and REFUND_TIMEOUT under load. Concurrency > 10 causes banking partner HTTP 429 rate limit errors.",
         "rationale": "Preserves checkout gateway thread availability while staying within bank clearing rate limits.",
-        "invariants": "WORKER_POOL_CONCURRENCY == 5, MAX_REFUND_AGE_DAYS == 30"
+        "invariants": "WORKER_POOL_CONCURRENCY == 5, MAX_REFUND_AGE_DAYS == 30",
+        "status": "APPROVED",
+        "proposed_by": null,
+        "approved_by": null,
+        "approval_token": null,
+        "architect_owner_email": null
       }
     },
     "decision:ADR-003:cross_team_reuse": {
@@ -354,7 +365,12 @@
         "title": "Cross-Domain Capability Reuse and Distributed Idempotency",
         "statement": "Outbound integrations MUST reuse the ADR-001 retry pipeline. Financial mutations MUST enforce distributed Redis idempotency locks per REQ-009.",
         "rationale": "Eliminates duplicate engineering effort, accelerates FX delivery by 5-8 story points, and prevents double payouts.",
-        "invariants": "MANDATORY_REUSE_ADR_001 == true, IDEMPOTENCY_TTL == 120s"
+        "invariants": "MANDATORY_REUSE_ADR_001 == true, IDEMPOTENCY_TTL == 120s",
+        "status": "APPROVED",
+        "proposed_by": null,
+        "approved_by": null,
+        "approval_token": null,
+        "architect_owner_email": null
       }
     },
     "adr_result:98_pct_drop_reduction": {
@@ -1210,7 +1226,8 @@
         "repository": "https://github.com/organization/repo",
         "created_at": "2025-10-01",
         "codebase_owner": "arch-lead@custom.internal",
-        "prd_owner": "platform-pm@custom.internal"
+        "prd_owner": "platform-pm@custom.internal",
+        "architect_owner": "architect-lead@payflow.internal"
       }
     },
     "file:fraud_detector.py": {
@@ -1545,7 +1562,24 @@
         "repository": "https://github.com/organization/repo",
         "created_at": "2025-10-01",
         "codebase_owner": "cli-dev@payflow.internal",
-        "prd_owner": "cli-pm@payflow.internal"
+        "prd_owner": "cli-pm@payflow.internal",
+        "architect_owner": "architect-lead@payflow.internal"
+      }
+    },
+    "timeline:commit:270a63d": {
+      "id": "timeline:commit:270a63d",
+      "label": "ChangeTimeline",
+      "properties": {
+        "id": "timeline:commit:270a63d",
+        "project_id": "project:test_ent",
+        "commit_hash": "270a63d5118f48c8b88229ed14f45e2123abd13a",
+        "author": "Ashwin",
+        "timestamp": "2026-10-18T12:00:00Z",
+        "date": "2026-10-18",
+        "what_changed": "feat: sync demo data with ADR-003 and update ADR-002, ADR-004 to 5-pillar tri-persona architecture",
+        "why_changed": "Recorded from git commit message: feat: sync demo data with ADR-003 and update ADR-002, ADR-004 to 5-pillar tri-persona architecture",
+        "change_category": "PRD_FEATURE",
+        "diff_summary": "feat: sync demo data with ADR-003 and update ADR-002, ADR-004 to 5-pillar tri-persona architecture"
       }
     },
     "timeline:commit:0a7bd74": {
@@ -1610,22 +1644,6 @@
         "why_changed": "Recorded from git commit message: feat: add agent PRD updates, PRD owner email approval workflow, ADR-013, and 74 tests",
         "change_category": "PRD_FEATURE",
         "diff_summary": "feat: add agent PRD updates, PRD owner email approval workflow, ADR-013, and 74 tests"
-      }
-    },
-    "timeline:commit:f2202ac": {
-      "id": "timeline:commit:f2202ac",
-      "label": "ChangeTimeline",
-      "properties": {
-        "id": "timeline:commit:f2202ac",
-        "project_id": "project:test_ent",
-        "commit_hash": "f2202ac63927b18e19e2a4175fd2849b9fc9d7c0",
-        "author": "Ashwin",
-        "timestamp": "2026-10-18T12:00:00Z",
-        "date": "2026-10-18",
-        "what_changed": "feat: add codebase_owner and prd_owner to Project entity, ADR-012, and 68 tests",
-        "why_changed": "Recorded from git commit message: feat: add codebase_owner and prd_owner to Project entity, ADR-012, and 68 tests",
-        "change_category": "PRD_FEATURE",
-        "diff_summary": "feat: add codebase_owner and prd_owner to Project entity, ADR-012, and 68 tests"
       }
     },
     "PRD-PAYFLOW-101": {
@@ -1965,7 +1983,12 @@
         "title": "Decision for ADR-001: Fraud Risk Scoring and Mandatory Retry Ceiling",
         "statement": "1. **Mandatory 3-Retry Ceiling:** Every external fraud evaluation and network call MUST execute exactly 3 retry attempts with exponential backoff (initial delay: 0.5s, factor: 2.0).\n2. **Hard-Reject Boundary:** Any risk assessment resulting in a score strictly greater than 85 MUST trigger an immediate, non-overridable `FRAUD_RISK_REJECTED` error.\n3. **Never Lower Retries:** Developers are explicitly forbidden from lowering the retry count below 3 or suppressing backoff delays, as this violates our card-scheme service level agreement (SLA).",
         "rationale": "Payment processing systems must evaluate high-risk signals in real time while maintaining resilient connections to external risk and clearing networks. During initial tests, unstable network segments caused random drops. Developers attempted to either bypass risk evaluation under latency or reduce retry attempts to 1, causing thousands of legitimate card transactions to fail.",
-        "invariants": "- **Positive:** Reduces transaction false-drop rate by 98.4% during upstream jitter.\n- **Negative:** Adds up to 3.5 seconds of worst-case latency during complete partner outages before failing over.\n- **Critical Risk:** Modifying `retry_with_backoff` without cross-functional approval historically caused `BUG-112` and `BUG-298`."
+        "invariants": "- **Positive:** Reduces transaction false-drop rate by 98.4% during upstream jitter.\n- **Negative:** Adds up to 3.5 seconds of worst-case latency during complete partner outages before failing over.\n- **Critical Risk:** Modifying `retry_with_backoff` without cross-functional approval historically caused `BUG-112` and `BUG-298`.",
+        "status": "APPROVED",
+        "proposed_by": null,
+        "approved_by": null,
+        "approval_token": null,
+        "architect_owner_email": null
       }
     },
     "issue:BUG-999-TEST": {
@@ -1992,7 +2015,7 @@
         "approved_by": "unapproved",
         "approval_status": "PENDING_APPROVAL",
         "domain_owner_email": "payment-domain-owner@payflow.internal",
-        "approval_token": "2872b26dde3f3ee4b5a634c4b7a13d84"
+        "approval_token": "e1a35bba2fcf76bcc61c3b0c8c503125"
       }
     },
     "issue:BUG-1000-TEST": {
@@ -2032,7 +2055,8 @@
         "repository": "https://github.com/organization/repo",
         "created_at": "2025-10-01",
         "codebase_owner": "payment-tech-lead@payflow.internal",
-        "prd_owner": "product-lead@payflow.internal"
+        "prd_owner": "product-lead@payflow.internal",
+        "architect_owner": "architect-lead@payflow.internal"
       }
     },
     "ADR-002": {
@@ -2059,7 +2083,12 @@
         "title": "Decision for ADR-002: Asynchronous Queuing and Concurrency for High-Volume Refunds",
         "statement": "1. **Asynchronous Decoupling:** The `RefundProcessor` will enqueue refund jobs into a durable distributed queue and immediately return a pending tracking token to the caller.\n2. **Worker Pool Concurrency of 5:** Queue consumers MUST run with exactly 5 concurrent workers per instance.\n   - Setting concurrency below 5 causes message accumulation, lag, and `REFUND_TIMEOUT` alerts under peak load.\n   - Setting concurrency above 10 causes banking partner API rate-limits (`HTTP 429 Too Many Requests`).\n3. **Strict 30-Day Age Check:** Refund eligibility must be checked against the settlement timestamp before queue dispatch.",
         "rationale": "During high-volume sales events (such as Black Friday/Cyber Monday), merchants issue batch refund requests exceeding 500 operations per second. Synchronous HTTP execution caused gateway worker pool exhaustion, thread starvation, and cascading 504 Gateway Timeouts across the primary payment authorization flow.",
-        "invariants": "- Prevents refund spikes from impacting real-time checkout availability.\n- Requires careful worker pool tuning: decreasing concurrency below 5 was the direct root cause of incident `BUG-342`."
+        "invariants": "- Prevents refund spikes from impacting real-time checkout availability.\n- Requires careful worker pool tuning: decreasing concurrency below 5 was the direct root cause of incident `BUG-342`.",
+        "status": "APPROVED",
+        "proposed_by": null,
+        "approved_by": null,
+        "approval_token": null,
+        "architect_owner_email": null
       }
     },
     "ADR-003": {
@@ -2086,7 +2115,12 @@
         "title": "Decision for ADR-003: Cross-Domain Capability Reuse and Distributed Idempotency",
         "statement": "1. **Mandatory Cross-Domain Pattern Reuse:**\n   - Outbound financial HTTP integrations (such as `fx_service` connecting to ECB feeds) MUST reuse the proven 3-retry exponential backoff pipeline established in `fraud_detector` (`ADR-001`).\n   - Teams are strictly forbidden from implementing custom HTTP retry loops.\n2. **Distributed Redis Idempotency Key Standard:**\n   - Any state-mutating payment or refund endpoint MUST acquire a distributed lock keyed on `Idempotency-Key` with a 120-second TTL.\n   - `refund_processor` (`PAY-307`) must directly adopt the idempotency lock pattern verified by `payment_service` (`PAY-308`).\n3. **Cross-Domain Knowledge Sharing:**\n   - Technical Program Managers (TPMs) are authorized to connect engineers across domain boundaries whenever an unassigned or blocked story shares architectural patterns with an existing service.",
         "rationale": "As PayFlow expands to multi-currency operations (`fx_service`), partial refunds (`refund_processor`), and high-volume checkouts (`payment_service`), service teams faced delivery delays caused by duplicate engineering efforts and double-submission risks:\n1. The incoming Dynamic Currency Conversion (DCC) integration requires communicating with European Central Bank (ECB) rate servers over the public internet with retry backoff.\n2. The partial refund engine is susceptible to duplicate submissions under network latency, risking double payouts.\n3. Teams were preparing to build isolated, duplicative retry wrappers and lock managers.",
-        "invariants": "- **Positive:**\n  - Accelerates `fx_service` delivery by ~5-8 story points by eliminating custom network retry boilerplate.\n  - Eliminates duplicate refund payouts and race conditions across distributed microservices.\n  - Reduces total lines of code and maintenance overhead across services.\n- **Negative:**\n  - Requires cross-team awareness and adherence to shared architecture invariants."
+        "invariants": "- **Positive:**\n  - Accelerates `fx_service` delivery by ~5-8 story points by eliminating custom network retry boilerplate.\n  - Eliminates duplicate refund payouts and race conditions across distributed microservices.\n  - Reduces total lines of code and maintenance overhead across services.\n- **Negative:**\n  - Requires cross-team awareness and adherence to shared architecture invariants.",
+        "status": "APPROVED",
+        "proposed_by": null,
+        "approved_by": null,
+        "approval_token": null,
+        "architect_owner_email": null
       }
     },
     "BUG-342": {
@@ -2168,6 +2202,22 @@
         "rca": "A junior developer reduced `MAX_RETRIES` from 3 to 1 in `fraud_detector.py` to \"speed up checkout responses\". Because third-party credit card fraud networks experience 1-2% momentary packet drops, removing retry attempts caused 1 out of every 50 checkout requests to fail immediately.",
         "resolution_steps": "1. Refer to `ADR-001` (Fraud Risk Scoring and Mandatory Retry Ceiling).\n  2. Restore `MAX_RETRIES = 3` and `INITIAL_BACKOFF_SECONDS = 0.5`.\n  3. Run verification test suite.",
         "raw_content": "# Runbook RB-PAY-001: Triage and Resolution for Payment and Refund Timeouts\n\n- **Runbook ID:** RB-PAY-001\n- **Service:** PayFlow Payment & Refund Gateway\n- **Audience:** On-Call Engineers & Senior Developers\n- **Last Verified:** 2026-03-01\n\n---\n\n## 1. Incident: REFUND_TIMEOUT Under Load\n- **Error Code / Symptom:** `REFUND_TIMEOUT`, `HTTP 504 Gateway Timeout` on `/v1/refunds` endpoint.\n- **Historical Reference:** `BUG-342` (Black Friday incident).\n- **Root Cause Analysis (RCA):**\n  The `RefundProcessor.WORKER_POOL_CONCURRENCY` was accidentally reduced from 5 to 2 in a hotfix PR. At concurrency 2, the async consumer queue becomes saturated whenever request volume exceeds 80 refunds/sec. Messages queue up, consumer lag reaches >120s, and API gateways drop connections with `REFUND_TIMEOUT`.\n- **Immediate Diagnostic Command:**\n  Check queue depth and consumer concurrency in `refund_processor.py`.\n- **Verified Resolution:**\n  1. Open `demo_data/code/refund_processor.py`.\n  2. Ensure `WORKER_POOL_CONCURRENCY` is set to `5` as specified in `ADR-002`.\n  3. Restart worker pool service.\n  4. Never set concurrency > 10 (triggers partner HTTP 429).\n\n---\n\n## 2. Incident: CASCADE_FRAUD_CHECK_FAILURES\n- **Error Code / Symptom:** `FRAUD_SERVICE_UNAVAILABLE`, spikes in legitimate card declines.\n- **Historical References:** `BUG-112`, `BUG-298`.\n- **Root Cause Analysis (RCA):**\n  A junior developer reduced `MAX_RETRIES` from 3 to 1 in `fraud_detector.py` to \"speed up checkout responses\". Because third-party credit card fraud networks experience 1-2% momentary packet drops, removing retry attempts caused 1 out of every 50 checkout requests to fail immediately.\n- **Verified Resolution:**\n  1. Refer to `ADR-001` (Fraud Risk Scoring and Mandatory Retry Ceiling).\n  2. Restore `MAX_RETRIES = 3` and `INITIAL_BACKOFF_SECONDS = 0.5`.\n  3. Run verification test suite.\n"
+      }
+    },
+    "timeline:commit:f2202ac": {
+      "id": "timeline:commit:f2202ac",
+      "label": "ChangeTimeline",
+      "properties": {
+        "id": "timeline:commit:f2202ac",
+        "project_id": "project:test_ent",
+        "commit_hash": "f2202ac63927b18e19e2a4175fd2849b9fc9d7c0",
+        "author": "Ashwin",
+        "timestamp": "2026-10-18T12:00:00Z",
+        "date": "2026-10-18",
+        "what_changed": "feat: add codebase_owner and prd_owner to Project entity, ADR-012, and 68 tests",
+        "why_changed": "Recorded from git commit message: feat: add codebase_owner and prd_owner to Project entity, ADR-012, and 68 tests",
+        "change_category": "PRD_FEATURE",
+        "diff_summary": "feat: add codebase_owner and prd_owner to Project entity, ADR-012, and 68 tests"
       }
     },
     "timeline:commit:1585342": {
@@ -4581,6 +4631,12 @@
     {
       "from": "project:cli_test",
       "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:270a63d",
+      "properties": {}
+    },
+    {
+      "from": "project:cli_test",
+      "rel": "HAS_TIMELINE_RECORD",
       "to": "timeline:commit:0a7bd74",
       "properties": {}
     },
@@ -4600,12 +4656,6 @@
       "from": "project:cli_test",
       "rel": "HAS_TIMELINE_RECORD",
       "to": "timeline:commit:0941cdb",
-      "properties": {}
-    },
-    {
-      "from": "project:cli_test",
-      "rel": "HAS_TIMELINE_RECORD",
-      "to": "timeline:commit:f2202ac",
       "properties": {}
     },
     {
@@ -4696,6 +4746,18 @@
       "from": "timeline:commit:e4f5a6b",
       "rel": "MOTIVATED_BY_ADR",
       "to": "decision:ADR-001:retry_ceiling",
+      "properties": {}
+    },
+    {
+      "from": "timeline:commit:270a63d",
+      "rel": "MOTIVATED_BY_ADR",
+      "to": "decision:ADR-003:cross_team_reuse",
+      "properties": {}
+    },
+    {
+      "from": "timeline:commit:270a63d",
+      "rel": "MOTIVATED_BY_ADR",
+      "to": "decision:ADR-002:concurrency_5",
       "properties": {}
     },
     {
@@ -6435,6 +6497,12 @@
     {
       "from": "project:test_ent",
       "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:270a63d",
+      "properties": {}
+    },
+    {
+      "from": "project:test_ent",
+      "rel": "HAS_TIMELINE_RECORD",
       "to": "timeline:commit:0a7bd74",
       "properties": {}
     },
@@ -6610,6 +6678,18 @@
       "from": "timeline:commit:e4f5a6b",
       "rel": "MOTIVATED_BY_ADR",
       "to": "dec:ADR-001:core",
+      "properties": {}
+    },
+    {
+      "from": "timeline:commit:270a63d",
+      "rel": "MOTIVATED_BY_ADR",
+      "to": "dec:ADR-003:core",
+      "properties": {}
+    },
+    {
+      "from": "timeline:commit:270a63d",
+      "rel": "MOTIVATED_BY_ADR",
+      "to": "dec:ADR-002:core",
       "properties": {}
     }
   ]

@@ -13,6 +13,7 @@ from ..ingest.prd_parser import PRDParser
 from ..ingest.adr_parser import ADRParser
 from ..ingest.change_tracker import ChangeTracker
 from ..approval_service import resolve_domain_owner, send_approval_email, approve_bugfix_and_ingest
+from ..iam import iam, Permission
 
 
 def ingest_codebase(directory_path: str) -> Dict[str, Any]:
@@ -59,12 +60,17 @@ def record_bugfix(
     fix_summary: str,
     affected_function_name: str,
     approved_by_lead: bool = False,
-    date: str = "2026-10-17"
+    date: str = "2026-10-17",
+    actor: Optional[str] = "payment-tech-lead@payflow.internal"
 ) -> Dict[str, Any]:
     """
     Records a resolved production bug, RCA, and verified fix into the Operations chain of the knowledge graph.
-    Enforces the mandatory approval workflow: unapproved bug fixes dispatch an approval email to the Code Domain Owner.
+    Enforces the mandatory approval workflow and IAM permissions (requires MODIFY_CODEBASE).
     """
+    clean_actor = actor or "payment-tech-lead@payflow.internal"
+    denial = iam.enforce_permission(clean_actor, Permission.MODIFY_CODEBASE, "record_bugfix")
+    if denial:
+        return denial
     clean_func = affected_function_name.replace("func:", "")
     issue_id = f"issue:{ticket_id}"
     fix_id = f"fix:{ticket_id}"
