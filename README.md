@@ -38,39 +38,41 @@ Instead of a siloed custom UI, CodeGraph is an **MCP (Model Context Protocol) Se
 │  │  • approve_prd_update │                               │  │
 │  └───────────────────────┴───────────────────────────────┘  │
 │  ┌───────────────────────┬───────────────────────────────┐  │
-│  │   Shared Search       │       Ingestion & Mutations   │  │
-│  │  • search_graph       │      • ingest_code / prd / adr│  │
-│  │  • get_related_nodes  │      • record_bugfix (Approval│  │
-│  │  • explain_traversal  │      • approve_bugfix_email   │  │
+│  │ Program Manager Persona│       Ingestion & Mutations   │  │
+│  │  • query_program_stats │      • ingest_code / prd / adr│  │
+│  │  • diagnose_bottlenecks│      • ingest_jira_board      │  │
+│  │  • get_lead_time_stats │      • record_bugfix (Approval│  │
+│  │  • trace_delivery_chain│      • approve_bugfix_email   │  │
+│  │  • search_graph        │      • approve_prd_email      │  │
 │  └───────────────────────┴───────────────────────────────┘  │
 └──────────────────────────────┬──────────────────────────────┘
-                               │ OpenCypher
+                                │ OpenCypher
 ┌──────────────────────────────▼──────────────────────────────┐
 │                    FalkorDB / Graph Store                   │
 │                                                             │
 │                      [ Root: Project ]                      │
-│        ┌───────────────┬───────────────┬──────────────┐     │
-│        ▼               ▼               ▼              ▼     │
-│     [ PRD ]         [ ADR ]       [ CodeBase ]   [ Ops ]    │
-│        │               │               │              │     │
-│      Input        Requirement        Input          Issues  │
-│        │               │               │              │     │
-│  Functional Req   Architecture    Logic Flow         RCA    │
-│        │               │               │              │     │
-│   Guardrails       Decisions        Classes           Fix   │
-│        │               │               │              │     │
-│     Output          Result         Functions        Result  │
-│        ▲               ▲               │              ▲     │
-│        │               │          Code Logic          │     │
-│        │               │               │              │     │
-│        │               │            Output            │     │
-│        └───────────────┴───────────────┴──────────────┘     │
+│        ┌───────────┬───────────┬───────────┬───────────┐    │
+│        ▼           ▼           ▼           ▼           ▼    │
+│     [ PRD ]     [ ADR ]   [ CodeBase ]   [ Ops ]   [ Agile ]│
+│        │           │           │           │           │    │
+│      Input     Requirement    Input      Issues       Epic  │
+│        │           │           │           │           │    │
+│  Functional Req Architecture Logic Flow   RCA        Feature│
+│        │           │           │           │           │    │
+│   Guardrails    Decisions   Classes       Fix         Story │
+│        │           │           │           │           │    │
+│     Output      Result     Functions    Result     Developer│
+│        ▲           ▲           │           ▲           │    │
+│        │           │      Code Logic       │           │    │
+│        │           │           │           │           │    │
+│        │           │        Output         │           │    │
+│        └───────────┴───────────┴───────────┴───────────┘    │
 │                                                             │
 │   [ Timeline & History: ChangeTimeline (What & Why) ]      │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 🔗 The 4-Pillar Connected Data Model
+### 🔗 The 5-Pillar Connected Data Model
 
 All entities stem from **`Project`** (which explicitly records the **`codebase_owner`** and **`prd_owner`**) and are interconnected across their lifecycle:
 
@@ -78,17 +80,21 @@ All entities stem from **`Project`** (which explicitly records the **`codebase_o
 2. **PRD Chain:** `Project` ➔ `PRDInput` ➔ `FunctionalRequirement` ➔ `Guardrail` ➔ `PRDOutput`
 3. **ADR Chain:** `Project` ➔ `ADRRequirement` ➔ `Architecture` ➔ `Decision` ➔ `ADRResult`
 4. **Operations Chain:** `Project` ➔ `Issue` ➔ `RCA` ➔ `Fix` ➔ `OpResult`
-5. **Timeline & History:** `ChangeTimeline` records **WHAT** changed and **WHY** it changed, linked to `FunctionalRequirement`, `Decision`, and `Fix`.
+5. **Program Flow Chain (Agile / Jira Execution):** `Project` ➔ `Epic` ➔ `AgileFeature` ➔ `Story` ➔ `Developer / AST Function`
+6. **Timeline & History:** `ChangeTimeline` records **WHAT** changed and **WHY** it changed, linked to `FunctionalRequirement`, `Decision`, `Fix`, and commits.
 
 #### Dual-Ownership Model on `Project`:
 * **`codebase_owner`** (e.g., `payment-tech-lead@payflow.internal`): Escalation lead for architectural constraints, AST breaks, and code regressions.
-* **`prd_owner`** (e.g., `product-lead@payflow.internal`): Escalation lead for requirement coverage gaps and business guardrail failures.
+* **`prd_owner`** (e.g., `product-lead@payflow.internal`): Escalation lead for requirement coverage gaps, agile deliverables, and business guardrail failures.
 
 #### Cross-Entity Interlinks:
 * **Code is built from ADR:** `Decision` ➔ `CONSTRAINS_FUNCTION` / `ENFORCED_IN_CODE_LOGIC` ➔ `Function` / `CodeLogic`
 * **ADR is built from PRD:** `FunctionalRequirement` ➔ `DRIVES_ADR_REQUIREMENT` ➔ `ADRRequirement`, `Guardrail` ➔ `JUSTIFIES_DECISION` ➔ `Decision`
 * **Code implements PRD:** `FunctionalRequirement` ➔ `IMPLEMENTED_BY_FUNCTION` ➔ `Function`, `Guardrail` ➔ `VERIFIED_BY_LOGIC` ➔ `CodeLogic`
-* **Operations fixes the CodeBase:** `Issue` ➔ `MANIFESTED_IN_FUNCTION`, `Issue` ➔ `VIOLATED_DECISION`, `Fix` ➔ `MODIFIES_CODE_LOGIC` / `FIXES_FUNCTION`
+* **Program Flow realizes PRD:** `AgileFeature` / `Story` ➔ `REALIZES_REQUIREMENT` ➔ `FunctionalRequirement`
+* **Program Flow executes Code:** `Story` ➔ `IMPLEMENTS_CODE` ➔ `Function`, `Story` ➔ `ASSIGNED_TO_DEVELOPER` ➔ Developer
+* **Program Flow guided by Architecture:** `AgileFeature` ➔ `GUIDED_BY_ARCHITECTURE` ➔ `Architecture` / `Decision`
+* **Operations fixes the CodeBase & Program:** `Issue` ➔ `MANIFESTED_IN_FUNCTION`, `Issue` ➔ `VIOLATED_DECISION`, `Fix` ➔ `MODIFIES_CODE_LOGIC` / `FIXES_FUNCTION`, `Story` ➔ `RESOLVES_ISSUE` ➔ `Issue`
 
 
 ---
@@ -196,12 +202,13 @@ Add to `.cursor/mcp.json` or VS Code MCP settings:
 
 ---
 
-## 🎭 Two Personas, One Connected Graph
+## 🎭 Three Personas, One Connected Graph
 
 | Persona | System Prompt | Communication Style | Primary Tools |
 |---------|---------------|---------------------|---------------|
 | **Product Manager** | `prompts/product-persona.md` | Plain English, business terms, completion %, zero code | `query_prd_coverage`, `simulate_scenario`, `get_change_history`, `list_uncovered_requirements`, `update_prd_features_and_scenarios`, `approve_prd_update_via_email` |
 | **Developer / SRE** | `prompts/developer-persona.md` | Technical, file paths, line numbers, ADR constraints | `debug_issue`, `check_safe_to_change`, `get_function_lineage`, `review_pr_diff`, `cross_org_bug_check` |
+| **Program Manager** | `prompts/program-persona.md` | Delivery velocity, story points, sprint burndown, cycle times, blockers | `query_program_delivery_status`, `diagnose_delivery_bottlenecks`, `get_feature_lead_time_metrics`, `trace_requirement_to_delivery_chain`, `ingest_jira_board` |
 
 ---
 
@@ -238,6 +245,15 @@ Add to `.cursor/mcp.json` or VS Code MCP settings:
   > **Target:** `fraud_detector.py:retry_with_backoff`  
   > • **Architectural Constraint (`ADR-001`):** Mandates exactly 3 retries with exponential backoff. Developers are strictly forbidden from lowering retry counts as it violates card network SLAs.  
   > • **Past Regression Bugs:** Changes to this function previously caused **BUG-112** (packet drop false declines) and **BUG-298**."
+
+### Scenario 5: Program Delivery Status & Root-Cause Bottleneck Diagnosis
+- **User Prompt:** *"Where are the actual delivery bottlenecks between our PRD requirements and engineering code?"*
+- **Agent Action:** Calls `diagnose_delivery_bottlenecks()`.
+- **Agent Output (Program Manager Terms):**
+  > "📊 **Program Delivery Status: 69.0% completion** (29 of 42 story points delivered across 3 Epics).  
+  > 🚨 **2 Delivery Bottlenecks Identified:**  
+  > 1. **[Active Blocker] REQ-008 (Partial Refund Support):** Halted on ticket `PAY-307` assigned to Sarah Jenkins in Sprint 25. Reason: *Awaiting legal & accounting clearance on merchant interchange fee clawback accounting rule.*  
+  > 2. **[Definition Gap] REQ-004 (Dynamic Currency Conversion):** Stalled in backlog; ticket `PAY-306` is unassigned and not committed to any active engineering sprint."
 
 ---
 
@@ -321,15 +337,32 @@ When an AI agent (e.g. Product Advisor or backlog generator) proposes new featur
    - MCP tool: `approve_prd_update_via_email(feature_id="REQ-011", approval_token="<token>", approver_email="...")`
 5. **Graph Activation:** Upon token validation, the requirement and scenario statuses are promoted to `APPROVED`, `approved_by` is recorded, and the relationships `(:Project)-[:SPECIFIES_REQUIREMENT]->(:FunctionalRequirement)` and `(:FunctionalRequirement)-[:HAS_SCENARIO]->(:Scenario)` are activated in the knowledge graph.
 
+### 6. Ingesting Jira Board & Agile Sprints (5th Pillar)
+Ingest Jira board data (Epics, Features, Stories) to connect agile project execution with the PRD, ADR, CodeBase, and Operations pillars:
+```bash
+uv run python -m codegraph ingest \
+  --project-name "PayFlow" \
+  --project-id "project:payflow" \
+  --code ./demo_data/code \
+  --prd ./demo_data/prd \
+  --adr ./demo_data/adr \
+  --jira ./demo_data/jira/jira_board_export.json
+```
+The ingestion parser automatically maps:
+- `Project` ➔ `HAS_EPIC` ➔ `Epic`
+- `Epic` ➔ `HAS_FEATURE` ➔ `AgileFeature`
+- `AgileFeature` ➔ `HAS_STORY` ➔ `Story`
+- Synthesizes `REALIZES_REQUIREMENT` to PRD and `IMPLEMENTS_CODE` to AST functions.
+
 ---
 
 ## 🧪 Running Automated Tests
 
-Run the full 74-test pytest suite:
+Run the full 83-test pytest suite:
 
 ```bash
 uv run pytest -v
-# 74 passed in 0.58s
+# 83 passed in 0.71s
 ```
 
 The modular test suite in [`tests/`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/) provides comprehensive test coverage:
@@ -337,21 +370,22 @@ The modular test suite in [`tests/`](file:///Users/ashwin/Documents/Projects/Gra
 * `test_parsers.py`: Multi-language code parser (Python AST, TypeScript, Go), document converter (HTML, JSON/Jira, Markdown, Plain Text), PRD & ADR parsers, runbooks
 * `test_email_approval.py`: Code Domain Owner resolution (.github/CODEOWNERS), email dispatch, token verification, and DB ingestion
 * `test_prd_agent_updates.py`: Agent PRD updates, staged status isolation, PRD Owner email dispatch, token verification, and DB ingestion
+* `test_program_tools.py`: Program Manager persona tools, Jira ingestion, velocity metrics, root-cause bottleneck diagnosis, lead time analysis, and 5-pillar traceability
 * `test_project_owners.py`: Project dual-ownership model (`codebase_owner` & `prd_owner`), pipeline ingestion, and status CLI
 * `test_product_tools.py`: PRD compliance metrics, plain-English scenario simulation, change timeline
 * `test_developer_tools.py`: Incident diagnostics, safe-to-change checks, 4-pillar lineage, PR diff audits
 * `test_shared_and_ingest.py`: Full-text search, N-hop neighborhood expansion, unified pipeline, approval workflow
-* `test_mcp_server.py`: Async MCP 2.x server initialization, 20 tools registry, persona prompts
+* `test_mcp_server.py`: Async MCP 2.x server initialization, 25 tools registry, persona prompts (`product_advisor`, `developer_assistant`, `program_manager`)
 * `test_cli.py`: Click CLI commands (`status`, `demo`, `seed`, `ingest`, `approve-bugfix`, `approve-prd`, `help`)
 
 ---
 
 ## 🏆 Hackathon Track Criteria Alignment
 
-- **Multi-hop reasoning:** `simulate_scenario` and `get_related_entities` traverse chains: `Scenario -> Requirement -> Function -> Calls -> Decisions`.
-- **Graph queries as agent tools:** All 20 tools generate and execute OpenCypher queries against FalkorDB.
-- **Tool selection through MCP:** Standardized MCP 2.x protocol allows seamless tool discovery and invocation by any agent client.
-- **Actions based on graph shows:** Produces concrete safety verdicts (`SAFE` vs `UNSAFE`), RCAs with line numbers, and PR merge gating (`REQUEST_CHANGES` vs `APPROVE`).
+- **Multi-hop reasoning:** `simulate_scenario`, `trace_requirement_to_delivery_chain`, and `diagnose_delivery_bottlenecks` traverse chains: `PRD -> Epic -> Feature -> Story -> Function -> Decisions -> Issues`.
+- **Graph queries as agent tools:** All 25 tools generate and execute OpenCypher queries against FalkorDB.
+- **Tool selection through MCP:** Standardized MCP 2.x protocol allows seamless tool discovery and persona invocation by any agent client.
+- **Actions based on graph shows:** Produces concrete safety verdicts (`SAFE` vs `UNSAFE`), RCAs with line numbers, blocker diagnoses, and PR merge gating (`REQUEST_CHANGES` vs `APPROVE`).
 - **Explainable results:** Every tool response includes `cypher_query` and `traversal_path` demonstrating exact data lineage.
 
 ---
@@ -373,6 +407,7 @@ Foundational architectural decisions for every CodeGraph component are documente
 * [**ADR-011:** Code Domain Owner Email Approval & Ingestion Workflow](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/011-domain-owner-email-approval-and-ingestion-flow.md)
 * [**ADR-012:** Project Entity Dual-Ownership Model (Codebase & PRD Owner)](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/012-project-entity-dual-ownership-model.md)
 * [**ADR-013:** PRD Agent Updates and PRD Owner Email Approval Workflow](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/013-prd-agent-updates-and-owner-approval-workflow.md)
+* [**ADR-014:** Program Manager Persona and Agile Execution Flow (5th Pillar)](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/014-program-manager-persona-and-agile-execution-flow.md)
 
 
 

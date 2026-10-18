@@ -30,6 +30,13 @@ from .ingest_tools import (
     record_bugfix,
     approve_bugfix_via_email,
 )
+from .program_tools import (
+    query_program_delivery_status,
+    diagnose_delivery_bottlenecks,
+    get_feature_lead_time_metrics,
+    trace_requirement_to_delivery_chain,
+    ingest_jira_board,
+)
 
 __all__ = [
     "query_prd_coverage",
@@ -52,5 +59,10 @@ __all__ = [
     "ingest_runbook",
     "record_bugfix",
     "approve_bugfix_via_email",
+    "query_program_delivery_status",
+    "diagnose_delivery_bottlenecks",
+    "get_feature_lead_time_metrics",
+    "trace_requirement_to_delivery_chain",
+    "ingest_jira_board",
 ]
 

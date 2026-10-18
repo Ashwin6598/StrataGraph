@@ -47,15 +47,23 @@ async def test_mcp_tool_registry():
     assert "ingest_runbook" in tool_names
     assert "record_bugfix" in tool_names
 
+    # Program Persona Tools
+    assert "query_program_delivery_status" in tool_names
+    assert "diagnose_delivery_bottlenecks" in tool_names
+    assert "get_feature_lead_time_metrics" in tool_names
+    assert "trace_requirement_to_delivery_chain" in tool_names
+    assert "ingest_jira_board" in tool_names
+
 
 @pytest.mark.anyio
 async def test_mcp_prompts_registry():
-    """Verify both Product Advisor and Developer Assistant personas are registered."""
+    """Verify Product Advisor, Developer Assistant, and Program Manager personas are registered."""
     prompts = await server.list_prompts()
     prompt_names = {p.name for p in prompts}
 
     assert "product_advisor" in prompt_names
     assert "developer_assistant" in prompt_names
+    assert "program_manager" in prompt_names
 
 
 @pytest.mark.anyio
@@ -93,5 +101,13 @@ async def test_mcp_call_tool_product():
 async def test_mcp_call_tool_developer():
     """Verify executing a developer tool via MCP returns valid content."""
     res = await server.call_tool("check_safe_to_change", {"function_name": "retry_with_backoff"})
+    assert res is not None
+    assert len(res.content) > 0
+
+
+@pytest.mark.anyio
+async def test_mcp_call_tool_program():
+    """Verify executing a program manager tool via MCP returns valid content."""
+    res = await server.call_tool("query_program_delivery_status", {"project_id": "project:payflow"})
     assert res is not None
     assert len(res.content) > 0

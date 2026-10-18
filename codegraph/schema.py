@@ -1,11 +1,12 @@
 """
 Graph Schema definitions for CodeGraph.
-Implements the 4-Pillar Connected Knowledge Graph architecture anchored by Project:
-1. CodeBase:   Project -> CodeInput -> LogicFlow -> Class -> Function -> CodeLogic -> CodeOutput
-2. PRD:        Project -> PRDInput -> FunctionalRequirement -> Guardrail -> PRDOutput
-3. ADR:        Project -> ADRRequirement -> Architecture -> Decision -> ADRResult
-4. Operations: Project -> Issue -> RCA -> Fix -> OpResult
-5. History & Timeline: ChangeTimeline tracking what changed and why it changed.
+Implements the 5-Pillar Connected Knowledge Graph architecture anchored by Project:
+1. CodeBase:     Project -> CodeInput -> LogicFlow -> Class -> Function -> CodeLogic -> CodeOutput
+2. PRD:          Project -> PRDInput -> FunctionalRequirement -> Guardrail -> PRDOutput
+3. ADR:          Project -> ADRRequirement -> Architecture -> Decision -> ADRResult
+4. Operations:   Project -> Issue -> RCA -> Fix -> OpResult
+5. Program Flow: Project -> Epic -> Feature -> Story -> Developer / AST Function
+6. History & Timeline: ChangeTimeline tracking what changed and why it changed.
 """
 
 from typing import Dict, Any, List, Optional
@@ -287,7 +288,54 @@ class OpResultNode(BaseModel):
 
 
 # -------------------------------------------------------------
-# 5. History & Timeline Node (What & Why Lineage)
+# 5. Program Flow Entity Chain Nodes (Agile / Jira Execution)
+# project -> epic -> feature -> story
+# -------------------------------------------------------------
+
+class EpicNode(BaseModel):
+    id: str  # e.g. "epic:PAY-EPIC-101"
+    project_id: str
+    key: str  # e.g. "PAY-EPIC-101"
+    summary: str
+    description: str = ""
+    status: str = "IN_PROGRESS"  # "OPEN", "IN_PROGRESS", "COMPLETED"
+    owner: str = ""
+    target_date: Optional[str] = None
+    created_date: Optional[str] = None
+
+
+class AgileFeatureNode(BaseModel):
+    id: str  # e.g. "feat:PAY-FEAT-201"
+    epic_id: str
+    key: str  # e.g. "PAY-FEAT-201"
+    summary: str
+    description: str = ""
+    service_name: Optional[str] = None
+    architecture_diagram: Optional[str] = None
+    status: str = "IN_DEVELOPMENT"  # "BACKLOG", "IN_DEVELOPMENT", "READY_FOR_UAT", "SHIPPED"
+    req_id: Optional[str] = None
+
+
+class StoryNode(BaseModel):
+    id: str  # e.g. "story:PAY-301"
+    feature_id: str
+    key: str  # e.g. "PAY-301"
+    summary: str
+    description: str = ""
+    story_points: int = 3
+    assignee: str = ""
+    status: str = "DONE"  # "TODO", "IN_PROGRESS", "IN_REVIEW", "DONE"
+    sprint: str = "Sprint 24"
+    created_date: str = "2025-10-05"
+    resolved_date: Optional[str] = None
+    cycle_time_days: Optional[float] = None
+    blocked: bool = False
+    blocker_reason: Optional[str] = None
+    func_id: Optional[str] = None
+
+
+# -------------------------------------------------------------
+# 6. History & Timeline Node (What & Why Lineage)
 # -------------------------------------------------------------
 
 class ChangeTimelineNode(BaseModel):
@@ -334,6 +382,17 @@ class Relationships:
     ANALYZED_BY_RCA = "ANALYZED_BY_RCA"            # (Issue) -> (RCA)
     RESOLVED_BY_FIX = "RESOLVED_BY_FIX"            # (RCA) -> (Fix)
     ACHIEVES_RESULT = "ACHIEVES_RESULT"            # (Fix) -> (OpResult)
+
+    # --- 5. Program Flow (Agile / Jira Execution Chain) ---
+    HAS_EPIC = "HAS_EPIC"                          # (Project) -> (Epic)
+    HAS_FEATURE = "HAS_FEATURE"                    # (Epic) -> (AgileFeature)
+    HAS_STORY = "HAS_STORY"                        # (AgileFeature) -> (Story)
+    REALIZES_REQUIREMENT = "REALIZES_REQUIREMENT"  # (AgileFeature | Story) -> (FunctionalRequirement)
+    GUIDED_BY_ARCHITECTURE = "GUIDED_BY_ARCHITECTURE" # (AgileFeature) -> (Architecture | Decision)
+    IMPLEMENTS_CODE = "IMPLEMENTS_CODE"            # (Story) -> (Function)
+    ASSIGNED_TO_DEVELOPER = "ASSIGNED_TO_DEVELOPER" # (Story) -> (Developer)
+    RESOLVES_ISSUE = "RESOLVES_ISSUE"              # (Story) -> (Issue)
+    TRACKS_PROGRAM_FLOW = "TRACKS_PROGRAM_FLOW"    # (Project) -> (Epic)
 
     # --- Cross-Entity Interlinks ---
     # PRD -> ADR (PRD drives architectural requirements)

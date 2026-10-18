@@ -835,6 +835,294 @@
         "diff_summary": "WORKER_POOL_CONCURRENCY = 5  # Restored per ADR-002 to resolve BUG-342"
       }
     },
+    "epic:PAY-EPIC-101": {
+      "id": "epic:PAY-EPIC-101",
+      "label": "Epic",
+      "properties": {
+        "id": "epic:PAY-EPIC-101",
+        "project_id": "project:payflow",
+        "key": "PAY-EPIC-101",
+        "summary": "Core Card Checkout & Authorization Engine",
+        "description": "Orchestrates payment pre-validation, tokenized authorizations, and real-time fraud mitigation.",
+        "status": "COMPLETED",
+        "owner": "tpm-checkout@payflow.internal",
+        "target_date": "2025-10-25",
+        "created_date": "2025-10-01"
+      }
+    },
+    "epic:PAY-EPIC-102": {
+      "id": "epic:PAY-EPIC-102",
+      "label": "Epic",
+      "properties": {
+        "id": "epic:PAY-EPIC-102",
+        "project_id": "project:payflow",
+        "key": "PAY-EPIC-102",
+        "summary": "Global Dispersals & Refund Processing Engine",
+        "description": "High-throughput asynchronous refund queueing, 30-day window enforcement, and partial refund handling.",
+        "status": "IN_PROGRESS",
+        "owner": "tpm-refunds@payflow.internal",
+        "target_date": "2025-11-15",
+        "created_date": "2025-10-05"
+      }
+    },
+    "epic:PAY-EPIC-103": {
+      "id": "epic:PAY-EPIC-103",
+      "label": "Epic",
+      "properties": {
+        "id": "epic:PAY-EPIC-103",
+        "project_id": "project:payflow",
+        "key": "PAY-EPIC-103",
+        "summary": "Multi-Currency & Global FX Expansion",
+        "description": "Dynamic currency conversion (DCC), cross-border settlement rails, and international compliance.",
+        "status": "OPEN",
+        "owner": "tpm-global@payflow.internal",
+        "target_date": "2025-12-30",
+        "created_date": "2025-10-15"
+      }
+    },
+    "feat:PAY-FEAT-201": {
+      "id": "feat:PAY-FEAT-201",
+      "label": "AgileFeature",
+      "properties": {
+        "id": "feat:PAY-FEAT-201",
+        "epic_id": "epic:PAY-EPIC-101",
+        "key": "PAY-FEAT-201",
+        "summary": "Card Payment Pre-Validation & Ingestion",
+        "description": "Input payload parsing, Luhn checksum verification, and tokenization gateway.",
+        "service_name": "payment_service",
+        "architecture_diagram": "docs/architecture/payment_auth_flow.png",
+        "status": "SHIPPED",
+        "req_id": "req:REQ-001"
+      }
+    },
+    "feat:PAY-FEAT-202": {
+      "id": "feat:PAY-FEAT-202",
+      "label": "AgileFeature",
+      "properties": {
+        "id": "feat:PAY-FEAT-202",
+        "epic_id": "epic:PAY-EPIC-101",
+        "key": "PAY-FEAT-202",
+        "summary": "Real-Time Risk Scoring & Anti-Fraud Engine",
+        "description": "Low-latency ML scoring pipeline with strict 3-retry exponential backoff resilient against network jitter.",
+        "service_name": "fraud_detector",
+        "architecture_diagram": "docs/architecture/fraud_scoring_pipeline.png",
+        "status": "SHIPPED",
+        "req_id": "req:REQ-003"
+      }
+    },
+    "feat:PAY-FEAT-203": {
+      "id": "feat:PAY-FEAT-203",
+      "label": "AgileFeature",
+      "properties": {
+        "id": "feat:PAY-FEAT-203",
+        "epic_id": "epic:PAY-EPIC-102",
+        "key": "PAY-FEAT-203",
+        "summary": "Async High-Throughput Refund Worker Pool",
+        "description": "Distributed queue consumers maintaining concurrency limit of 5 per ADR-002.",
+        "service_name": "refund_processor",
+        "architecture_diagram": "docs/architecture/refund_worker_concurrency.png",
+        "status": "SHIPPED",
+        "req_id": "req:REQ-006"
+      }
+    },
+    "feat:PAY-FEAT-204": {
+      "id": "feat:PAY-FEAT-204",
+      "label": "AgileFeature",
+      "properties": {
+        "id": "feat:PAY-FEAT-204",
+        "epic_id": "epic:PAY-EPIC-103",
+        "key": "PAY-FEAT-204",
+        "summary": "Dynamic Currency Conversion (DCC) Service",
+        "description": "Automated merchant currency conversion at POS using ECB exchange rate feeds.",
+        "service_name": "fx_service",
+        "architecture_diagram": "docs/architecture/dcc_conversion_flow.png",
+        "status": "BACKLOG",
+        "req_id": "req:REQ-004"
+      }
+    },
+    "feat:PAY-FEAT-205": {
+      "id": "feat:PAY-FEAT-205",
+      "label": "AgileFeature",
+      "properties": {
+        "id": "feat:PAY-FEAT-205",
+        "epic_id": "epic:PAY-EPIC-102",
+        "key": "PAY-FEAT-205",
+        "summary": "Partial Refund Calculation & Settlement",
+        "description": "Prorated refund math and merchant interchange fee clawback calculations.",
+        "service_name": "refund_processor",
+        "architecture_diagram": "docs/architecture/partial_refund_ledger.png",
+        "status": "IN_DEVELOPMENT",
+        "req_id": "req:REQ-008"
+      }
+    },
+    "story:PAY-301": {
+      "id": "story:PAY-301",
+      "label": "Story",
+      "properties": {
+        "id": "story:PAY-301",
+        "feature_id": "feat:PAY-FEAT-201",
+        "key": "PAY-301",
+        "summary": "Implement Luhn algorithm and expiry verification (REQ-002)",
+        "description": "Pre-flight validation to reject invalid and expired cards before touching bank networks.",
+        "story_points": 3,
+        "assignee": "Alice Chen (Senior Engineer)",
+        "status": "DONE",
+        "sprint": "Sprint 23",
+        "created_date": "2025-10-02",
+        "resolved_date": "2025-10-05",
+        "cycle_time_days": 3.0,
+        "blocked": false,
+        "blocker_reason": null,
+        "func_id": "func:validate_card"
+      }
+    },
+    "story:PAY-302": {
+      "id": "story:PAY-302",
+      "label": "Story",
+      "properties": {
+        "id": "story:PAY-302",
+        "feature_id": "feat:PAY-FEAT-201",
+        "key": "PAY-302",
+        "summary": "Card authorization tokenization and transaction persistence (REQ-001)",
+        "description": "PCI-compliant authorization flow and ledger record writing.",
+        "story_points": 5,
+        "assignee": "Alice Chen (Senior Engineer)",
+        "status": "DONE",
+        "sprint": "Sprint 23",
+        "created_date": "2025-10-04",
+        "resolved_date": "2025-10-08",
+        "cycle_time_days": 4.0,
+        "blocked": false,
+        "blocker_reason": null,
+        "func_id": "func:authorize_payment"
+      }
+    },
+    "story:PAY-303": {
+      "id": "story:PAY-303",
+      "label": "Story",
+      "properties": {
+        "id": "story:PAY-303",
+        "feature_id": "feat:PAY-FEAT-202",
+        "key": "PAY-303",
+        "summary": "Implement 3-retry exponential backoff for fraud scoring (REQ-003, ADR-001)",
+        "description": "Wrap external fraud API calls with exponential backoff and score threshold enforcement.",
+        "story_points": 5,
+        "assignee": "Bob Martinez (Tech Lead)",
+        "status": "DONE",
+        "sprint": "Sprint 24",
+        "created_date": "2025-10-10",
+        "resolved_date": "2025-10-14",
+        "cycle_time_days": 4.0,
+        "blocked": false,
+        "blocker_reason": null,
+        "func_id": "func:retry_with_backoff"
+      }
+    },
+    "story:PAY-304": {
+      "id": "story:PAY-304",
+      "label": "Story",
+      "properties": {
+        "id": "story:PAY-304",
+        "feature_id": "feat:PAY-FEAT-203",
+        "key": "PAY-304",
+        "summary": "Queue refund jobs with concurrency pool of 5 (REQ-006, ADR-002)",
+        "description": "Background worker pool handling spike loads on /v1/refunds.",
+        "story_points": 8,
+        "assignee": "David Kim (Staff SRE)",
+        "status": "DONE",
+        "sprint": "Sprint 24",
+        "created_date": "2025-10-12",
+        "resolved_date": "2025-10-18",
+        "cycle_time_days": 6.0,
+        "blocked": false,
+        "blocker_reason": null,
+        "func_id": "func:queue_refund_job"
+      }
+    },
+    "story:PAY-305": {
+      "id": "story:PAY-305",
+      "label": "Story",
+      "properties": {
+        "id": "story:PAY-305",
+        "feature_id": "feat:PAY-FEAT-203",
+        "key": "PAY-305",
+        "summary": "Enforce 30-day settlement cutoff on refund requests (REQ-007)",
+        "description": "Reject refund requests exceeding 30 calendar days with REFUND_WINDOW_EXCEEDED.",
+        "story_points": 3,
+        "assignee": "David Kim (Staff SRE)",
+        "status": "DONE",
+        "sprint": "Sprint 24",
+        "created_date": "2025-10-15",
+        "resolved_date": "2025-10-17",
+        "cycle_time_days": 2.0,
+        "blocked": false,
+        "blocker_reason": null,
+        "func_id": "func:process_refund"
+      }
+    },
+    "story:PAY-306": {
+      "id": "story:PAY-306",
+      "label": "Story",
+      "properties": {
+        "id": "story:PAY-306",
+        "feature_id": "feat:PAY-FEAT-204",
+        "key": "PAY-306",
+        "summary": "Integrate real-time forex rate provider for DCC (REQ-004)",
+        "description": "Connect to European Central Bank daily forex feed for multi-currency conversion.",
+        "story_points": 8,
+        "assignee": "Unassigned",
+        "status": "TODO",
+        "sprint": "Sprint 26",
+        "created_date": "2025-10-18",
+        "resolved_date": null,
+        "cycle_time_days": null,
+        "blocked": false,
+        "blocker_reason": null,
+        "func_id": null
+      }
+    },
+    "story:PAY-307": {
+      "id": "story:PAY-307",
+      "label": "Story",
+      "properties": {
+        "id": "story:PAY-307",
+        "feature_id": "feat:PAY-FEAT-205",
+        "key": "PAY-307",
+        "summary": "Partial refund calculation and fee deduction (REQ-008)",
+        "description": "Support partial settlement amount refunding against original transaction.",
+        "story_points": 5,
+        "assignee": "Sarah Jenkins (Fintech Engineer)",
+        "status": "IN_PROGRESS",
+        "sprint": "Sprint 25",
+        "created_date": "2025-10-12",
+        "resolved_date": null,
+        "cycle_time_days": null,
+        "blocked": true,
+        "blocker_reason": "Blocked: Awaiting legal and accounting clearance on merchant interchange fee clawback accounting rule.",
+        "func_id": null
+      }
+    },
+    "story:PAY-308": {
+      "id": "story:PAY-308",
+      "label": "Story",
+      "properties": {
+        "id": "story:PAY-308",
+        "feature_id": "feat:PAY-FEAT-201",
+        "key": "PAY-308",
+        "summary": "Strict payment idempotency check with Redis distributed locks (REQ-009)",
+        "description": "Atomically verify and lock idempotency keys for 120s to prevent double charges.",
+        "story_points": 5,
+        "assignee": "Bob Martinez (Tech Lead)",
+        "status": "DONE",
+        "sprint": "Sprint 24",
+        "created_date": "2025-10-14",
+        "resolved_date": "2025-10-16",
+        "cycle_time_days": 2.0,
+        "blocked": false,
+        "blocker_reason": null,
+        "func_id": "func:enforce_idempotency"
+      }
+    },
     "project:custom_ingest": {
       "id": "project:custom_ingest",
       "label": "Project",
@@ -1183,6 +1471,22 @@
         "prd_owner": "cli-pm@payflow.internal"
       }
     },
+    "timeline:commit:0941cdb": {
+      "id": "timeline:commit:0941cdb",
+      "label": "ChangeTimeline",
+      "properties": {
+        "id": "timeline:commit:0941cdb",
+        "project_id": "project:test_ent",
+        "commit_hash": "0941cdb1887c11a44dd59eb9d9a81d2498bd640e",
+        "author": "Ashwin",
+        "timestamp": "2026-10-18T12:00:00Z",
+        "date": "2026-10-18",
+        "what_changed": "feat: add agent PRD updates, PRD owner email approval workflow, ADR-013, and 74 tests",
+        "why_changed": "Recorded from git commit message: feat: add agent PRD updates, PRD owner email approval workflow, ADR-013, and 74 tests",
+        "change_category": "PRD_FEATURE",
+        "diff_summary": "feat: add agent PRD updates, PRD owner email approval workflow, ADR-013, and 74 tests"
+      }
+    },
     "timeline:commit:f2202ac": {
       "id": "timeline:commit:f2202ac",
       "label": "ChangeTimeline",
@@ -1245,22 +1549,6 @@
         "why_changed": "Recorded from git commit message: feat: add zero-dependency multi-language code parser (TS, JS, Go, Java, Kotlin, Rust) and 52 tests",
         "change_category": "PRD_FEATURE",
         "diff_summary": "feat: add zero-dependency multi-language code parser (TS, JS, Go, Java, Kotlin, Rust) and 52 tests"
-      }
-    },
-    "timeline:commit:a1b29fd": {
-      "id": "timeline:commit:a1b29fd",
-      "label": "ChangeTimeline",
-      "properties": {
-        "id": "timeline:commit:a1b29fd",
-        "project_id": "project:test_ent",
-        "commit_hash": "a1b29fdb723aa0278685914566cfe52a207dc00f",
-        "author": "Ashwin",
-        "timestamp": "2026-10-18T12:00:00Z",
-        "date": "2026-10-18",
-        "what_changed": "feat: preserve complete raw content and function source code in graph nodes",
-        "why_changed": "Recorded from git commit message: feat: preserve complete raw content and function source code in graph nodes",
-        "change_category": "PRD_FEATURE",
-        "diff_summary": "feat: preserve complete raw content and function source code in graph nodes"
       }
     },
     "PRD-PAYFLOW-101": {
@@ -1627,7 +1915,7 @@
         "approved_by": "unapproved",
         "approval_status": "PENDING_APPROVAL",
         "domain_owner_email": "payment-domain-owner@payflow.internal",
-        "approval_token": "cb5bab258c341b5a5050fed18fe52e78"
+        "approval_token": "ea6d45633c0bf3861bf571a4272eab4b"
       }
     },
     "issue:BUG-1000-TEST": {
@@ -1776,6 +2064,22 @@
         "rca": "A junior developer reduced `MAX_RETRIES` from 3 to 1 in `fraud_detector.py` to \"speed up checkout responses\". Because third-party credit card fraud networks experience 1-2% momentary packet drops, removing retry attempts caused 1 out of every 50 checkout requests to fail immediately.",
         "resolution_steps": "1. Refer to `ADR-001` (Fraud Risk Scoring and Mandatory Retry Ceiling).\n  2. Restore `MAX_RETRIES = 3` and `INITIAL_BACKOFF_SECONDS = 0.5`.\n  3. Run verification test suite.",
         "raw_content": "# Runbook RB-PAY-001: Triage and Resolution for Payment and Refund Timeouts\n\n- **Runbook ID:** RB-PAY-001\n- **Service:** PayFlow Payment & Refund Gateway\n- **Audience:** On-Call Engineers & Senior Developers\n- **Last Verified:** 2026-03-01\n\n---\n\n## 1. Incident: REFUND_TIMEOUT Under Load\n- **Error Code / Symptom:** `REFUND_TIMEOUT`, `HTTP 504 Gateway Timeout` on `/v1/refunds` endpoint.\n- **Historical Reference:** `BUG-342` (Black Friday incident).\n- **Root Cause Analysis (RCA):**\n  The `RefundProcessor.WORKER_POOL_CONCURRENCY` was accidentally reduced from 5 to 2 in a hotfix PR. At concurrency 2, the async consumer queue becomes saturated whenever request volume exceeds 80 refunds/sec. Messages queue up, consumer lag reaches >120s, and API gateways drop connections with `REFUND_TIMEOUT`.\n- **Immediate Diagnostic Command:**\n  Check queue depth and consumer concurrency in `refund_processor.py`.\n- **Verified Resolution:**\n  1. Open `demo_data/code/refund_processor.py`.\n  2. Ensure `WORKER_POOL_CONCURRENCY` is set to `5` as specified in `ADR-002`.\n  3. Restart worker pool service.\n  4. Never set concurrency > 10 (triggers partner HTTP 429).\n\n---\n\n## 2. Incident: CASCADE_FRAUD_CHECK_FAILURES\n- **Error Code / Symptom:** `FRAUD_SERVICE_UNAVAILABLE`, spikes in legitimate card declines.\n- **Historical References:** `BUG-112`, `BUG-298`.\n- **Root Cause Analysis (RCA):**\n  A junior developer reduced `MAX_RETRIES` from 3 to 1 in `fraud_detector.py` to \"speed up checkout responses\". Because third-party credit card fraud networks experience 1-2% momentary packet drops, removing retry attempts caused 1 out of every 50 checkout requests to fail immediately.\n- **Verified Resolution:**\n  1. Refer to `ADR-001` (Fraud Risk Scoring and Mandatory Retry Ceiling).\n  2. Restore `MAX_RETRIES = 3` and `INITIAL_BACKOFF_SECONDS = 0.5`.\n  3. Run verification test suite.\n"
+      }
+    },
+    "timeline:commit:a1b29fd": {
+      "id": "timeline:commit:a1b29fd",
+      "label": "ChangeTimeline",
+      "properties": {
+        "id": "timeline:commit:a1b29fd",
+        "project_id": "project:test_ent",
+        "commit_hash": "a1b29fdb723aa0278685914566cfe52a207dc00f",
+        "author": "Ashwin",
+        "timestamp": "2026-10-18T12:00:00Z",
+        "date": "2026-10-18",
+        "what_changed": "feat: preserve complete raw content and function source code in graph nodes",
+        "why_changed": "Recorded from git commit message: feat: preserve complete raw content and function source code in graph nodes",
+        "change_category": "PRD_FEATURE",
+        "diff_summary": "feat: preserve complete raw content and function source code in graph nodes"
       }
     },
     "timeline:commit:35eb46d": {
@@ -2593,6 +2897,228 @@
       "properties": {}
     },
     {
+      "from": "project:payflow",
+      "rel": "HAS_EPIC",
+      "to": "epic:PAY-EPIC-101",
+      "properties": {}
+    },
+    {
+      "from": "project:payflow",
+      "rel": "HAS_EPIC",
+      "to": "epic:PAY-EPIC-102",
+      "properties": {}
+    },
+    {
+      "from": "project:payflow",
+      "rel": "HAS_EPIC",
+      "to": "epic:PAY-EPIC-103",
+      "properties": {}
+    },
+    {
+      "from": "epic:PAY-EPIC-101",
+      "rel": "HAS_FEATURE",
+      "to": "feat:PAY-FEAT-201",
+      "properties": {}
+    },
+    {
+      "from": "feat:PAY-FEAT-201",
+      "rel": "REALIZES_REQUIREMENT",
+      "to": "req:REQ-001",
+      "properties": {}
+    },
+    {
+      "from": "epic:PAY-EPIC-101",
+      "rel": "HAS_FEATURE",
+      "to": "feat:PAY-FEAT-202",
+      "properties": {}
+    },
+    {
+      "from": "feat:PAY-FEAT-202",
+      "rel": "REALIZES_REQUIREMENT",
+      "to": "req:REQ-003",
+      "properties": {}
+    },
+    {
+      "from": "epic:PAY-EPIC-102",
+      "rel": "HAS_FEATURE",
+      "to": "feat:PAY-FEAT-203",
+      "properties": {}
+    },
+    {
+      "from": "feat:PAY-FEAT-203",
+      "rel": "REALIZES_REQUIREMENT",
+      "to": "req:REQ-006",
+      "properties": {}
+    },
+    {
+      "from": "epic:PAY-EPIC-103",
+      "rel": "HAS_FEATURE",
+      "to": "feat:PAY-FEAT-204",
+      "properties": {}
+    },
+    {
+      "from": "feat:PAY-FEAT-204",
+      "rel": "REALIZES_REQUIREMENT",
+      "to": "req:REQ-004",
+      "properties": {}
+    },
+    {
+      "from": "epic:PAY-EPIC-102",
+      "rel": "HAS_FEATURE",
+      "to": "feat:PAY-FEAT-205",
+      "properties": {}
+    },
+    {
+      "from": "feat:PAY-FEAT-205",
+      "rel": "REALIZES_REQUIREMENT",
+      "to": "req:REQ-008",
+      "properties": {}
+    },
+    {
+      "from": "feat:PAY-FEAT-201",
+      "rel": "HAS_STORY",
+      "to": "story:PAY-301",
+      "properties": {}
+    },
+    {
+      "from": "story:PAY-301",
+      "rel": "IMPLEMENTS_CODE",
+      "to": "func:validate_card",
+      "properties": {}
+    },
+    {
+      "from": "story:PAY-301",
+      "rel": "REALIZES_REQUIREMENT",
+      "to": "req:REQ-002",
+      "properties": {}
+    },
+    {
+      "from": "feat:PAY-FEAT-201",
+      "rel": "HAS_STORY",
+      "to": "story:PAY-302",
+      "properties": {}
+    },
+    {
+      "from": "story:PAY-302",
+      "rel": "IMPLEMENTS_CODE",
+      "to": "func:authorize_payment",
+      "properties": {}
+    },
+    {
+      "from": "story:PAY-302",
+      "rel": "REALIZES_REQUIREMENT",
+      "to": "req:REQ-001",
+      "properties": {}
+    },
+    {
+      "from": "feat:PAY-FEAT-202",
+      "rel": "HAS_STORY",
+      "to": "story:PAY-303",
+      "properties": {}
+    },
+    {
+      "from": "story:PAY-303",
+      "rel": "IMPLEMENTS_CODE",
+      "to": "func:retry_with_backoff",
+      "properties": {}
+    },
+    {
+      "from": "story:PAY-303",
+      "rel": "REALIZES_REQUIREMENT",
+      "to": "req:REQ-003",
+      "properties": {}
+    },
+    {
+      "from": "story:PAY-303",
+      "rel": "GUIDED_BY_ARCHITECTURE",
+      "to": "decision:ADR-001",
+      "properties": {}
+    },
+    {
+      "from": "feat:PAY-FEAT-203",
+      "rel": "HAS_STORY",
+      "to": "story:PAY-304",
+      "properties": {}
+    },
+    {
+      "from": "story:PAY-304",
+      "rel": "IMPLEMENTS_CODE",
+      "to": "func:queue_refund_job",
+      "properties": {}
+    },
+    {
+      "from": "story:PAY-304",
+      "rel": "REALIZES_REQUIREMENT",
+      "to": "req:REQ-006",
+      "properties": {}
+    },
+    {
+      "from": "story:PAY-304",
+      "rel": "GUIDED_BY_ARCHITECTURE",
+      "to": "decision:ADR-002",
+      "properties": {}
+    },
+    {
+      "from": "feat:PAY-FEAT-203",
+      "rel": "HAS_STORY",
+      "to": "story:PAY-305",
+      "properties": {}
+    },
+    {
+      "from": "story:PAY-305",
+      "rel": "IMPLEMENTS_CODE",
+      "to": "func:process_refund",
+      "properties": {}
+    },
+    {
+      "from": "story:PAY-305",
+      "rel": "REALIZES_REQUIREMENT",
+      "to": "req:REQ-007",
+      "properties": {}
+    },
+    {
+      "from": "feat:PAY-FEAT-204",
+      "rel": "HAS_STORY",
+      "to": "story:PAY-306",
+      "properties": {}
+    },
+    {
+      "from": "story:PAY-306",
+      "rel": "REALIZES_REQUIREMENT",
+      "to": "req:REQ-004",
+      "properties": {}
+    },
+    {
+      "from": "feat:PAY-FEAT-205",
+      "rel": "HAS_STORY",
+      "to": "story:PAY-307",
+      "properties": {}
+    },
+    {
+      "from": "story:PAY-307",
+      "rel": "REALIZES_REQUIREMENT",
+      "to": "req:REQ-008",
+      "properties": {}
+    },
+    {
+      "from": "feat:PAY-FEAT-201",
+      "rel": "HAS_STORY",
+      "to": "story:PAY-308",
+      "properties": {}
+    },
+    {
+      "from": "story:PAY-308",
+      "rel": "IMPLEMENTS_CODE",
+      "to": "func:enforce_idempotency",
+      "properties": {}
+    },
+    {
+      "from": "story:PAY-308",
+      "rel": "REALIZES_REQUIREMENT",
+      "to": "req:REQ-009",
+      "properties": {}
+    },
+    {
       "from": "file:fraud_detector.py",
       "rel": "ROUTED_TO_CLASS",
       "to": "class:fraud_detector.py:FraudDetector",
@@ -3807,6 +4333,12 @@
     {
       "from": "project:cli_test",
       "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:0941cdb",
+      "properties": {}
+    },
+    {
+      "from": "project:cli_test",
+      "rel": "HAS_TIMELINE_RECORD",
       "to": "timeline:commit:f2202ac",
       "properties": {}
     },
@@ -3826,12 +4358,6 @@
       "from": "project:cli_test",
       "rel": "HAS_TIMELINE_RECORD",
       "to": "timeline:commit:4b051ea",
-      "properties": {}
-    },
-    {
-      "from": "project:cli_test",
-      "rel": "HAS_TIMELINE_RECORD",
-      "to": "timeline:commit:a1b29fd",
       "properties": {}
     },
     {
@@ -5644,6 +6170,12 @@
       "from": "proc:RB-PAY-001:BUG-298",
       "rel": "RESOLVED_BY_FIX",
       "to": "BUG-298",
+      "properties": {}
+    },
+    {
+      "from": "project:test_ent",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:0941cdb",
       "properties": {}
     },
     {

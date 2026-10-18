@@ -778,10 +778,29 @@ def seed_all():
     db.create_edge("timeline:commit:b7c8d9e", Relationships.CHANGED_NODE, "logic:worker_concurrency_5")
     db.create_edge("timeline:commit:b7c8d9e", Relationships.MOTIVATED_BY_FIX, "fix:BUG-342:restore_concurrency_5")
 
+    # =========================================================================
+    # 5. Program Flow Entity Chain: Project -> Epics -> Features -> Stories (Agile/Jira)
+    # =========================================================================
+    print("📊 Building Program Flow (Agile/Jira) Chain...")
+    import os
+    from codegraph.ingest.jira_parser import JiraBoardParser
+    jira_file = os.path.join(os.path.dirname(__file__), "demo_data", "jira", "jira_board_export.json")
+    if os.path.exists(jira_file):
+        jira_parser = JiraBoardParser(project_id=project_id)
+        jira_res = jira_parser.parse_file(jira_file)
+        for epic in jira_res["epics"]:
+            db.create_node(epic.id, "Epic", epic.model_dump())
+        for feat in jira_res["features"]:
+            db.create_node(feat.id, "AgileFeature", feat.model_dump())
+        for story in jira_res["stories"]:
+            db.create_node(story.id, "Story", story.model_dump())
+        for from_id, rel, to_id in jira_res["edges"]:
+            db.create_edge(from_id, rel, to_id)
+
     db.flush()
 
     info = db.get_backend_info()
-    print("\n✅ 4-Pillar Knowledge Graph Successfully Seeded!")
+    print("\n✅ 5-Pillar Knowledge Graph Successfully Seeded!")
     print(f"   Backend: {info['backend']}")
     print(f"   Nodes: {len(db.memory_graph.nodes)}")
     print(f"   Edges: {len(db.memory_graph.edges)}")

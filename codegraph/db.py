@@ -73,19 +73,23 @@ class LocalMemoryGraph:
         neighbors = []
         for e in self.edges:
             if direction in ("out", "both") and e["from"] == node_id:
+                target_node = self.nodes.get(e["to"])
                 neighbors.append({
                     "relationship": e["rel"],
                     "direction": "OUT",
                     "target_id": e["to"],
-                    "target_node": self.nodes.get(e["to"]),
+                    "target_node": target_node,
+                    "node": target_node.get("properties", {}) if target_node else {},
                     "properties": e["properties"]
                 })
             elif direction in ("in", "both") and e["to"] == node_id:
+                target_node = self.nodes.get(e["from"])
                 neighbors.append({
                     "relationship": e["rel"],
                     "direction": "IN",
                     "target_id": e["from"],
-                    "target_node": self.nodes.get(e["from"]),
+                    "target_node": target_node,
+                    "node": target_node.get("properties", {}) if target_node else {},
                     "properties": e["properties"]
                 })
         return neighbors
@@ -162,6 +166,28 @@ class GraphDatabase:
             SET r += $props
             """
             self.falkor_graph.query(cypher, {"from_id": from_id, "to_id": to_id, "props": properties or {}})
+
+    def get_neighbors(self, node_id: str, direction: str = "both") -> List[Dict[str, Any]]:
+        dir_val = "out" if direction == "outgoing" else ("in" if direction == "incoming" else direction)
+        return self.memory_graph.get_neighbors(node_id, dir_val)
+
+    def get_node(self, node_id: str) -> Optional[Dict[str, Any]]:
+        return self.memory_graph.nodes.get(node_id)
+
+    def search_nodes(self, keyword: Optional[str] = None, label: Optional[str] = None) -> List[Dict[str, Any]]:
+        results = []
+        for nid, n in self.memory_graph.nodes.items():
+            if label and n.get("label") != label:
+                continue
+            if not keyword:
+                results.append(n)
+                continue
+            props = n.get("properties", {})
+            for val in props.values():
+                if keyword.lower() in str(val).lower():
+                    results.append(n)
+                    break
+        return results
 
     def flush(self):
         """Persist memory graph changes to disk."""

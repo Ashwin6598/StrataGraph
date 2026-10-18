@@ -1,0 +1,208 @@
+{
+  "project_id": "project:payflow",
+  "project_key": "PAY",
+  "project_name": "PayFlow Payment Gateway",
+  "epics": [
+    {
+      "key": "PAY-EPIC-101",
+      "summary": "Core Card Checkout & Authorization Engine",
+      "description": "Orchestrates payment pre-validation, tokenized authorizations, and real-time fraud mitigation.",
+      "status": "COMPLETED",
+      "owner": "tpm-checkout@payflow.internal",
+      "created_date": "2025-10-01",
+      "target_date": "2025-10-25"
+    },
+    {
+      "key": "PAY-EPIC-102",
+      "summary": "Global Dispersals & Refund Processing Engine",
+      "description": "High-throughput asynchronous refund queueing, 30-day window enforcement, and partial refund handling.",
+      "status": "IN_PROGRESS",
+      "owner": "tpm-refunds@payflow.internal",
+      "created_date": "2025-10-05",
+      "target_date": "2025-11-15"
+    },
+    {
+      "key": "PAY-EPIC-103",
+      "summary": "Multi-Currency & Global FX Expansion",
+      "description": "Dynamic currency conversion (DCC), cross-border settlement rails, and international compliance.",
+      "status": "OPEN",
+      "owner": "tpm-global@payflow.internal",
+      "created_date": "2025-10-15",
+      "target_date": "2025-12-30"
+    }
+  ],
+  "features": [
+    {
+      "key": "PAY-FEAT-201",
+      "epic_key": "PAY-EPIC-101",
+      "summary": "Card Payment Pre-Validation & Ingestion",
+      "description": "Input payload parsing, Luhn checksum verification, and tokenization gateway.",
+      "service_name": "payment_service",
+      "architecture_diagram": "docs/architecture/payment_auth_flow.png",
+      "status": "SHIPPED",
+      "req_id": "req:REQ-001"
+    },
+    {
+      "key": "PAY-FEAT-202",
+      "epic_key": "PAY-EPIC-101",
+      "summary": "Real-Time Risk Scoring & Anti-Fraud Engine",
+      "description": "Low-latency ML scoring pipeline with strict 3-retry exponential backoff resilient against network jitter.",
+      "service_name": "fraud_detector",
+      "architecture_diagram": "docs/architecture/fraud_scoring_pipeline.png",
+      "status": "SHIPPED",
+      "req_id": "req:REQ-003"
+    },
+    {
+      "key": "PAY-FEAT-203",
+      "epic_key": "PAY-EPIC-102",
+      "summary": "Async High-Throughput Refund Worker Pool",
+      "description": "Distributed queue consumers maintaining concurrency limit of 5 per ADR-002.",
+      "service_name": "refund_processor",
+      "architecture_diagram": "docs/architecture/refund_worker_concurrency.png",
+      "status": "SHIPPED",
+      "req_id": "req:REQ-006"
+    },
+    {
+      "key": "PAY-FEAT-204",
+      "epic_key": "PAY-EPIC-103",
+      "summary": "Dynamic Currency Conversion (DCC) Service",
+      "description": "Automated merchant currency conversion at POS using ECB exchange rate feeds.",
+      "service_name": "fx_service",
+      "architecture_diagram": "docs/architecture/dcc_conversion_flow.png",
+      "status": "BACKLOG",
+      "req_id": "req:REQ-004"
+    },
+    {
+      "key": "PAY-FEAT-205",
+      "epic_key": "PAY-EPIC-102",
+      "summary": "Partial Refund Calculation & Settlement",
+      "description": "Prorated refund math and merchant interchange fee clawback calculations.",
+      "service_name": "refund_processor",
+      "architecture_diagram": "docs/architecture/partial_refund_ledger.png",
+      "status": "IN_DEVELOPMENT",
+      "req_id": "req:REQ-008"
+    }
+  ],
+  "stories": [
+    {
+      "key": "PAY-301",
+      "feature_key": "PAY-FEAT-201",
+      "summary": "Implement Luhn algorithm and expiry verification (REQ-002)",
+      "description": "Pre-flight validation to reject invalid and expired cards before touching bank networks.",
+      "story_points": 3,
+      "assignee": "Alice Chen (Senior Engineer)",
+      "status": "DONE",
+      "sprint": "Sprint 23",
+      "created_date": "2025-10-02",
+      "resolved_date": "2025-10-05",
+      "func_id": "func:validate_card",
+      "blocked": false,
+      "blocker_reason": null
+    },
+    {
+      "key": "PAY-302",
+      "feature_key": "PAY-FEAT-201",
+      "summary": "Card authorization tokenization and transaction persistence (REQ-001)",
+      "description": "PCI-compliant authorization flow and ledger record writing.",
+      "story_points": 5,
+      "assignee": "Alice Chen (Senior Engineer)",
+      "status": "DONE",
+      "sprint": "Sprint 23",
+      "created_date": "2025-10-04",
+      "resolved_date": "2025-10-08",
+      "func_id": "func:authorize_payment",
+      "blocked": false,
+      "blocker_reason": null
+    },
+    {
+      "key": "PAY-303",
+      "feature_key": "PAY-FEAT-202",
+      "summary": "Implement 3-retry exponential backoff for fraud scoring (REQ-003, ADR-001)",
+      "description": "Wrap external fraud API calls with exponential backoff and score threshold enforcement.",
+      "story_points": 5,
+      "assignee": "Bob Martinez (Tech Lead)",
+      "status": "DONE",
+      "sprint": "Sprint 24",
+      "created_date": "2025-10-10",
+      "resolved_date": "2025-10-14",
+      "func_id": "func:retry_with_backoff",
+      "blocked": false,
+      "blocker_reason": null
+    },
+    {
+      "key": "PAY-304",
+      "feature_key": "PAY-FEAT-203",
+      "summary": "Queue refund jobs with concurrency pool of 5 (REQ-006, ADR-002)",
+      "description": "Background worker pool handling spike loads on /v1/refunds.",
+      "story_points": 8,
+      "assignee": "David Kim (Staff SRE)",
+      "status": "DONE",
+      "sprint": "Sprint 24",
+      "created_date": "2025-10-12",
+      "resolved_date": "2025-10-18",
+      "func_id": "func:queue_refund_job",
+      "blocked": false,
+      "blocker_reason": null
+    },
+    {
+      "key": "PAY-305",
+      "feature_key": "PAY-FEAT-203",
+      "summary": "Enforce 30-day settlement cutoff on refund requests (REQ-007)",
+      "description": "Reject refund requests exceeding 30 calendar days with REFUND_WINDOW_EXCEEDED.",
+      "story_points": 3,
+      "assignee": "David Kim (Staff SRE)",
+      "status": "DONE",
+      "sprint": "Sprint 24",
+      "created_date": "2025-10-15",
+      "resolved_date": "2025-10-17",
+      "func_id": "func:process_refund",
+      "blocked": false,
+      "blocker_reason": null
+    },
+    {
+      "key": "PAY-306",
+      "feature_key": "PAY-FEAT-204",
+      "summary": "Integrate real-time forex rate provider for DCC (REQ-004)",
+      "description": "Connect to European Central Bank daily forex feed for multi-currency conversion.",
+      "story_points": 8,
+      "assignee": "Unassigned",
+      "status": "TODO",
+      "sprint": "Sprint 26",
+      "created_date": "2025-10-18",
+      "resolved_date": null,
+      "func_id": null,
+      "blocked": false,
+      "blocker_reason": null
+    },
+    {
+      "key": "PAY-307",
+      "feature_key": "PAY-FEAT-205",
+      "summary": "Partial refund calculation and fee deduction (REQ-008)",
+      "description": "Support partial settlement amount refunding against original transaction.",
+      "story_points": 5,
+      "assignee": "Sarah Jenkins (Fintech Engineer)",
+      "status": "IN_PROGRESS",
+      "sprint": "Sprint 25",
+      "created_date": "2025-10-12",
+      "resolved_date": null,
+      "func_id": null,
+      "blocked": true,
+      "blocker_reason": "Blocked: Awaiting legal and accounting clearance on merchant interchange fee clawback accounting rule."
+    },
+    {
+      "key": "PAY-308",
+      "feature_key": "PAY-FEAT-201",
+      "summary": "Strict payment idempotency check with Redis distributed locks (REQ-009)",
+      "description": "Atomically verify and lock idempotency keys for 120s to prevent double charges.",
+      "story_points": 5,
+      "assignee": "Bob Martinez (Tech Lead)",
+      "status": "DONE",
+      "sprint": "Sprint 24",
+      "created_date": "2025-10-14",
+      "resolved_date": "2025-10-16",
+      "func_id": "func:enforce_idempotency",
+      "blocked": false,
+      "blocker_reason": null
+    }
+  ]
+}

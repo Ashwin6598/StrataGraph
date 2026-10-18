@@ -46,6 +46,7 @@ class IngestionPipeline:
         adr_dir: Optional[str] = None,
         runbook_dir: Optional[str] = None,
         git_repo_path: Optional[str] = None,
+        jira_file: Optional[str] = None,
         max_commits: int = 50
     ) -> Dict[str, Any]:
         """
@@ -60,6 +61,9 @@ class IngestionPipeline:
             "adrs_processed": 0,
             "runbooks_processed": 0,
             "commits_ingested": 0,
+            "jira_epics_processed": 0,
+            "jira_features_processed": 0,
+            "jira_stories_processed": 0,
             "cross_links_created": 0
         }
 
@@ -108,7 +112,24 @@ class IngestionPipeline:
             commits = self._extract_git_commits(git_repo_path, max_commits=max_commits)
             summary["commits_ingested"] = len(commits)
 
-        # 7. Synthesize Cross-Entity Links (Auto-Linker)
+        # 7. Ingest Jira Board & Agile Execution (5th Pillar)
+        if jira_file and Path(jira_file).exists():
+            from .jira_parser import JiraBoardParser
+            jparser = JiraBoardParser(project_id=self.project_id)
+            jres = jparser.parse_file(jira_file)
+            for epic in jres["epics"]:
+                db.create_node(epic.id, "Epic", epic.model_dump())
+            for feat in jres["features"]:
+                db.create_node(feat.id, "AgileFeature", feat.model_dump())
+            for story in jres["stories"]:
+                db.create_node(story.id, "Story", story.model_dump())
+            for from_id, rel, to_id in jres["edges"]:
+                db.create_edge(from_id, rel, to_id)
+            summary["jira_epics_processed"] = len(jres["epics"])
+            summary["jira_features_processed"] = len(jres["features"])
+            summary["jira_stories_processed"] = len(jres["stories"])
+
+        # 8. Synthesize Cross-Entity Links (Auto-Linker)
         links_count = self._auto_link_cross_entities()
         summary["cross_links_created"] = links_count
 

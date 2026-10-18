@@ -43,8 +43,9 @@ def serve(transport: str, port: int):
 @click.option("--adr", default=None, help="Directory containing ADR markdown files")
 @click.option("--runbooks", default=None, help="Directory containing Incident Runbook markdown files")
 @click.option("--git", "-g", default=".", help="Path to git repository for commit extraction")
+@click.option("--jira", default=None, help="Path to Jira board export JSON file")
 @click.option("--max-commits", default=50, type=int, help="Maximum recent commits to extract")
-def ingest(project_name: str, project_id: str, codebase_owner: str, prd_owner: str, code: str, prd: str, adr: str, runbooks: str, git: str, max_commits: int):
+def ingest(project_name: str, project_id: str, codebase_owner: str, prd_owner: str, code: str, prd: str, adr: str, runbooks: str, git: str, jira: str, max_commits: int):
     """Run the unified ingestion pipeline on arbitrary repositories and documents."""
     from .ingest.pipeline import IngestionPipeline
     pipeline = IngestionPipeline(
@@ -60,6 +61,7 @@ def ingest(project_name: str, project_id: str, codebase_owner: str, prd_owner: s
         adr_dir=adr,
         runbook_dir=runbooks,
         git_repo_path=git,
+        jira_file=jira,
         max_commits=max_commits
     )
     s = res["summary"]
@@ -72,6 +74,9 @@ def ingest(project_name: str, project_id: str, codebase_owner: str, prd_owner: s
     click.echo(f"  • ADR Documents:        {s['adrs_processed']}")
     click.echo(f"  • Runbook Documents:    {s['runbooks_processed']}")
     click.echo(f"  • Commits Ingested:     {s['commits_ingested']}")
+    click.echo(f"  • Jira Epics Ingested:  {s.get('jira_epics_processed', 0)}")
+    click.echo(f"  • Jira Features:        {s.get('jira_features_processed', 0)}")
+    click.echo(f"  • Jira Stories:         {s.get('jira_stories_processed', 0)}")
     click.echo(f"  • Cross Links Created:  {s['cross_links_created']}")
     click.echo(f"  • Total Graph Nodes:    {stats['nodes']}")
     click.echo(f"  • Total Graph Edges:    {stats['edges']}\n")
@@ -189,8 +194,17 @@ def demo():
     click.echo(safe["result"]["recommendation"])
     click.echo(f"Cypher Query Executed:\n  {safe['cypher_query']}\n")
 
+    # Program Scenario 1
+    click.echo("--- [Program Persona] Scenario 5: What is the delivery progress and where are the bottlenecks? ---")
+    from .tools.program_tools import query_program_delivery_status, diagnose_delivery_bottlenecks
+    prog = query_program_delivery_status()
+    click.echo(prog["explanation"])
+    bottlenecks = diagnose_delivery_bottlenecks()
+    click.echo(bottlenecks["explanation"])
+    click.echo(f"Cypher Query Executed:\n  {prog['cypher_query']}\n")
+
     click.echo("========================================================")
-    click.echo("✅ Demo completed with 100% graph explainability!")
+    click.echo("✅ Demo completed with 100% graph explainability across 3 Personas!")
     click.echo("========================================================\n")
 
 

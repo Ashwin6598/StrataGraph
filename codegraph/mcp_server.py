@@ -38,6 +38,13 @@ from .tools.ingest_tools import (
     record_bugfix as _record_bugfix,
     approve_bugfix_via_email as _approve_bugfix_via_email,
 )
+from .tools.program_tools import (
+    query_program_delivery_status as _query_program_delivery_status,
+    diagnose_delivery_bottlenecks as _diagnose_delivery_bottlenecks,
+    get_feature_lead_time_metrics as _get_feature_lead_time_metrics,
+    trace_requirement_to_delivery_chain as _trace_requirement_to_delivery_chain,
+    ingest_jira_board as _ingest_jira_board,
+)
 
 logger = logging.getLogger("codegraph.mcp")
 
@@ -45,11 +52,13 @@ logger = logging.getLogger("codegraph.mcp")
 server = MCPServer(
     name="codegraph",
     instructions=(
-        "CodeGraph MCP Server: Connected Knowledge Graph bridging Code AST, PRDs, and ADRs. "
+        "CodeGraph MCP Server: 5-Pillar Connected Knowledge Graph bridging Code AST, PRDs, ADRs, Operations, and Program Flow. "
         "Use Product Tools (query_prd_coverage, simulate_scenario, get_change_history, list_uncovered_requirements) "
         "for business/product queries. "
         "Use Developer Tools (debug_issue, check_safe_to_change, get_function_lineage, review_pr_diff, cross_org_bug_check) "
         "for engineering diagnostics and safety checks. "
+        "Use Program Tools (query_program_delivery_status, diagnose_delivery_bottlenecks, get_feature_lead_time_metrics, trace_requirement_to_delivery_chain) "
+        "for agile sprint velocity, blocked dependency diagnosis, and PRD-to-code delivery tracking. "
         "Every tool returns explainable results with the underlying Cypher query and graph traversal path."
     )
 )
@@ -283,6 +292,64 @@ def approve_bugfix_via_email(
 
 
 # =========================================================================
+# Program Manager Persona Tools (5th Pillar: Agile / Jira Delivery)
+# =========================================================================
+
+@server.tool(
+    name="query_program_delivery_status",
+    description="Query overall agile delivery progress, sprint velocity, completed vs remaining story points, and active blockers across Epics, Features, and Stories."
+)
+def query_program_delivery_status(
+    project_id: str = "project:payflow",
+    epic_id: Optional[str] = None
+) -> Dict[str, Any]:
+    return _query_program_delivery_status(project_id=project_id, epic_id=epic_id)
+
+
+@server.tool(
+    name="diagnose_delivery_bottlenecks",
+    description="Diagnose root-cause gaps and delivery blockers between PRD requirements and engineering code (definition gaps, active blockers, ghost deliveries)."
+)
+def diagnose_delivery_bottlenecks(
+    project_id: str = "project:payflow"
+) -> Dict[str, Any]:
+    return _diagnose_delivery_bottlenecks(project_id=project_id)
+
+
+@server.tool(
+    name="get_feature_lead_time_metrics",
+    description="Analyze engineering cycle times and lead times for converting PRD requirements into architecture and code."
+)
+def get_feature_lead_time_metrics(
+    project_id: str = "project:payflow",
+    feature_id: Optional[str] = None
+) -> Dict[str, Any]:
+    return _get_feature_lead_time_metrics(project_id=project_id, feature_id=feature_id)
+
+
+@server.tool(
+    name="trace_requirement_to_delivery_chain",
+    description="Trace 5-pillar lineage for any requirement, ticket, or function: PRD <-> Jira Epic/Story <-> ADR <-> CodeBase <-> Operations."
+)
+def trace_requirement_to_delivery_chain(
+    req_id_or_ticket: str,
+    project_id: str = "project:payflow"
+) -> Dict[str, Any]:
+    return _trace_requirement_to_delivery_chain(req_id_or_ticket=req_id_or_ticket, project_id=project_id)
+
+
+@server.tool(
+    name="ingest_jira_board",
+    description="Ingest external Jira board JSON export into the 5th Pillar (Program Flow) and persist in FalkorDB."
+)
+def ingest_jira_board(
+    jira_file_path: str,
+    project_id: str = "project:payflow"
+) -> Dict[str, Any]:
+    return _ingest_jira_board(jira_file_path=jira_file_path, project_id=project_id)
+
+
+# =========================================================================
 # Predefined Agent Prompts
 # =========================================================================
 
@@ -309,6 +376,19 @@ def developer_assistant_prompt() -> str:
         "2. Before recommending modifying any function, ALWAYS call check_safe_to_change to inspect governing ADRs and past regression bugs. "
         "3. When debugging incidents, query debug_issue to match past incident runbooks. "
         "4. Ground all recommendations in the graph data and cite governing ADR IDs (e.g. ADR-001, ADR-002)."
+    )
+
+
+@server.prompt(name="program_manager", description="Persona for Technical Program Managers: Velocity, sprint health, blockers, PRD-to-code gap diagnosis")
+def program_manager_prompt() -> str:
+    return (
+        "You are CodeGraph Program Advisor, an autonomous delivery intelligence assistant for Technical Program Managers (TPMs) and Agile Delivery Leads. "
+        "Your role is to monitor project velocity, sprint health, cycle time, blocked dependencies, and diagnose root-cause bottlenecks between PRDs and code. "
+        "RULES: "
+        "1. Speak in program management language: story points, sprint burndown, cycle times, blocked dependencies, release readiness %. "
+        "2. Pinpoint the exact breakdown: definition gap, architecture delay, active engineering blocker, or ghost delivery. "
+        "3. Always ground answers by calling query_program_delivery_status, diagnose_delivery_bottlenecks, get_feature_lead_time_metrics, or trace_requirement_to_delivery_chain. "
+        "4. Proactively surface blocked stories with assignee names and specific blocker reasons."
     )
 
 
