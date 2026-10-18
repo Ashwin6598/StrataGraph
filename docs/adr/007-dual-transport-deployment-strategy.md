@@ -8,7 +8,7 @@
 ---
 
 ## Context
-CodeGraph must be trivial to run and demonstrate on a local developer laptop during the hackathon, while also being capable of immediate enterprise cloud deployment without code refactoring.
+StrataGraph must be trivial to run locally on a developer workstation during development, while also being capable of immediate enterprise cloud deployment without code refactoring.
 
 - **Local Development:** Developers want zero-process management: launching Claude Desktop or Antigravity should automatically start the MCP server via standard input/output (`stdio`) and shut it down when finished.
 - **Enterprise Production:** Organizations need a centralized, multi-tenant microservice accessible over HTTPS/SSE with authentication tokens and webhooks.
@@ -18,7 +18,7 @@ CodeGraph must be trivial to run and demonstrate on a local developer laptop dur
    - Implement native transport switching in `codegraph/mcp_server.py` driven by the `MCP_TRANSPORT` environment variable (`stdio`, `streamable-http`, or `sse`).
 2. **Zero-Refactor Production Upgrade:**
    - The exact same Python codebase runs in both modes:
-     - **Local Hackathon Mode:**
+     - **Local Development Mode:**
        ```bash
        MCP_TRANSPORT=stdio python -m codegraph serve
        ```

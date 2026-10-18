@@ -9,7 +9,7 @@
 ---
 
 ## Context
-While the PayFlow demo dataset (`seed.py`) showcases all graph traversal capabilities for the hackathon, real-world enterprise adoption requires connecting arbitrary customer codebases, documentation folders, and git histories without writing code or hardcoding schema models.
+While the PayFlow sample dataset (`seed.py`) showcases baseline graph traversal capabilities, real-world enterprise adoption requires connecting arbitrary codebases, documentation folders, and git histories without writing bespoke code or hardcoding schema models.
 In production:
 1. Source code lives in git repositories (`./src`, `./lib`).
 2. PRDs live in markdown directories (`./docs/prd/*.md`) or Jira exports.

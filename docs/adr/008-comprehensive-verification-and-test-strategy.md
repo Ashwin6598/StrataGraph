@@ -9,7 +9,7 @@
 ---
 
 ## Context
-CodeGraph integrates four distinct domain entity chains (CodeBase, PRD, ADR, Operations) and exposes them through 17 Model Context Protocol (MCP) tools and 2 persona prompts. In hackathon and enterprise environments alike, testing AI agent tooling poses unique challenges:
+CodeGraph integrates four distinct domain entity chains (CodeBase, PRD, ADR, Operations) and exposes them through 17 Model Context Protocol (MCP) tools and 2 persona prompts. In local development and enterprise CI/CD environments alike, testing graph tooling poses unique challenges:
 1. Docker or cloud graph databases (e.g. FalkorDB) might not be running in all local developer environments or lightweight CI runners.
 2. Complex mocking frameworks introduce fragility and false confidence.
 3. Both persona behavioral constraints (e.g. Product Manager plain English output vs. Developer technical diagnostics) must be strictly verified.

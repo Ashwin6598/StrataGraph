@@ -1,8 +1,7 @@
 # 📐 Cypher Queries and Graph Algorithms
 
-> **CodeGraph Technical Reference Manual**  
+> **StrataGraph Technical Reference Manual**  
 > **Target Graph Engine**: FalkorDB (SuiteSparse:GraphBLAS) with Deterministic In-Memory Fallback  
-> **Track**: Hackathon Track 01 — Agents That Act on Connected Data  
 
 ---
 
@@ -38,7 +37,7 @@ flowchart LR
 ```
 
 ### 1. GraphBLAS Sparse Matrix-Matrix Multiplication ($C = A \cdot B$)
-- **Component**: FalkorDB Database Layer ([`codegraph/db.py`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/db.py)).
+- **Component**: FalkorDB Database Layer ([`codegraph/db.py`](../codegraph/db.py)).
 - **Algorithm Description**: Instead of traditional pointer-chasing joins, relationships are stored as boolean sparse matrices. Multi-hop path evaluations (such as `(Requirement)-[:IMPLEMENTED_BY_FUNCTION]->(Function)<-[:CONSTRAINS_FUNCTION]-(Decision)`) execute as high-performance linear algebraic matrix-matrix multiplications over semirings:
   $$C_{i, j} = \bigvee_k \left( A_{i, k} \wedge B_{k, j} \right)$$
 - **Complexity**: Optimized by SuiteSparse:GraphBLAS to scale with the number of non-zero entries (NNZ) rather than total node count, achieving sub-millisecond multi-hop execution.
@@ -46,7 +45,7 @@ flowchart LR
 ---
 
 ### 2. Bounded Breadth-First Search (BFS) with Cycle Avoidance
-- **Component**: [`LocalMemoryGraph.get_neighbors()`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/db.py#L72-L95) and [`get_related_entities()`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/tools/shared_tools.py#L60-L85).
+- **Component**: [`LocalMemoryGraph.get_neighbors()`](../codegraph/db.py) and [`get_related_entities()`](../codegraph/tools/shared_tools.py).
 - **Algorithm Description**: 
   - Expands an $N$-hop neighborhood ($1 \le N \le 5$) starting from any arbitrary node.
   - Maintains a FIFO traversal queue and a `visited: Set[str]` tracking visited node identifiers to avoid infinite loops on circular call graphs or recursive requirement dependencies.
@@ -55,7 +54,7 @@ flowchart LR
 ---
 
 ### 3. Blast Radius Impact Propagation & Risk Scoring
-- **Component**: [`check_safe_to_change()`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/tools/developer_tools.py#L133-L225).
+- **Component**: [`check_safe_to_change()`](../codegraph/tools/developer_tools.py).
 - **Algorithm Description**: Evaluates the systemic blast radius of modifying a specific function before any code changes are made:
   1. **Ascent to Architecture**: Traverses incoming `CONSTRAINS_FUNCTION` edges to identify governing Architecture Decision Records (ADRs).
   2. **Traverse Incident History**: Traverses incoming `MANIFESTED_IN_FUNCTION` edges to identify past production incidents (`Issue`), Root Cause Analyses (`RCA`), and previous regression bugfixes.
@@ -69,7 +68,7 @@ flowchart LR
 ---
 
 ### 4. Disconnected Subgraph Detection & Delivery Gap Diagnosis
-- **Component**: [`diagnose_execution_bottlenecks()`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/tools/program_tools.py#L160-L345).
+- **Component**: [`diagnose_execution_bottlenecks()`](../codegraph/tools/program_tools.py).
 - **Algorithm Description**: Diagnoses the communication and execution breakdown between Product Specifications, Agile Tracking, and Engineering Code via disjoint graph analysis:
   - **Definition Gaps**: Disjoint set of PRD Requirements with zero outgoing `REALIZES_REQUIREMENT` edges to Jira Features or zero `IMPLEMENTED_BY_FUNCTION` edges:
     $$\text{DefinitionGaps} = \{ r \in \text{Requirements} \mid \text{deg}^-(r, \text{AgileFeature}) = 0 \lor \text{deg}^+(r, \text{Function}) = 0 \}$$
@@ -79,13 +78,13 @@ flowchart LR
 ---
 
 ### 5. Cross-Team Capability & Synergy Mining
-- **Component**: [`unlock_cross_team_capabilities()`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/tools/program_tools.py#L820-L960).
+- **Component**: [`unlock_cross_team_capabilities()`](../codegraph/tools/program_tools.py).
 - **Algorithm Description**: Formulates a bipartite graph between service domains (e.g. `fraud_detector`, `payment_service`, `refund_processor`) and architectural capabilities (e.g. exponential backoff pipelines, Redis idempotency locks). Detects unassigned or blocked tickets that share technical requirements with existing services, outputting pair-programming opportunities that eliminate duplicate engineering.
 
 ---
 
 ### 6. Python AST Visitor & Deterministic Call Graph Walk
-- **Component**: [`CodebaseParser`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/ingest/code_parser.py).
+- **Component**: [`CodebaseParser`](../codegraph/ingest/code_parser.py).
 - **Algorithm Description**: Uses Python's standard `ast` library to parse source files into Abstract Syntax Trees. Subclasses `ast.NodeVisitor` to perform deterministic recursive walks:
   - Discovers top-level classes (`ast.ClassDef`) and functions (`ast.FunctionDef`).
   - Extracts line ranges, docstring comments, function arguments, and return annotations.
@@ -94,7 +93,7 @@ flowchart LR
 ---
 
 ### 7. Heuristic Cross-Entity Auto-Linker
-- **Component**: [`IngestionPipeline._auto_link_cross_entities()`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/ingest/pipeline.py#L199-L295).
+- **Component**: [`IngestionPipeline._auto_link_cross_entities()`](../codegraph/ingest/pipeline.py).
 - **Algorithm Description**: 
   - Builds inverted lookup maps of requirement IDs, ADR numbers, and bug tickets.
   - Scans docstrings, comments, and git commit summaries using token regular expressions (`REQ-[0-9]+`, `ADR-[0-9]+`, `BUG-[0-9]+`).
@@ -103,7 +102,7 @@ flowchart LR
 ---
 
 ### 8. Canonical Path Sandboxing & LFI Prevention
-- **Component**: [`validate_safe_path()`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/guardrails.py#L66-L120).
+- **Component**: [`validate_safe_path()`](../codegraph/guardrails.py).
 - **Algorithm Description**: Canonicalizes input paths using `pathlib.Path.resolve()`, stripping relative traversal tokens (`../`) and symlink escapes. Asserts workspace containment:
   $$\text{target\_path}.\text{resolve}().\text{is\_relative\_to}(\text{settings.base\_dir})$$
   Rejects paths targeting `.env`, SSH keys, password files, or binary executables.

@@ -23,7 +23,7 @@ As autonomous AI agents and automated CI/CD pipelines gained capabilities to ing
 
 ## Decision
 
-We establish a comprehensive, unified **Agent Security Harness and Guardrails Engine** implemented in [`codegraph/guardrails.py`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/guardrails.py) protecting all ingestion and mutation workflows:
+We establish a comprehensive, unified **Agent Security Harness and Guardrails Engine** implemented in [`codegraph/guardrails.py`](../../codegraph/guardrails.py) protecting all ingestion and mutation workflows:
 
 ```mermaid
 flowchart TD
@@ -74,7 +74,7 @@ Implemented in `validate_safe_path()`:
 
 ### 6. Staged Approval Quarantine
 - Unverified bug fixes, architectural proposals, and untrusted PRD edits are persisted under `PENDING_APPROVAL` status.
-- Quarantined entities are strictly segregated from production safety tools ([`check_safe_to_change`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/tools/developer_tools.py) and [`query_prd_coverage`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/tools/product_tools.py)) until an authorized domain owner issues an approval token.
+- Quarantined entities are strictly segregated from production safety tools ([`check_safe_to_change`](../../codegraph/tools/developer_tools.py) and [`query_prd_coverage`](../../codegraph/tools/product_tools.py)) until an authorized domain owner issues an approval token.
 
 ---
 
@@ -84,7 +84,7 @@ Implemented in `validate_safe_path()`:
 - **Zero-Trust Ingestion:** Impossible for unauthorized personas or rogue agent tool calls to inject or overwrite graph pillars they do not own.
 - **Data Exfiltration Prevention:** Path traversal attacks and sensitive credential leakage (`.env`, private keys) are halted at the boundary.
 - **Robust Against Prompt Injections:** Adversarial payloads hidden in third-party tickets or specs are disarmed before poisoning agent prompts or graph memory.
-- **Complete Test Coverage:** 19 dedicated unit tests in [`tests/test_guardrails.py`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/test_guardrails.py) verify every security failure mode.
+- **Complete Test Coverage:** 19 dedicated unit tests in [`tests/test_guardrails.py`](../../tests/test_guardrails.py) verify every security failure mode.
 
 ### Negative
 - Legitimate files exceeding 10MB or containing unusual extensions must be split or pre-processed prior to ingestion.

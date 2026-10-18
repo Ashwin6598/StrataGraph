@@ -8,9 +8,9 @@
 ---
 
 ## Context
-Traditional AI hackathon prototypes build dedicated web user interfaces (e.g., Streamlit, Gradio, React). However, modern engineering and product teams do not want another isolated dashboard. Engineers work inside IDEs (Antigravity, Cursor, VS Code Copilot) and LLM desktop clients (Claude Desktop). 
+Traditional AI prototypes often build dedicated web user interfaces (e.g., Streamlit, Gradio, React). However, modern engineering and product teams do not want another isolated dashboard. Engineers work inside IDEs (Antigravity, Cursor, VS Code Copilot) and LLM desktop clients (Claude Desktop). 
 
-To ensure CodeGraph can be readily adopted, easily demoed, and deployed directly into customer development environments, a standardized, client-agnostic protocol was necessary.
+To ensure CodeGraph can be readily adopted, easily demonstrated, and deployed directly into customer development environments, a standardized, client-agnostic protocol was necessary.
 
 ## Decision
 1. **Adopt MCP (Model Context Protocol) 2.x as the Single Product Interface:**

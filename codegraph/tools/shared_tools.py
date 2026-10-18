@@ -149,7 +149,7 @@ def get_related_entities(node_id: str, hops: int = 2) -> Dict[str, Any]:
 
 def explain_traversal(steps: List[Dict[str, Any]]) -> str:
     """
-    Renders an ASCII visualization of graph traversal steps to verify explainable results for hackathon judges.
+    Renders an ASCII visualization of graph traversal steps to verify explainable execution paths and lineage.
     """
     lines = ["📊 Graph Traversal Path Visualization:"]
     for i, s in enumerate(steps, 1):

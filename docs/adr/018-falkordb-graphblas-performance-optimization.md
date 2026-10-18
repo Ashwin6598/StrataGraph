@@ -24,7 +24,7 @@ In the initial implementation of CodeGraph, several naive graph access patterns 
 
 ## Decision
 
-We re-architect the database driver and Cypher execution pipelines in [`codegraph/db.py`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/db.py) to adhere strictly to FalkorDB GraphBLAS performance optimization principles:
+We re-architect the database driver and Cypher execution pipelines in [`codegraph/db.py`](../../codegraph/db.py) to adhere strictly to FalkorDB GraphBLAS performance optimization principles:
 
 ### 1. Explicit Single-Property Indexing (`db.ensure_indexes()`)
 - Defined `CORE_INDEXES` covering all **24 core label-property pairs** across the 5 pillars:
@@ -41,7 +41,7 @@ We re-architect the database driver and Cypher execution pipelines in [`codegrap
   CREATE INDEX FOR (n:AgileFeature) ON (n.key);
   CREATE INDEX FOR (n:Story) ON (n.key);
   ```
-- Guaranteed automatic execution upon database connection initialization and during [`seed_all()`](file:///Users/ashwin/Documents/Projects/GraphHack/seed.py#L23-L27), turning root-node lookups from $O(N)$ scans into $O(1)$ index hits.
+- Guaranteed automatic execution upon database connection initialization and during [`seed_all()`](../../seed.py), turning root-node lookups from $O(N)$ scans into $O(1)$ index hits.
 
 ### 2. String Interning for Categorical Properties (`intern()`)
 - Defined `INTERNED_FIELDS` covering repetitive categorical enums:
@@ -68,10 +68,10 @@ We re-architect the database driver and Cypher execution pipelines in [`codegrap
   MERGE (a)-[r:EXECUTES_LOGIC]->(b)
   SET r += $props
   ```
-- In [`shared_tools.search_graph`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/tools/shared_tools.py#L13-L28), untyped scans are constrained to core architectural matrices rather than sweeping the entire database.
+- In [`shared_tools.search_graph`](../../codegraph/tools/shared_tools.py), untyped scans are constrained to core architectural matrices rather than sweeping the entire database.
 
 ### 4. Query Plan Parameterization
-- Refactored all Cypher statements across [`approval_service.py`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/approval_service.py), [`ingest_tools.py`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/tools/ingest_tools.py), and [`program_tools.py`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/tools/program_tools.py) to pass runtime parameter dictionaries (`$params`).
+- Refactored all Cypher statements across [`approval_service.py`](../../codegraph/approval_service.py), [`ingest_tools.py`](../../codegraph/tools/ingest_tools.py), and [`program_tools.py`](../../codegraph/tools/program_tools.py) to pass runtime parameter dictionaries (`$params`).
 - Eliminates Cypher re-parsing and re-compilation overhead, enabling 100% plan cache hits in FalkorDB.
 
 ### 5. Logical Graph Key Partitioning

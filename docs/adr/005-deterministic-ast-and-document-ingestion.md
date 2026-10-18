@@ -14,7 +14,7 @@ Similarly, PRD and ADR documents are written by humans in Markdown with standard
 
 ## Decision
 1. **Python Standard Library `ast` for Code Parsing:**
-   - Use Python's built-in `ast` module in [`code_parser.py`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/ingest/code_parser.py).
+   - Use Python's built-in `ast` module in [`code_parser.py`](../../codegraph/ingest/code_parser.py).
    - Zero external binary dependencies (e.g., Tree-sitter binaries) required for Python ingestion.
    - Walk the AST tree to extract:
      - `FileNode`

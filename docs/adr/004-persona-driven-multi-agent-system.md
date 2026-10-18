@@ -24,7 +24,7 @@ Building separate backend servers would duplicate logic and fracture the shared 
      - **Shared Exploration:** `search_graph`, `get_related_entities`, `explain_traversal`
      - **Ingestion & Mutations:** `ingest_codebase`, `ingest_prd`, `ingest_adr`, `ingest_runbook`, `record_bugfix`, `approve_bugfix_via_email`
 2. **Client-Side Persona System Prompts:**
-   - Supply ready-to-use system prompts in [`prompts/product-persona.md`](file:///Users/ashwin/Documents/Projects/GraphHack/prompts/product-persona.md), [`prompts/developer-persona.md`](file:///Users/ashwin/Documents/Projects/GraphHack/prompts/developer-persona.md), and [`prompts/program-persona.md`](file:///Users/ashwin/Documents/Projects/GraphHack/prompts/program-persona.md).
+   - Supply ready-to-use system prompts in [`prompts/product-persona.md`](../../prompts/product-persona.md), [`prompts/developer-persona.md`](../../prompts/developer-persona.md), and [`prompts/program-persona.md`](../../prompts/program-persona.md).
    - Also register them directly via `@server.prompt` in MCP (`product_advisor`, `developer_assistant`, `program_manager`).
 3. **Strict Presentation Boundaries & Roles/Responsibilities:**
    - Product persona MUST format results in plain English, business metrics, and guardrail terms, actively suppressing code syntax.

@@ -1,7 +1,6 @@
 # 🧠 StrataGraph: Connected Knowledge Graph for Code, PRD, and ADR
 
-> **Hackathon Track 01: Agents That Act on Connected Data**  
-> *Multi-hop reasoning · Graph queries as agent tools · Tool selection through MCP · Actions based on graph data · Explainable results*
+> A connected graph intelligence platform unifying Source Code (AST), Product Requirements (PRD), Architecture Decisions (ADR), Operations, and Agile Delivery.
 
 ---
 
@@ -14,11 +13,11 @@
 
 ---
 
-## 🚀 The Solution: CodeGraph
+## 🚀 The Solution: StrataGraph
 
-CodeGraph connects **Source Code (AST)**, **Product Requirements (PRD)**, **Architecture Decisions (ADR)**, and **Quality History (Runbooks, BugFixes, RCAs)** into a unified property graph backed by **FalkorDB**.
+StrataGraph connects **Source Code (AST)**, **Product Requirements (PRD)**, **Architecture Decisions (ADR)**, and **Quality History (Runbooks, BugFixes, RCAs)** into a unified property graph backed by **FalkorDB**.
 
-Instead of a siloed custom UI, CodeGraph is an **MCP (Model Context Protocol) Server**. Any MCP-compatible agent client (**Claude Desktop, Antigravity, Cursor, VS Code Copilot, or CLI**) connects directly to the server.
+Instead of a siloed custom UI, StrataGraph is an **MCP (Model Context Protocol) Server**. Any MCP-compatible agent client (**Claude Desktop, Antigravity, Cursor, VS Code Copilot, or CLI**) connects directly to the server.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -131,7 +130,7 @@ docker compose up -d
 # Opens FalkorDB on port 6379 and FalkorDB Browser at http://localhost:3000
 ```
 
-> **Zero-Dependency Resilience:** If Docker is not running on your machine, CodeGraph automatically switches to its built-in deterministic local graph store (`codegraph_local_store.json`), allowing full offline testing, development, and judging without external dependencies!
+> **Zero-Dependency Resilience:** If Docker is not running on your machine, StrataGraph automatically switches to its built-in deterministic local graph store (`codegraph_local_store.json`), allowing full offline testing and development without external dependencies.
 
 ### 3. Seed Demo Data
 Build the PayFlow payment gateway knowledge graph:
@@ -274,7 +273,7 @@ Each persona agent is strictly bounded to the responsibilities and authority des
 
 ## 🚢 Production Deployment
 
-Moving from local hackathon testing to enterprise cloud production requires **zero code changes**:
+Moving from local development to enterprise cloud production requires **zero code changes**:
 
 ### 1. Ingest Any Real Repository & Documentation
 Use the unified production ingestion pipeline to index an arbitrary codebase, PRDs, ADRs, and git history into FalkorDB:
@@ -290,7 +289,7 @@ uv run python -m codegraph ingest \
   --git .
 ```
 
-The pipeline supports all enterprise documentation formats via [`DocumentConverter`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/ingest/document_converter.py):
+The pipeline supports all enterprise documentation formats via [`DocumentConverter`](codegraph/ingest/document_converter.py):
 * **Markdown (`.md`, `.markdown`):** Native PRD and ADR format
 * **Plain Text (`.txt`):** Unstructured notes and specifications
 * **HTML / Confluence (`.html`, `.htm`):** Confluence wiki exports parsed via stdlib HTML parser
@@ -333,7 +332,7 @@ In customer environments, clients simply point their MCP config to the URL:
 
 ### 4. Code Domain Owner Email Approval & Ingestion Workflow
 When an AI agent or engineer fixes an incident via `record_bugfix()`, unapproved bug fixes do NOT immediately pollute the central knowledge graph:
-1. **Domain Owner Lookup:** The affected file/function is resolved against [`.github/CODEOWNERS`](file:///Users/ashwin/Documents/Projects/GraphHack/.github/CODEOWNERS) (e.g. `demo_data/code/payment_service.py` $\to$ `payment-domain-owner@payflow.internal`).
+1. **Domain Owner Lookup:** The affected file/function is resolved against [`.github/CODEOWNERS`](.github/CODEOWNERS) (e.g. `demo_data/code/payment_service.py` $\to$ `payment-domain-owner@payflow.internal`).
 2. **Email Dispatch:** A cryptographic approval token is generated and an actionable approval email is sent to the Code Domain Owner via standard library `smtplib`.
 3. **Verified DB Ingestion:** The owner can approve via:
    - One-Click HTTP link: `http://localhost:8000/api/approve?ticket=BUG-342&token=<token>`
@@ -397,7 +396,7 @@ uv run pytest -v
 # 124 passed in 0.78s
 ```
 
-The modular test suite in [`tests/`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/) provides comprehensive test coverage:
+The modular test suite in [`tests/`](tests/) provides comprehensive test coverage:
 * `test_guardrails.py`: Agent security harness, canonical path sandboxing, sensitive secret denylist (`.env`, `id_rsa`), payload anti-DoS (10MB limit), and adversarial prompt injection scanning
 * `test_falkordb_optimizations.py`: GraphBLAS sparse matrix optimizations, string interning (`intern($val)`), explicit single-property indexing across 24 core entities, logical graph key partitioning, explicit sparse matrix node labels, and query parameterization
 * `test_iam_and_governance.py`: Role-Based Access Control (RBAC) permissions, Program Manager agile entity creation, developer architectural proposals, architect token verification, and permission enforcement
@@ -417,7 +416,7 @@ The modular test suite in [`tests/`](file:///Users/ashwin/Documents/Projects/Gra
 
 ## 📐 Cypher Queries and Graph Algorithms
 
-For full architectural blueprints, mathematical specifications, and query execution plans, see [**docs/CYPHER_AND_ALGORITHMS.md**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/CYPHER_AND_ALGORITHMS.md).
+For full architectural blueprints, mathematical specifications, and query execution plans, see [**docs/CYPHER_AND_ALGORITHMS.md**](docs/CYPHER_AND_ALGORITHMS.md).
 
 ### Summary of Graph Algorithms
 * **GraphBLAS Sparse Matrix Multiplication ($C = A \cdot B$):** Multi-hop paths are evaluated via linear algebra over semirings in FalkorDB.
@@ -439,26 +438,26 @@ For full architectural blueprints, mathematical specifications, and query execut
 
 ## 🏛️ Project Architecture Decision Records (ADRs)
 
-Foundational architectural decisions for every CodeGraph component are documented under [`docs/adr/`](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/README.md):
+Foundational architectural decisions for every CodeGraph component are documented under [`docs/adr/`](docs/adr/README.md):
 
-* [**ADR-001:** FalkorDB Graph Engine and Offline Fallback Architecture](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/001-falkordb-graph-engine-and-offline-fallback.md)
-* [**ADR-002:** Four-Pillar Connected Knowledge Graph Data Model](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/002-four-pillar-graph-data-model.md)
-* [**ADR-003:** Model Context Protocol (MCP) as Universal Agent Interface](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/003-mcp-server-as-universal-agent-interface.md)
-* [**ADR-004:** Persona-Driven Multi-Agent Architecture](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/004-persona-driven-multi-agent-system.md)
-* [**ADR-005:** Deterministic AST and Markdown Ingestion Pipeline](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/005-deterministic-ast-and-document-ingestion.md)
-* [**ADR-006:** Human-in-the-Loop Quality Approval Gate for Operations](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/006-human-in-the-loop-approval-workflow.md)
-* [**ADR-007:** Dual-Transport Deployment Strategy (Stdio vs Streamable-HTTP)](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/007-dual-transport-deployment-strategy.md)
-* [**ADR-008:** Comprehensive Verification & Test Strategy](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/008-comprehensive-verification-and-test-strategy.md)
-* [**ADR-009:** Unified Production Ingestion Pipeline & Auto-Linker](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/009-unified-production-ingestion-pipeline.md)
-* [**ADR-010:** Multi-Format Enterprise Document & Polyglot Ingestion Adapter](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/010-multi-format-enterprise-document-and-polyglot-ingestion.md)
-* [**ADR-011:** Code Domain Owner Email Approval & Ingestion Workflow](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/011-domain-owner-email-approval-and-ingestion-flow.md)
-* [**ADR-012:** Project Entity Dual-Ownership Model (Codebase & PRD Owner)](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/012-project-entity-dual-ownership-model.md)
-* [**ADR-013:** PRD Agent Updates and PRD Owner Email Approval Workflow](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/013-prd-agent-updates-and-owner-approval-workflow.md)
-* [**ADR-014:** Program Manager Persona and Agile Execution Flow (5th Pillar)](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/014-program-manager-persona-and-agile-execution-flow.md)
-* [**ADR-015:** Cross-Team Capability Unlocking & Domain Synergy Architecture](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/015-cross-team-capability-unlocking-and-domain-synergy.md)
-* [**ADR-016:** Role-Based Access Control (RBAC) and Architectural Governance](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/016-role-based-access-control-and-architectural-governance.md)
-* [**ADR-017:** Agent Security Harness and Ingestion Guardrails](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/017-agent-security-harness-and-ingestion-guardrails.md)
-* [**ADR-018:** FalkorDB GraphBLAS Performance Optimization and High-Throughput Cypher Execution](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/018-falkordb-graphblas-performance-optimization.md)
+* [**ADR-001:** FalkorDB Graph Engine and Offline Fallback Architecture](docs/adr/001-falkordb-graph-engine-and-offline-fallback.md)
+* [**ADR-002:** Four-Pillar Connected Knowledge Graph Data Model](docs/adr/002-four-pillar-graph-data-model.md)
+* [**ADR-003:** Model Context Protocol (MCP) as Universal Agent Interface](docs/adr/003-mcp-server-as-universal-agent-interface.md)
+* [**ADR-004:** Persona-Driven Multi-Agent Architecture](docs/adr/004-persona-driven-multi-agent-system.md)
+* [**ADR-005:** Deterministic AST and Markdown Ingestion Pipeline](docs/adr/005-deterministic-ast-and-document-ingestion.md)
+* [**ADR-006:** Human-in-the-Loop Quality Approval Gate for Operations](docs/adr/006-human-in-the-loop-approval-workflow.md)
+* [**ADR-007:** Dual-Transport Deployment Strategy (Stdio vs Streamable-HTTP)](docs/adr/007-dual-transport-deployment-strategy.md)
+* [**ADR-008:** Comprehensive Verification & Test Strategy](docs/adr/008-comprehensive-verification-and-test-strategy.md)
+* [**ADR-009:** Unified Production Ingestion Pipeline & Auto-Linker](docs/adr/009-unified-production-ingestion-pipeline.md)
+* [**ADR-010:** Multi-Format Enterprise Document & Polyglot Ingestion Adapter](docs/adr/010-multi-format-enterprise-document-and-polyglot-ingestion.md)
+* [**ADR-011:** Code Domain Owner Email Approval & Ingestion Workflow](docs/adr/011-domain-owner-email-approval-and-ingestion-flow.md)
+* [**ADR-012:** Project Entity Dual-Ownership Model (Codebase & PRD Owner)](docs/adr/012-project-entity-dual-ownership-model.md)
+* [**ADR-013:** PRD Agent Updates and PRD Owner Email Approval Workflow](docs/adr/013-prd-agent-updates-and-owner-approval-workflow.md)
+* [**ADR-014:** Program Manager Persona and Agile Execution Flow (5th Pillar)](docs/adr/014-program-manager-persona-and-agile-execution-flow.md)
+* [**ADR-015:** Cross-Team Capability Unlocking & Domain Synergy Architecture](docs/adr/015-cross-team-capability-unlocking-and-domain-synergy.md)
+* [**ADR-016:** Role-Based Access Control (RBAC) and Architectural Governance](docs/adr/016-role-based-access-control-and-architectural-governance.md)
+* [**ADR-017:** Agent Security Harness and Ingestion Guardrails](docs/adr/017-agent-security-harness-and-ingestion-guardrails.md)
+* [**ADR-018:** FalkorDB GraphBLAS Performance Optimization and High-Throughput Cypher Execution](docs/adr/018-falkordb-graphblas-performance-optimization.md)
 
 
 

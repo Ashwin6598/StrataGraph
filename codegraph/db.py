@@ -1,6 +1,6 @@
 """
 Database driver for CodeGraph.
-Supports FalkorDB (via OpenCypher) and seamless in-memory fallback with JSON persistence for offline/local demos.
+Supports FalkorDB (via OpenCypher) and seamless in-memory fallback with JSON persistence for offline local development.
 """
 
 import json
