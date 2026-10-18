@@ -179,8 +179,10 @@ def test_program_manager_can_create_feature_and_story():
 # =========================================================================
 
 def test_prd_updates_guarded_by_iam():
-    """Verify only Product Managers/Admins can update PRD features and scenarios."""
-    # Authorized: Product Manager
+    """Verify only Product Managers/Admins can update and approve PRD features and scenarios."""
+    from codegraph.tools.product_tools import approve_prd_update_via_email
+
+    # Authorized: Product Manager proposes feature
     res = update_prd_features_and_scenarios(
         feature_id="REQ-TEST-001",
         feature_title="Instant Bank Settlement",
@@ -188,16 +190,35 @@ def test_prd_updates_guarded_by_iam():
         actor="product-lead@payflow.internal"
     )
     assert res["result"]["status"] == "PENDING_APPROVAL"
+    token = res["result"]["approval_token"]
 
     # Denied: Developer trying to update PRD
-    denied = update_prd_features_and_scenarios(
+    denied_update = update_prd_features_and_scenarios(
         feature_id="REQ-TEST-002",
         feature_title="Unauthorized PRD change",
         description="Dev altering requirements directly",
         actor="developer@payflow.internal"
     )
-    assert denied["status"] == "PERMISSION_DENIED"
-    assert denied["required_permission"] == "UPDATE_PRD"
+    assert denied_update["status"] == "PERMISSION_DENIED"
+    assert denied_update["required_permission"] == "UPDATE_PRD"
+
+    # Denied: Developer trying to approve PRD proposal
+    denied_approval = approve_prd_update_via_email(
+        feature_id="REQ-TEST-001",
+        approval_token=token,
+        approver_email="developer@payflow.internal"
+    )
+    assert denied_approval["status"] == "PERMISSION_DENIED"
+    assert denied_approval["required_permission"] == "UPDATE_PRD"
+
+    # Authorized: Product Manager approves PRD proposal
+    approved = approve_prd_update_via_email(
+        feature_id="REQ-TEST-001",
+        approval_token=token,
+        approver_email="product-lead@payflow.internal"
+    )
+    assert approved["result"]["status"] == "APPROVED"
+    assert approved["result"]["approved_by"] == "product-lead@payflow.internal"
 
 
 def test_codebase_modifications_guarded_by_iam():

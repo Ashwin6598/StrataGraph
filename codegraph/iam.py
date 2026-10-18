@@ -136,7 +136,20 @@ class IAMManager:
         try:
             return Role(actor.upper())
         except ValueError:
-            return Role.DEVELOPER
+            pass
+
+        # Intelligent heuristic fallback based on email naming
+        clean = actor.lower()
+        if "product" in clean or "pm" in clean.split("@")[0] or "prd" in clean:
+            return Role.PRODUCT_MANAGER
+        if "architect" in clean:
+            return Role.ARCHITECT
+        if "tpm" in clean or "program" in clean or "scrum" in clean:
+            return Role.PROGRAM_MANAGER
+        if "admin" in clean:
+            return Role.ADMIN
+
+        return Role.DEVELOPER
 
     def check_permission(self, actor: Optional[str], permission: Permission) -> bool:
         """Returns True if the actor possesses the specified permission."""

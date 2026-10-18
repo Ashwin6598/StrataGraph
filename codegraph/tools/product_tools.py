@@ -475,10 +475,16 @@ def approve_prd_update_via_email(
 ) -> Dict[str, Any]:
     """
     Validates PRD Owner's approval token and permanently ingests the feature and scenarios into the active knowledge graph.
+    Enforces that only actors with UPDATE_PRD permission can approve PRD features and scenarios.
     """
+    clean_actor = approver_email or "product-lead@payflow.internal"
+    denial = iam.enforce_permission(clean_actor, Permission.UPDATE_PRD, "approve_prd_update_via_email")
+    if denial:
+        return denial
+
     return approve_prd_update_and_ingest(
         feature_id=feature_id,
         approval_token=approval_token,
-        approver_email=approver_email
+        approver_email=clean_actor
     )
 
