@@ -38,6 +38,7 @@ class PRDNode(BaseModel):
     author: Optional[str] = None
     status: str = "APPROVED"
     created_at: Optional[str] = None
+    raw_content: Optional[str] = None
 
 
 class ADRNode(BaseModel):
@@ -48,6 +49,7 @@ class ADRNode(BaseModel):
     context: str
     decision: str
     consequences: str
+    raw_content: Optional[str] = None
 
 
 class BugFixNode(BaseModel):
@@ -68,6 +70,7 @@ class RunbookNode(BaseModel):
     symptom: str
     rca: str
     resolution_steps: str
+    raw_content: Optional[str] = None
 
 
 class ScenarioNode(BaseModel):
@@ -139,6 +142,7 @@ class FunctionNode(BaseModel):
     line_start: int
     line_end: int
     docstring: Optional[str] = None
+    source_code: Optional[str] = None
 
 
 class CodeLogicNode(BaseModel):

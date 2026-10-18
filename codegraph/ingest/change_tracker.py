@@ -71,7 +71,8 @@ class ChangeTracker:
                     service=service,
                     symptom=symptom,
                     rca=rca,
-                    resolution_steps=res
+                    resolution_steps=res,
+                    raw_content=content
                 )
                 db.create_node(proc_id, "Runbook", rb_node.model_dump())
                 db.create_edge(proc_id, Relationships.RESOLVES_BUG, bug_id)

@@ -46,7 +46,8 @@ class ADRParser:
             date=date,
             context=context,
             decision=decision,
-            consequences=consequences
+            consequences=consequences,
+            raw_content=content
         )
         db.create_node(adr_id, "ADR", adr_node.model_dump())
 

@@ -75,6 +75,8 @@ class CodebaseParser:
                 args = [arg.arg for arg in node.args.args]
                 sig = f"{node.name}({', '.join(args)})"
 
+                fn_source = ast.get_source_segment(source, node)
+
                 func_node = FunctionNode(
                     id=func_id,
                     name=node.name,
@@ -84,7 +86,8 @@ class CodebaseParser:
                     line_end=node.end_lineno or node.lineno,
                     docstring=doc,
                     class_name=v_self.current_class,
-                    class_id=f"class:{path_obj.name}:{v_self.current_class}" if v_self.current_class else None
+                    class_id=f"class:{path_obj.name}:{v_self.current_class}" if v_self.current_class else None,
+                    source_code=fn_source
                 )
                 db.create_node(
                     node_id=func_id,

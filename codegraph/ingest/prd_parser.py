@@ -37,7 +37,8 @@ class PRDParser:
             title=title,
             version=version,
             status=status,
-            author=author
+            author=author,
+            raw_content=content
         )
         db.create_node(prd_id, "PRD", prd_node.model_dump())
 
