@@ -286,19 +286,19 @@ In customer environments, clients simply point their MCP config to the URL:
 
 ## 🧪 Running Automated Tests
 
-Run the full 50-test pytest suite:
+Run the full 52-test pytest suite:
 
 ```bash
 uv run pytest -v
-# 50 passed in 0.48s
+# 52 passed in 0.53s
 ```
 
 The modular test suite in [`tests/`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/) provides comprehensive test coverage:
 * `test_db_engine.py`: Graph database engine, CRUD, neighbor traversal, and fallback storage
-* `test_parsers.py`: Deterministic AST parser, PRD markdown parser, ADR parser, runbook parser
+* `test_parsers.py`: Multi-language code parser (Python AST, TypeScript/JavaScript, Go, Java, Rust), PRD & ADR parsers, runbooks
 * `test_product_tools.py`: PRD compliance metrics, plain-English scenario simulation, change timeline
 * `test_developer_tools.py`: Incident diagnostics, safe-to-change checks, 4-pillar lineage, PR diff audits
-* `test_shared_and_ingest.py`: Full-text search, N-hop neighborhood expansion, and human approval workflow
+* `test_shared_and_ingest.py`: Full-text search, N-hop neighborhood expansion, unified pipeline, approval workflow
 * `test_mcp_server.py`: Async MCP 2.x server initialization, 17 tools registry, persona prompts
 * `test_cli.py`: Click CLI commands (`status`, `demo`, `seed`, `ingest`, `help`)
 

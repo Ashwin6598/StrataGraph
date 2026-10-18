@@ -71,3 +71,69 @@ def test_runbook_incident_parser():
 
     assert res["status"] == "INGESTED"
     assert res["bugs_extracted"] >= 2
+
+
+def test_typescript_parser(tmp_path):
+    """Verify universal parser extracts classes and functions from TypeScript/JavaScript files."""
+    ts_code = """
+    /**
+     * BillingService handles customer subscription charges.
+     * Implements: REQ-001
+     * Governed by: ADR-001
+     */
+    export class BillingService {
+        constructor() {}
+
+        async processSubscription(userId: string, planId: string): Promise<boolean> {
+            console.log("Processing subscription");
+            return true;
+        }
+    }
+
+    export const cancelSubscription = async (subId: string): Promise<void> => {
+        console.log("Cancelled");
+    };
+    """
+    ts_file = tmp_path / "billing.ts"
+    ts_file.write_text(ts_code, encoding="utf-8")
+
+    parser = CodebaseParser()
+    res = parser.parse_file(str(ts_file))
+
+    assert res["status"] == "INGESTED"
+    assert res["language"] == "typescript"
+    assert res["functions_count"] >= 2
+
+
+def test_go_parser(tmp_path):
+    """Verify universal parser extracts structs and functions from Go files."""
+    go_code = """
+    package main
+
+    import "fmt"
+
+    // PaymentHandler manages ledger operations
+    // Implements REQ-002
+    type PaymentHandler struct {
+        Balance int
+    }
+
+    func (p *PaymentHandler) ProcessCharge(amount int) error {
+        fmt.Println(amount)
+        return nil
+    }
+
+    func HealthCheck() string {
+        return "OK"
+    }
+    """
+    go_file = tmp_path / "handler.go"
+    go_file.write_text(go_code, encoding="utf-8")
+
+    parser = CodebaseParser()
+    res = parser.parse_file(str(go_file))
+
+    assert res["status"] == "INGESTED"
+    assert res["language"] == "go"
+    assert res["functions_count"] >= 2
+

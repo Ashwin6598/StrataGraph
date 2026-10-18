@@ -605,12 +605,12 @@ Foundational architectural decisions for every component of CodeGraph are formal
 
 ## 14. Verification & Testing Matrix
 
-The platform is backed by a 50-test automated pytest suite providing 100% deterministic local verification in <0.5 seconds:
+The platform is backed by a 52-test automated pytest suite providing 100% deterministic local verification in <0.5 seconds:
 
 | Test Module | Coverage & Verification Scope | Test Count |
 |---|---|---|
 | [`tests/test_db_engine.py`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/test_db_engine.py) | Dual-driver CRUD, neighbor traversal, persistence fallback | 3 |
-| [`tests/test_parsers.py`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/test_parsers.py) | Python AST parser, PRD parser, ADR parser, runbook parser | 7 |
+| [`tests/test_parsers.py`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/test_parsers.py) | Multi-language code parser (Python AST, TypeScript, Go), PRD, ADR, runbooks | 9 |
 | [`tests/test_product_tools.py`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/test_product_tools.py) | PRD compliance %, plain-English scenario simulation, change history | 6 |
 | [`tests/test_developer_tools.py`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/test_developer_tools.py) | RCA diagnostics, safe-to-change checks, 4-pillar lineage, PR diff audits | 10 |
 | [`tests/test_shared_and_ingest.py`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/test_shared_and_ingest.py) | Full-text search, N-hop neighborhood expansion, approval workflow, unified pipeline | 12 |

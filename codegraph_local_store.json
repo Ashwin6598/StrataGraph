@@ -1465,6 +1465,22 @@
         "invariants": "- Prevents refund spikes from impacting real-time checkout availability.\n- Requires careful worker pool tuning: decreasing concurrency below 5 was the direct root cause of incident `BUG-342`."
       }
     },
+    "timeline:commit:a1b29fd": {
+      "id": "timeline:commit:a1b29fd",
+      "label": "ChangeTimeline",
+      "properties": {
+        "id": "timeline:commit:a1b29fd",
+        "project_id": "project:test_ent",
+        "commit_hash": "a1b29fdb723aa0278685914566cfe52a207dc00f",
+        "author": "Ashwin",
+        "timestamp": "2026-10-18T12:00:00Z",
+        "date": "2026-10-18",
+        "what_changed": "feat: preserve complete raw content and function source code in graph nodes",
+        "why_changed": "Recorded from git commit message: feat: preserve complete raw content and function source code in graph nodes",
+        "change_category": "PRD_FEATURE",
+        "diff_summary": "feat: preserve complete raw content and function source code in graph nodes"
+      }
+    },
     "timeline:commit:35eb46d": {
       "id": "timeline:commit:35eb46d",
       "label": "ChangeTimeline",
@@ -1624,6 +1640,112 @@
         "rca": "A junior developer reduced `MAX_RETRIES` from 3 to 1 in `fraud_detector.py` to \"speed up checkout responses\". Because third-party credit card fraud networks experience 1-2% momentary packet drops, removing retry attempts caused 1 out of every 50 checkout requests to fail immediately.",
         "resolution_steps": "1. Refer to `ADR-001` (Fraud Risk Scoring and Mandatory Retry Ceiling).\n  2. Restore `MAX_RETRIES = 3` and `INITIAL_BACKOFF_SECONDS = 0.5`.\n  3. Run verification test suite.",
         "raw_content": "# Runbook RB-PAY-001: Triage and Resolution for Payment and Refund Timeouts\n\n- **Runbook ID:** RB-PAY-001\n- **Service:** PayFlow Payment & Refund Gateway\n- **Audience:** On-Call Engineers & Senior Developers\n- **Last Verified:** 2026-03-01\n\n---\n\n## 1. Incident: REFUND_TIMEOUT Under Load\n- **Error Code / Symptom:** `REFUND_TIMEOUT`, `HTTP 504 Gateway Timeout` on `/v1/refunds` endpoint.\n- **Historical Reference:** `BUG-342` (Black Friday incident).\n- **Root Cause Analysis (RCA):**\n  The `RefundProcessor.WORKER_POOL_CONCURRENCY` was accidentally reduced from 5 to 2 in a hotfix PR. At concurrency 2, the async consumer queue becomes saturated whenever request volume exceeds 80 refunds/sec. Messages queue up, consumer lag reaches >120s, and API gateways drop connections with `REFUND_TIMEOUT`.\n- **Immediate Diagnostic Command:**\n  Check queue depth and consumer concurrency in `refund_processor.py`.\n- **Verified Resolution:**\n  1. Open `demo_data/code/refund_processor.py`.\n  2. Ensure `WORKER_POOL_CONCURRENCY` is set to `5` as specified in `ADR-002`.\n  3. Restart worker pool service.\n  4. Never set concurrency > 10 (triggers partner HTTP 429).\n\n---\n\n## 2. Incident: CASCADE_FRAUD_CHECK_FAILURES\n- **Error Code / Symptom:** `FRAUD_SERVICE_UNAVAILABLE`, spikes in legitimate card declines.\n- **Historical References:** `BUG-112`, `BUG-298`.\n- **Root Cause Analysis (RCA):**\n  A junior developer reduced `MAX_RETRIES` from 3 to 1 in `fraud_detector.py` to \"speed up checkout responses\". Because third-party credit card fraud networks experience 1-2% momentary packet drops, removing retry attempts caused 1 out of every 50 checkout requests to fail immediately.\n- **Verified Resolution:**\n  1. Refer to `ADR-001` (Fraud Risk Scoring and Mandatory Retry Ceiling).\n  2. Restore `MAX_RETRIES = 3` and `INITIAL_BACKOFF_SECONDS = 0.5`.\n  3. Run verification test suite.\n"
+      }
+    },
+    "file:billing.ts": {
+      "id": "file:billing.ts",
+      "label": "File",
+      "properties": {
+        "path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-1/test_typescript_parser0/billing.ts",
+        "filename": "billing.ts",
+        "language": "typescript"
+      }
+    },
+    "class:billing.ts:BillingService": {
+      "id": "class:billing.ts:BillingService",
+      "label": "Class",
+      "properties": {
+        "id": "class:billing.ts:BillingService",
+        "name": "BillingService",
+        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-1/test_typescript_parser0/billing.ts",
+        "line_start": 7,
+        "line_end": 19,
+        "docstring": "Typescript class/struct BillingService"
+      }
+    },
+    "func:billing.ts:processSubscription": {
+      "id": "func:billing.ts:processSubscription",
+      "label": "Function",
+      "properties": {
+        "id": "func:billing.ts:processSubscription",
+        "name": "processSubscription",
+        "class_id": "class:billing.ts:BillingService",
+        "class_name": "BillingService",
+        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-1/test_typescript_parser0/billing.ts",
+        "signature": "processSubscription(userId: string, planId: string)",
+        "line_start": 10,
+        "line_end": 13,
+        "docstring": null,
+        "source_code": "        async processSubscription(userId: string, planId: string): Promise<boolean> {\n            console.log(\"Processing subscription\");\n            return true;\n        }"
+      }
+    },
+    "func:billing.ts:cancelSubscription": {
+      "id": "func:billing.ts:cancelSubscription",
+      "label": "Function",
+      "properties": {
+        "id": "func:billing.ts:cancelSubscription",
+        "name": "cancelSubscription",
+        "class_id": "class:billing.ts:BillingService",
+        "class_name": "BillingService",
+        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-1/test_typescript_parser0/billing.ts",
+        "signature": "cancelSubscription(subId: string)",
+        "line_start": 16,
+        "line_end": 18,
+        "docstring": null,
+        "source_code": "    export const cancelSubscription = async (subId: string): Promise<void> => {\n        console.log(\"Cancelled\");\n    };"
+      }
+    },
+    "file:handler.go": {
+      "id": "file:handler.go",
+      "label": "File",
+      "properties": {
+        "path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-1/test_go_parser0/handler.go",
+        "filename": "handler.go",
+        "language": "go"
+      }
+    },
+    "class:handler.go:PaymentHandler": {
+      "id": "class:handler.go:PaymentHandler",
+      "label": "Class",
+      "properties": {
+        "id": "class:handler.go:PaymentHandler",
+        "name": "PaymentHandler",
+        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-1/test_go_parser0/handler.go",
+        "line_start": 8,
+        "line_end": 20,
+        "docstring": "Go class/struct PaymentHandler"
+      }
+    },
+    "func:handler.go:ProcessCharge": {
+      "id": "func:handler.go:ProcessCharge",
+      "label": "Function",
+      "properties": {
+        "id": "func:handler.go:ProcessCharge",
+        "name": "ProcessCharge",
+        "class_id": "class:handler.go:PaymentHandler",
+        "class_name": "PaymentHandler",
+        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-1/test_go_parser0/handler.go",
+        "signature": "ProcessCharge(amount int)",
+        "line_start": 12,
+        "line_end": 15,
+        "docstring": null,
+        "source_code": "    func (p *PaymentHandler) ProcessCharge(amount int) error {\n        fmt.Println(amount)\n        return nil\n    }"
+      }
+    },
+    "func:handler.go:HealthCheck": {
+      "id": "func:handler.go:HealthCheck",
+      "label": "Function",
+      "properties": {
+        "id": "func:handler.go:HealthCheck",
+        "name": "HealthCheck",
+        "class_id": "class:handler.go:PaymentHandler",
+        "class_name": "PaymentHandler",
+        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-1/test_go_parser0/handler.go",
+        "signature": "HealthCheck()",
+        "line_start": 17,
+        "line_end": 19,
+        "docstring": null,
+        "source_code": "    func HealthCheck() string {\n        return \"OK\"\n    }"
       }
     },
     "issue:BUG-999-TEST": {
@@ -3122,6 +3244,12 @@
     {
       "from": "project:enterprise",
       "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:a1b29fd",
+      "properties": {}
+    },
+    {
+      "from": "project:enterprise",
+      "rel": "HAS_TIMELINE_RECORD",
       "to": "timeline:commit:35eb46d",
       "properties": {}
     },
@@ -3559,6 +3687,106 @@
       "from": "proc:RB-PAY-001:BUG-298",
       "rel": "RESOLVED_BY_FIX",
       "to": "BUG-298",
+      "properties": {}
+    },
+    {
+      "from": "file:billing.ts",
+      "rel": "ROUTED_TO_CLASS",
+      "to": "class:billing.ts:BillingService",
+      "properties": {}
+    },
+    {
+      "from": "file:billing.ts",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:billing.ts:processSubscription",
+      "properties": {}
+    },
+    {
+      "from": "class:billing.ts:BillingService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:billing.ts:processSubscription",
+      "properties": {}
+    },
+    {
+      "from": "func:billing.ts:processSubscription",
+      "rel": "CALLS",
+      "to": "func_call_target:log",
+      "properties": {
+        "callee_name": "log"
+      }
+    },
+    {
+      "from": "file:billing.ts",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:billing.ts:cancelSubscription",
+      "properties": {}
+    },
+    {
+      "from": "class:billing.ts:BillingService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:billing.ts:cancelSubscription",
+      "properties": {}
+    },
+    {
+      "from": "func:billing.ts:cancelSubscription",
+      "rel": "CALLS",
+      "to": "func_call_target:async",
+      "properties": {
+        "callee_name": "async"
+      }
+    },
+    {
+      "from": "func:billing.ts:cancelSubscription",
+      "rel": "CALLS",
+      "to": "func_call_target:log",
+      "properties": {
+        "callee_name": "log"
+      }
+    },
+    {
+      "from": "file:handler.go",
+      "rel": "ROUTED_TO_CLASS",
+      "to": "class:handler.go:PaymentHandler",
+      "properties": {}
+    },
+    {
+      "from": "file:handler.go",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:handler.go:ProcessCharge",
+      "properties": {}
+    },
+    {
+      "from": "class:handler.go:PaymentHandler",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:handler.go:ProcessCharge",
+      "properties": {}
+    },
+    {
+      "from": "func:handler.go:ProcessCharge",
+      "rel": "CALLS",
+      "to": "func_call_target:func",
+      "properties": {
+        "callee_name": "func"
+      }
+    },
+    {
+      "from": "func:handler.go:ProcessCharge",
+      "rel": "CALLS",
+      "to": "func_call_target:Println",
+      "properties": {
+        "callee_name": "Println"
+      }
+    },
+    {
+      "from": "file:handler.go",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:handler.go:HealthCheck",
+      "properties": {}
+    },
+    {
+      "from": "class:handler.go:PaymentHandler",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:handler.go:HealthCheck",
       "properties": {}
     },
     {
@@ -5223,6 +5451,12 @@
       "from": "proc:RB-PAY-001:BUG-298",
       "rel": "RESOLVED_BY_FIX",
       "to": "BUG-298",
+      "properties": {}
+    },
+    {
+      "from": "project:test_ent",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:a1b29fd",
       "properties": {}
     },
     {
