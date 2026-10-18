@@ -437,29 +437,6 @@ For full architectural blueprints, mathematical specifications, and query execut
 
 ---
 
-## 📋 Hackathon Submission Requirements Checklist
-
-| Requirement | Implementation Status | Evidence / Reference Location |
-| :--- | :---: | :--- |
-| **Track Selection** | ✅ **VERIFIED** | **Track 01: Agents That Act on Connected Data** (Declared in README header & Section 1) |
-| **Public Source-Code Repository** | ✅ **VERIFIED** | Complete, clean Git repository with commit history and MIT License |
-| **README Setup & Graph Data Model** | ✅ **VERIFIED** | Quick start, local setup, Docker, and full 5-pillar schema diagrams in `README.md` |
-| **Cypher Queries & Graph Algorithms** | ✅ **VERIFIED** | Dedicated technical guide: [**docs/CYPHER_AND_ALGORITHMS.md**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/CYPHER_AND_ALGORITHMS.md) |
-| **Live Deployment / Complete Local Setup** | ✅ **VERIFIED** | Docker Compose (`localhost:6379`), Streamable-HTTP microservice (`port 8000`), and zero-dependency offline fallback |
-| **Demo Video** | ⏳ *In Progress* | Recording walkthrough covering the 3 personas and human-in-the-loop email approvals |
-
----
-
-## 🏆 Hackathon Track Criteria Alignment
-
-- **Multi-hop reasoning:** `simulate_scenario`, `trace_requirement_to_delivery_chain`, and `diagnose_delivery_bottlenecks` traverse chains: `PRD -> Epic -> Feature -> Story -> Function -> Decisions -> Issues`.
-- **Graph queries as agent tools:** All 30 tools generate and execute OpenCypher queries against FalkorDB.
-- **Tool selection through MCP:** Standardized MCP 2.x protocol allows seamless tool discovery and persona invocation by any agent client.
-- **Actions based on graph data:** Produces concrete safety verdicts (`SAFE` vs `UNSAFE`), RCAs with line numbers, blocker diagnoses, and PR merge gating (`REQUEST_CHANGES` vs `APPROVE`).
-- **Explainable results:** Every tool response includes `cypher_query` and `traversal_path` demonstrating exact data lineage.
-
----
-
 ## 🏛️ Project Architecture Decision Records (ADRs)
 
 Foundational architectural decisions for every CodeGraph component are documented under [`docs/adr/`](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/README.md):
