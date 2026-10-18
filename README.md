@@ -251,6 +251,14 @@ uv run python -m codegraph ingest \
   --git .
 ```
 
+The pipeline supports all enterprise documentation formats via [`DocumentConverter`](file:///Users/ashwin/Documents/Projects/GraphHack/codegraph/ingest/document_converter.py):
+* **Markdown (`.md`, `.markdown`):** Native PRD and ADR format
+* **Plain Text (`.txt`):** Unstructured notes and specifications
+* **HTML / Confluence (`.html`, `.htm`):** Confluence wiki exports parsed via stdlib HTML parser
+* **JSON / Jira (`.json`):** Jira issue exports and OpenAPI / Swagger specifications
+* **PDF (`.pdf`):** Extracted via system `pdftotext` or `pypdf`
+* **Word (`.docx`):** Extracted via native macOS `textutil` or `python-docx`
+
 The **Auto-Linker** automatically inspects function docstrings and git commits to synthesize cross-entity links (`@implements REQ-xxx`, `@governed_by ADR-xxx`, `Fixes BUG-xxx`).
 
 ### 2. Automated CI/CD Sync on PR Merge
@@ -286,16 +294,16 @@ In customer environments, clients simply point their MCP config to the URL:
 
 ## 🧪 Running Automated Tests
 
-Run the full 52-test pytest suite:
+Run the full 56-test pytest suite:
 
 ```bash
 uv run pytest -v
-# 52 passed in 0.53s
+# 56 passed in 0.49s
 ```
 
 The modular test suite in [`tests/`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/) provides comprehensive test coverage:
 * `test_db_engine.py`: Graph database engine, CRUD, neighbor traversal, and fallback storage
-* `test_parsers.py`: Multi-language code parser (Python AST, TypeScript/JavaScript, Go, Java, Rust), PRD & ADR parsers, runbooks
+* `test_parsers.py`: Multi-language code parser (Python AST, TypeScript, Go), document converter (HTML, JSON/Jira, Markdown, Plain Text), PRD & ADR parsers, runbooks
 * `test_product_tools.py`: PRD compliance metrics, plain-English scenario simulation, change timeline
 * `test_developer_tools.py`: Incident diagnostics, safe-to-change checks, 4-pillar lineage, PR diff audits
 * `test_shared_and_ingest.py`: Full-text search, N-hop neighborhood expansion, unified pipeline, approval workflow
@@ -327,5 +335,7 @@ Foundational architectural decisions for every CodeGraph component are documente
 * [**ADR-007:** Dual-Transport Deployment Strategy (Stdio vs Streamable-HTTP)](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/007-dual-transport-deployment-strategy.md)
 * [**ADR-008:** Comprehensive Verification & Test Strategy](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/008-comprehensive-verification-and-test-strategy.md)
 * [**ADR-009:** Unified Production Ingestion Pipeline & Auto-Linker](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/009-unified-production-ingestion-pipeline.md)
+* [**ADR-010:** Multi-Format Enterprise Document & Polyglot Ingestion Adapter](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/010-multi-format-enterprise-document-and-polyglot-ingestion.md)
+
 
 

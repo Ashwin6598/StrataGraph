@@ -10,14 +10,18 @@ from ..schema import ADRNode, DecisionNode, Relationships
 from ..db import db
 
 
+from .document_converter import DocumentConverter
+
+
 class ADRParser:
     def parse_file(self, adr_path: str) -> Dict[str, Any]:
         path_obj = Path(adr_path)
         if not path_obj.exists():
             return {"status": "ERROR", "message": f"File {adr_path} does not exist"}
 
-        with open(adr_path, "r", encoding="utf-8") as f:
-            content = f.read()
+        content = DocumentConverter.to_markdown(adr_path)
+        if not content:
+            return {"status": "ERROR", "message": f"Could not extract markdown content from {adr_path}"}
 
         # Metadata
         adr_id_match = re.search(r"\*\*ADR ID:\*\*\s*([^\n]+)", content)

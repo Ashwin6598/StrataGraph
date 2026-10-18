@@ -16,6 +16,7 @@ from .code_parser import CodebaseParser
 from .prd_parser import PRDParser
 from .adr_parser import ADRParser
 from .change_tracker import ChangeTracker
+from .document_converter import SUPPORTED_DOC_EXTENSIONS
 
 
 class IngestionPipeline:
@@ -71,21 +72,27 @@ class IngestionPipeline:
 
         # 3. Ingest PRDs
         if prd_dir and Path(prd_dir).exists():
-            for p in sorted(Path(prd_dir).glob("*.md")):
-                self.prd_parser.parse_file(str(p))
-                summary["prds_processed"] += 1
+            for p in sorted(Path(prd_dir).iterdir()):
+                if p.suffix.lower() in SUPPORTED_DOC_EXTENSIONS and not p.name.startswith("."):
+                    res = self.prd_parser.parse_file(str(p))
+                    if res.get("status") == "INGESTED":
+                        summary["prds_processed"] += 1
 
         # 4. Ingest ADRs
         if adr_dir and Path(adr_dir).exists():
-            for a in sorted(Path(adr_dir).glob("*.md")):
-                self.adr_parser.parse_file(str(a))
-                summary["adrs_processed"] += 1
+            for a in sorted(Path(adr_dir).iterdir()):
+                if a.suffix.lower() in SUPPORTED_DOC_EXTENSIONS and not a.name.startswith("."):
+                    res = self.adr_parser.parse_file(str(a))
+                    if res.get("status") == "INGESTED":
+                        summary["adrs_processed"] += 1
 
         # 5. Ingest Incident Runbooks
         if runbook_dir and Path(runbook_dir).exists():
-            for r in sorted(Path(runbook_dir).glob("*.md")):
-                self.change_tracker.parse_runbook(str(r))
-                summary["runbooks_processed"] += 1
+            for r in sorted(Path(runbook_dir).iterdir()):
+                if r.suffix.lower() in SUPPORTED_DOC_EXTENSIONS and not r.name.startswith("."):
+                    res = self.change_tracker.parse_runbook(str(r))
+                    if res.get("status") == "INGESTED":
+                        summary["runbooks_processed"] += 1
 
         # 6. Extract Git Commits & Change Timeline
         if git_repo_path and Path(git_repo_path).exists():

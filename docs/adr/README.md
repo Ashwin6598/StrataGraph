@@ -17,6 +17,7 @@ This directory documents all foundational architectural decisions made for the *
 | [**ADR-007**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/007-dual-transport-deployment-strategy.md) | Dual-Transport Deployment Strategy (Stdio vs HTTP) | Transport & Deployment Layer (`codegraph/config.py`) | `ACCEPTED` | 2026-10-17 |
 | [**ADR-008**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/008-comprehensive-verification-and-test-strategy.md) | Comprehensive Verification & Test Strategy | Quality & Test Suite (`tests/`) | `ACCEPTED` | 2026-10-17 |
 | [**ADR-009**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/009-unified-production-ingestion-pipeline.md) | Unified Production Ingestion Pipeline & Auto-Linker | Production Ingestion (`codegraph/ingest/pipeline.py`) | `ACCEPTED` | 2026-10-18 |
+| [**ADR-010**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/010-multi-format-enterprise-document-and-polyglot-ingestion.md) | Multi-Format Enterprise Document & Polyglot Ingestion Adapter | Multi-Format Adapter (`codegraph/ingest/document_converter.py`) | `ACCEPTED` | 2026-10-18 |
 
 ---
 

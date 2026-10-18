@@ -3,6 +3,7 @@ Unit tests for the Ingestion Parsers.
 Validates AST parsing, markdown section parsing, error handling, and line number extraction.
 """
 
+import json
 from pathlib import Path
 from codegraph.ingest.code_parser import CodebaseParser
 from codegraph.ingest.prd_parser import PRDParser
@@ -136,4 +137,76 @@ def test_go_parser(tmp_path):
     assert res["status"] == "INGESTED"
     assert res["language"] == "go"
     assert res["functions_count"] >= 2
+
+
+def test_html_confluence_converter(tmp_path):
+    """Verify HTML / Confluence wiki exports are converted to markdown and ingested."""
+    html_content = """
+    <html>
+      <body>
+        <h1>PRD: Subscription Management Portal</h1>
+        <p><strong>Document ID:</strong> PRD-CONF-202</p>
+        <p><strong>Status:</strong> APPROVED</p>
+        <h3>REQ-050: Auto-Renew Subscriptions</h3>
+        <p><strong>Priority:</strong> HIGH</p>
+        <p><strong>Status:</strong> IMPLEMENTED</p>
+        <p><strong>Description:</strong> Automatically charge customer card upon billing cycle end.</p>
+        <ul>
+          <li><strong>SCEN-050-1:</strong> Card charged on 30th day</li>
+        </ul>
+      </body>
+    </html>
+    """
+    html_file = tmp_path / "prd-confluence.html"
+    html_file.write_text(html_content, encoding="utf-8")
+
+    parser = PRDParser()
+    res = parser.parse_file(str(html_file))
+
+    assert res["status"] == "INGESTED"
+    assert "PRD-CONF-202" in res["prd_id"]
+    assert res["requirements_ingested"] >= 1
+
+
+def test_jira_json_converter(tmp_path):
+    """Verify Jira / Confluence JSON exports are converted to PRD markdown and ingested."""
+    jira_data = {
+        "issues": [
+            {
+                "key": "REQ-701",
+                "fields": {
+                    "summary": "Multi-Tenant Enterprise Isolation",
+                    "description": "Isolate tenant transaction ledger tables.",
+                    "priority": {"name": "High"},
+                    "status": {"name": "In Progress"},
+                    "scenarios": ["Tenant A cannot query Tenant B balance"]
+                }
+            }
+        ]
+    }
+    json_file = tmp_path / "jira-export.json"
+    json_file.write_text(json.dumps(jira_data), encoding="utf-8")
+
+    parser = PRDParser()
+    res = parser.parse_file(str(json_file))
+
+    assert res["status"] == "INGESTED"
+    assert res["requirements_ingested"] >= 1
+
+
+def test_document_converter_plain_text(tmp_path):
+    """Verify plain text files are converted and passed through cleanly."""
+    from codegraph.ingest.document_converter import DocumentConverter
+    txt_file = tmp_path / "notes.txt"
+    txt_file.write_text("Simple text notes", encoding="utf-8")
+    converted = DocumentConverter.to_markdown(str(txt_file))
+    assert converted == "Simple text notes"
+
+
+def test_document_converter_missing():
+    """Verify missing file returns empty string gracefully."""
+    from codegraph.ingest.document_converter import DocumentConverter
+    assert DocumentConverter.to_markdown("non_existent_file.pdf") == ""
+
+
 

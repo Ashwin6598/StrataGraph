@@ -11,14 +11,18 @@ from ..schema import BugFixNode, RunbookNode, ChangeRecordNode, Relationships
 from ..db import db
 
 
+from .document_converter import DocumentConverter
+
+
 class ChangeTracker:
     def parse_runbook(self, runbook_path: str) -> Dict[str, Any]:
         path_obj = Path(runbook_path)
         if not path_obj.exists():
             return {"status": "ERROR", "message": f"Runbook {runbook_path} does not exist"}
 
-        with open(runbook_path, "r", encoding="utf-8") as f:
-            content = f.read()
+        content = DocumentConverter.to_markdown(runbook_path)
+        if not content:
+            return {"status": "ERROR", "message": f"Could not extract markdown content from {runbook_path}"}
 
         rb_id_match = re.search(r"\*\*Runbook ID:\*\*\s*([^\n]+)", content)
         service_match = re.search(r"\*\*Service:\*\*\s*([^\n]+)", content)

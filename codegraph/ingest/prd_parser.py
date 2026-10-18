@@ -10,14 +10,18 @@ from ..schema import PRDNode, RequirementNode, ScenarioNode, Relationships
 from ..db import db
 
 
+from .document_converter import DocumentConverter
+
+
 class PRDParser:
     def parse_file(self, prd_path: str) -> Dict[str, Any]:
         path_obj = Path(prd_path)
         if not path_obj.exists():
             return {"status": "ERROR", "message": f"File {prd_path} does not exist"}
 
-        with open(prd_path, "r", encoding="utf-8") as f:
-            content = f.read()
+        content = DocumentConverter.to_markdown(prd_path)
+        if not content:
+            return {"status": "ERROR", "message": f"Could not extract markdown content from {prd_path}"}
 
         # Extract Header Metadata
         doc_id_match = re.search(r"\*\*Document ID:\*\*\s*([^\n]+)", content)
