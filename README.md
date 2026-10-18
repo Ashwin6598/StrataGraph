@@ -444,14 +444,16 @@ CodeGraph enforces strict enterprise separation of duties and individual roles &
 
 ## 🧪 Running Automated Tests
 
-Run the full 100-test pytest suite:
+Run the full 124-test pytest suite:
 
 ```bash
 uv run pytest -v
-# 100 passed in 0.66s
+# 124 passed in 0.78s
 ```
 
 The modular test suite in [`tests/`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/) provides comprehensive test coverage:
+* `test_guardrails.py`: Agent security harness, canonical path sandboxing, sensitive secret denylist (`.env`, `id_rsa`), payload anti-DoS (10MB limit), and adversarial prompt injection scanning
+* `test_falkordb_optimizations.py`: GraphBLAS sparse matrix optimizations, string interning (`intern($val)`), explicit single-property indexing across 24 core entities, logical graph key partitioning, explicit sparse matrix node labels, and query parameterization
 * `test_iam_and_governance.py`: Role-Based Access Control (RBAC) permissions, Program Manager agile entity creation, developer architectural proposals, architect token verification, and permission enforcement
 * `test_db_engine.py`: Graph database engine, CRUD, neighbor traversal, and fallback storage
 * `test_parsers.py`: Multi-language code parser (Python AST, TypeScript, Go), document converter (HTML, JSON/Jira, Markdown, Plain Text), PRD & ADR parsers, runbooks
@@ -467,12 +469,47 @@ The modular test suite in [`tests/`](file:///Users/ashwin/Documents/Projects/Gra
 
 ---
 
+## 📐 Cypher Queries and Graph Algorithms
+
+For full architectural blueprints, mathematical specifications, and query execution plans, see [**docs/CYPHER_AND_ALGORITHMS.md**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/CYPHER_AND_ALGORITHMS.md).
+
+### Summary of Graph Algorithms
+* **GraphBLAS Sparse Matrix Multiplication ($C = A \cdot B$):** Multi-hop paths are evaluated via linear algebra over semirings in FalkorDB.
+* **Bounded Breadth-First Search (BFS):** Cycle-detected neighborhood expansion up to 5 hops with visited-set tracking.
+* **Blast Radius Impact Propagation:** Evaluates systemic risk score across governing ADR decisions, incident RCAs, and PRD requirements before code edits.
+* **Disconnected Subgraph Bottleneck Diagnosis:** Set-difference analysis identifying PRD definition gaps, blocked agile stories, and unbacked features.
+* **Python AST Visitor Walk:** Deterministic `ast.NodeVisitor` recursive descent generating classes, functions, and call graphs.
+* **Heuristic Auto-Linker:** Inverted index and token regex scanner correlating docstrings and git commits into cross-pillar edges.
+* **Canonical Path Sandboxing:** `pathlib.Path.resolve()` containment checking preventing directory traversal and secret exfiltration.
+
+### Summary of Core Cypher Query Patterns
+* **Single-Property Indexing:** `CREATE INDEX FOR (n:Label) ON (n.prop)` for 24 core label-property pairs.
+* **String Interning:** Native `intern($val)` function on categorical enums (`status`, `priority`, `role`, `sprint`).
+* **PRD Coverage:** Traverses `(Project)-[:HAS_PRD_INPUT]->(PRDInput)-[:SPECIFIES_REQUIREMENT]->(FunctionalRequirement)-[:IMPLEMENTED_BY_FUNCTION]->(Function)`.
+* **Safe-to-Change Audit:** Reverse multi-pillar traversal from target `Function` to `Decision`, `Issue`, `RCA`, and `FunctionalRequirement`.
+* **5-Pillar Traceability:** Traverses `(Project)-[:HAS_EPIC]->(Epic)-[:HAS_FEATURE]->(AgileFeature)-[:HAS_STORY]->(Story)-[:IMPLEMENTS_CODE]->(Function)`.
+
+---
+
+## 📋 Hackathon Submission Requirements Checklist
+
+| Requirement | Implementation Status | Evidence / Reference Location |
+| :--- | :---: | :--- |
+| **Track Selection** | ✅ **VERIFIED** | **Track 01: Agents That Act on Connected Data** (Declared in README header & Section 1) |
+| **Public Source-Code Repository** | ✅ **VERIFIED** | Complete, clean Git repository with commit history and MIT License |
+| **README Setup & Graph Data Model** | ✅ **VERIFIED** | Quick start, local setup, Docker, and full 5-pillar schema diagrams in `README.md` |
+| **Cypher Queries & Graph Algorithms** | ✅ **VERIFIED** | Dedicated technical guide: [**docs/CYPHER_AND_ALGORITHMS.md**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/CYPHER_AND_ALGORITHMS.md) |
+| **Live Deployment / Complete Local Setup** | ✅ **VERIFIED** | Docker Compose (`localhost:6379`), Streamable-HTTP microservice (`port 8000`), and zero-dependency offline fallback |
+| **Demo Video** | ⏳ *In Progress* | Recording walkthrough covering the 3 personas and human-in-the-loop email approvals |
+
+---
+
 ## 🏆 Hackathon Track Criteria Alignment
 
 - **Multi-hop reasoning:** `simulate_scenario`, `trace_requirement_to_delivery_chain`, and `diagnose_delivery_bottlenecks` traverse chains: `PRD -> Epic -> Feature -> Story -> Function -> Decisions -> Issues`.
-- **Graph queries as agent tools:** All 25 tools generate and execute OpenCypher queries against FalkorDB.
+- **Graph queries as agent tools:** All 30 tools generate and execute OpenCypher queries against FalkorDB.
 - **Tool selection through MCP:** Standardized MCP 2.x protocol allows seamless tool discovery and persona invocation by any agent client.
-- **Actions based on graph shows:** Produces concrete safety verdicts (`SAFE` vs `UNSAFE`), RCAs with line numbers, blocker diagnoses, and PR merge gating (`REQUEST_CHANGES` vs `APPROVE`).
+- **Actions based on graph data:** Produces concrete safety verdicts (`SAFE` vs `UNSAFE`), RCAs with line numbers, blocker diagnoses, and PR merge gating (`REQUEST_CHANGES` vs `APPROVE`).
 - **Explainable results:** Every tool response includes `cypher_query` and `traversal_path` demonstrating exact data lineage.
 
 ---
@@ -495,6 +532,11 @@ Foundational architectural decisions for every CodeGraph component are documente
 * [**ADR-012:** Project Entity Dual-Ownership Model (Codebase & PRD Owner)](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/012-project-entity-dual-ownership-model.md)
 * [**ADR-013:** PRD Agent Updates and PRD Owner Email Approval Workflow](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/013-prd-agent-updates-and-owner-approval-workflow.md)
 * [**ADR-014:** Program Manager Persona and Agile Execution Flow (5th Pillar)](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/014-program-manager-persona-and-agile-execution-flow.md)
+* [**ADR-015:** Cross-Team Capability Unlocking & Domain Synergy Architecture](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/015-cross-team-capability-unlocking-and-domain-synergy.md)
+* [**ADR-016:** Role-Based Access Control (RBAC) and Architectural Governance](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/016-role-based-access-control-and-architectural-governance.md)
+* [**ADR-017:** Agent Security Harness and Ingestion Guardrails](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/017-agent-security-harness-and-ingestion-guardrails.md)
+* [**ADR-018:** FalkorDB GraphBLAS Performance Optimization and High-Throughput Cypher Execution](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/018-falkordb-graphblas-performance-optimization.md)
+
 
 
 
