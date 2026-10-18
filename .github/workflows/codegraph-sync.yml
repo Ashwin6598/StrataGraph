@@ -1,0 +1,42 @@
+name: CodeGraph Knowledge Sync
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  sync-knowledge-graph:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv and Dependencies
+        run: |
+          pip install uv
+          uv sync
+
+      # Run Ingestion Pipeline to update enterprise FalkorDB cluster
+      - name: Sync Graph with Ingestion Pipeline
+        env:
+          FALKORDB_HOST: ${{ secrets.FALKORDB_HOST }}
+          FALKORDB_PORT: ${{ secrets.FALKORDB_PORT }}
+          FALKORDB_PASSWORD: ${{ secrets.FALKORDB_PASSWORD }}
+        run: |
+          uv run python -m codegraph ingest \
+            --project-name "${{ github.repository }}" \
+            --project-id "project:${{ github.event.repository.name }}" \
+            --code ./src \
+            --prd ./docs/prd \
+            --adr ./docs/adr \
+            --runbooks ./docs/runbooks \
+            --git .

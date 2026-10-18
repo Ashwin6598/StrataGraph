@@ -34,10 +34,46 @@ def serve(transport: str, port: int):
 
 
 @main.command()
+@click.option("--project-name", "-n", default="Enterprise Service", help="Name of the project")
+@click.option("--project-id", "-i", default="project:enterprise", help="Unique ID of the project node")
+@click.option("--code", "-c", default=None, help="Directory containing source code files")
+@click.option("--prd", default=None, help="Directory containing PRD markdown files")
+@click.option("--adr", default=None, help="Directory containing ADR markdown files")
+@click.option("--runbooks", default=None, help="Directory containing Incident Runbook markdown files")
+@click.option("--git", "-g", default=".", help="Path to git repository for commit extraction")
+@click.option("--max-commits", default=50, type=int, help="Maximum recent commits to extract")
+def ingest(project_name: str, project_id: str, code: str, prd: str, adr: str, runbooks: str, git: str, max_commits: int):
+    """Run the unified ingestion pipeline on arbitrary repositories and documents."""
+    from .ingest.pipeline import IngestionPipeline
+    pipeline = IngestionPipeline(project_name=project_name, project_id=project_id)
+    click.echo(f"\n🚀 Running CodeGraph Ingestion Pipeline for '{project_name}'...")
+    res = pipeline.run(
+        code_dir=code,
+        prd_dir=prd,
+        adr_dir=adr,
+        runbook_dir=runbooks,
+        git_repo_path=git,
+        max_commits=max_commits
+    )
+    s = res["summary"]
+    stats = res["graph_stats"]
+    click.echo("✅ Ingestion & Auto-Linking Complete!")
+    click.echo(f"  • Code Files Processed: {s['code_files_processed']}")
+    click.echo(f"  • PRD Documents:        {s['prds_processed']}")
+    click.echo(f"  • ADR Documents:        {s['adrs_processed']}")
+    click.echo(f"  • Runbook Documents:    {s['runbooks_processed']}")
+    click.echo(f"  • Commits Ingested:     {s['commits_ingested']}")
+    click.echo(f"  • Cross Links Created:  {s['cross_links_created']}")
+    click.echo(f"  • Total Graph Nodes:    {stats['nodes']}")
+    click.echo(f"  • Total Graph Edges:    {stats['edges']}\n")
+
+
+@main.command()
 def seed():
     """Seed the knowledge graph with the PayFlow demo dataset."""
     from seed import seed_all
     seed_all()
+
 
 
 @main.command()

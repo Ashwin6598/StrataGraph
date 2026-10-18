@@ -237,8 +237,29 @@ Add to `.cursor/mcp.json` or VS Code MCP settings:
 
 Moving from local hackathon testing to enterprise cloud production requires **zero code changes**:
 
+### 1. Ingest Any Real Repository & Documentation
+Use the unified production ingestion pipeline to index an arbitrary codebase, PRDs, ADRs, and git history into FalkorDB:
+
 ```bash
-# 1. Start as a production HTTP/SSE microservice
+uv run python -m codegraph ingest \
+  --project-name "BillingService" \
+  --project-id "project:billing" \
+  --code ./src \
+  --prd ./docs/prd \
+  --adr ./docs/adr \
+  --runbooks ./docs/runbooks \
+  --git .
+```
+
+The **Auto-Linker** automatically inspects function docstrings and git commits to synthesize cross-entity links (`@implements REQ-xxx`, `@governed_by ADR-xxx`, `Fixes BUG-xxx`).
+
+### 2. Automated CI/CD Sync on PR Merge
+Add the GitHub Action in [`.github/workflows/codegraph-sync.yml`](file:///Users/ashwin/Documents/Projects/GraphHack/.github/workflows/codegraph-sync.yml) to continuously sync your graph whenever a PR merges to `main`.
+
+### 3. Deploy as a Production Microservice
+Start the server in HTTP/SSE transport mode:
+
+```bash
 MCP_TRANSPORT=streamable-http \
 MCP_HTTP_HOST=0.0.0.0 \
 MCP_HTTP_PORT=8000 \
@@ -265,11 +286,11 @@ In customer environments, clients simply point their MCP config to the URL:
 
 ## 🧪 Running Automated Tests
 
-Run the full 48-test pytest suite:
+Run the full 50-test pytest suite:
 
 ```bash
 uv run pytest -v
-# 48 passed in 0.39s
+# 50 passed in 0.48s
 ```
 
 The modular test suite in [`tests/`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/) provides comprehensive test coverage:
@@ -279,7 +300,7 @@ The modular test suite in [`tests/`](file:///Users/ashwin/Documents/Projects/Gra
 * `test_developer_tools.py`: Incident diagnostics, safe-to-change checks, 4-pillar lineage, PR diff audits
 * `test_shared_and_ingest.py`: Full-text search, N-hop neighborhood expansion, and human approval workflow
 * `test_mcp_server.py`: Async MCP 2.x server initialization, 17 tools registry, persona prompts
-* `test_cli.py`: Click CLI commands (`status`, `demo`, `seed`, `help`)
+* `test_cli.py`: Click CLI commands (`status`, `demo`, `seed`, `ingest`, `help`)
 
 ---
 
@@ -305,4 +326,6 @@ Foundational architectural decisions for every CodeGraph component are documente
 * [**ADR-006:** Human-in-the-Loop Quality Approval Gate for Operations](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/006-human-in-the-loop-approval-workflow.md)
 * [**ADR-007:** Dual-Transport Deployment Strategy (Stdio vs Streamable-HTTP)](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/007-dual-transport-deployment-strategy.md)
 * [**ADR-008:** Comprehensive Verification & Test Strategy](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/008-comprehensive-verification-and-test-strategy.md)
+* [**ADR-009:** Unified Production Ingestion Pipeline & Auto-Linker](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/009-unified-production-ingestion-pipeline.md)
+
 

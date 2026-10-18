@@ -53,3 +53,20 @@ def test_cli_seed():
 
     assert result.exit_code == 0
     assert "Successfully Seeded" in result.output
+
+
+def test_cli_ingest():
+    """Verify 'codegraph ingest' CLI runs unified ingestion on external directories."""
+    runner = CliRunner()
+    result = runner.invoke(main, [
+        "ingest",
+        "--project-name", "Test Service",
+        "--code", "demo_data/code",
+        "--prd", "demo_data/prd",
+        "--adr", "demo_data/adr"
+    ])
+
+    assert result.exit_code == 0
+    assert "Ingestion & Auto-Linking Complete" in result.output
+    assert "Code Files Processed" in result.output
+

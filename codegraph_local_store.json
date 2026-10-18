@@ -786,6 +786,164 @@
         "diff_summary": "WORKER_POOL_CONCURRENCY = 5  # Restored per ADR-002 to resolve BUG-342"
       }
     },
+    "project:enterprise": {
+      "id": "project:enterprise",
+      "label": "Project",
+      "properties": {
+        "id": "project:enterprise",
+        "name": "Test Service",
+        "description": "Automated knowledge graph for Test Service",
+        "repository": "https://github.com/organization/repo",
+        "created_at": "2025-10-01"
+      }
+    },
+    "file:fraud_detector.py": {
+      "id": "file:fraud_detector.py",
+      "label": "File",
+      "properties": {
+        "path": "demo_data/code/fraud_detector.py",
+        "filename": "fraud_detector.py",
+        "language": "python"
+      }
+    },
+    "class:fraud_detector.py:FraudDetector": {
+      "id": "class:fraud_detector.py:FraudDetector",
+      "label": "Class",
+      "properties": {
+        "id": "class:fraud_detector.py:FraudDetector",
+        "name": "FraudDetector",
+        "file_path": "demo_data/code/fraud_detector.py",
+        "line_start": 12,
+        "line_end": 74,
+        "docstring": null
+      }
+    },
+    "func:fraud_detector.py:__init__": {
+      "id": "func:fraud_detector.py:__init__",
+      "label": "Function",
+      "properties": {
+        "id": "func:fraud_detector.py:__init__",
+        "name": "__init__",
+        "class_id": "class:fraud_detector.py:FraudDetector",
+        "class_name": "FraudDetector",
+        "file_path": "demo_data/code/fraud_detector.py",
+        "signature": "__init__(self)",
+        "line_start": 21,
+        "line_end": 22,
+        "docstring": null
+      }
+    },
+    "func:fraud_detector.py:retry_with_backoff": {
+      "id": "func:fraud_detector.py:retry_with_backoff",
+      "label": "Function",
+      "properties": {
+        "id": "func:fraud_detector.py:retry_with_backoff",
+        "name": "retry_with_backoff",
+        "class_id": "class:fraud_detector.py:FraudDetector",
+        "class_name": "FraudDetector",
+        "file_path": "demo_data/code/fraud_detector.py",
+        "signature": "retry_with_backoff(self, operation, operation_name)",
+        "line_start": 24,
+        "line_end": 44,
+        "docstring": "Executes a network operation with exponential retry backoff.\nGoverned by ADR-001.\nWARNING: Reducing MAX_RETRIES below 3 violates partner SLA and causes cascade failures."
+      }
+    },
+    "func:fraud_detector.py:assess_risk": {
+      "id": "func:fraud_detector.py:assess_risk",
+      "label": "Function",
+      "properties": {
+        "id": "func:fraud_detector.py:assess_risk",
+        "name": "assess_risk",
+        "class_id": "class:fraud_detector.py:FraudDetector",
+        "class_name": "FraudDetector",
+        "file_path": "demo_data/code/fraud_detector.py",
+        "signature": "assess_risk(self, card_number, amount_cents, metadata)",
+        "line_start": 46,
+        "line_end": 74,
+        "docstring": "Calculates transaction risk score (0-100) and decides risk action.\nImplements REQ-003 (SCEN-005, SCEN-006, SCEN-007).\nGoverned by ADR-001."
+      }
+    },
+    "func:fraud_detector.py:_call_risk_engine": {
+      "id": "func:fraud_detector.py:_call_risk_engine",
+      "label": "Function",
+      "properties": {
+        "id": "func:fraud_detector.py:_call_risk_engine",
+        "name": "_call_risk_engine",
+        "class_id": "class:fraud_detector.py:FraudDetector",
+        "class_name": "FraudDetector",
+        "file_path": "demo_data/code/fraud_detector.py",
+        "signature": "_call_risk_engine()",
+        "line_start": 52,
+        "line_end": 63,
+        "docstring": null
+      }
+    },
+    "file:notification_service.py": {
+      "id": "file:notification_service.py",
+      "label": "File",
+      "properties": {
+        "path": "demo_data/code/notification_service.py",
+        "filename": "notification_service.py",
+        "language": "python"
+      }
+    },
+    "class:notification_service.py:NotificationService": {
+      "id": "class:notification_service.py:NotificationService",
+      "label": "Class",
+      "properties": {
+        "id": "class:notification_service.py:NotificationService",
+        "name": "NotificationService",
+        "file_path": "demo_data/code/notification_service.py",
+        "line_start": 10,
+        "line_end": 37,
+        "docstring": null
+      }
+    },
+    "func:notification_service.py:__init__": {
+      "id": "func:notification_service.py:__init__",
+      "label": "Function",
+      "properties": {
+        "id": "func:notification_service.py:__init__",
+        "name": "__init__",
+        "class_id": "class:notification_service.py:NotificationService",
+        "class_name": "NotificationService",
+        "file_path": "demo_data/code/notification_service.py",
+        "signature": "__init__(self)",
+        "line_start": 11,
+        "line_end": 12,
+        "docstring": null
+      }
+    },
+    "func:notification_service.py:send_webhook": {
+      "id": "func:notification_service.py:send_webhook",
+      "label": "Function",
+      "properties": {
+        "id": "func:notification_service.py:send_webhook",
+        "name": "send_webhook",
+        "class_id": "class:notification_service.py:NotificationService",
+        "class_name": "NotificationService",
+        "file_path": "demo_data/code/notification_service.py",
+        "signature": "send_webhook(self, event_type, payload)",
+        "line_start": 14,
+        "line_end": 26,
+        "docstring": "Dispatches signed webhook event to registered merchant endpoints.\nImplements REQ-006."
+      }
+    },
+    "func:notification_service.py:send_receipt": {
+      "id": "func:notification_service.py:send_receipt",
+      "label": "Function",
+      "properties": {
+        "id": "func:notification_service.py:send_receipt",
+        "name": "send_receipt",
+        "class_id": "class:notification_service.py:NotificationService",
+        "class_name": "NotificationService",
+        "file_path": "demo_data/code/notification_service.py",
+        "signature": "send_receipt(self, email, transaction_id, amount_cents)",
+        "line_start": 28,
+        "line_end": 37,
+        "docstring": "Sends email confirmation receipt to customer."
+      }
+    },
     "file:payment_service.py": {
       "id": "file:payment_service.py",
       "label": "File",
@@ -850,6 +1008,87 @@
         "line_start": 50,
         "line_end": 106,
         "docstring": "Main entry point for authorizing a customer charge.\nImplements REQ-001, REQ-002, REQ-003, REQ-005.\nCalls validate_card -> assess_risk -> execute_charge -> send_webhook."
+      }
+    },
+    "file:refund_processor.py": {
+      "id": "file:refund_processor.py",
+      "label": "File",
+      "properties": {
+        "path": "demo_data/code/refund_processor.py",
+        "filename": "refund_processor.py",
+        "language": "python"
+      }
+    },
+    "class:refund_processor.py:RefundProcessor": {
+      "id": "class:refund_processor.py:RefundProcessor",
+      "label": "Class",
+      "properties": {
+        "id": "class:refund_processor.py:RefundProcessor",
+        "name": "RefundProcessor",
+        "file_path": "demo_data/code/refund_processor.py",
+        "line_start": 13,
+        "line_end": 83,
+        "docstring": null
+      }
+    },
+    "func:refund_processor.py:__init__": {
+      "id": "func:refund_processor.py:__init__",
+      "label": "Function",
+      "properties": {
+        "id": "func:refund_processor.py:__init__",
+        "name": "__init__",
+        "class_id": "class:refund_processor.py:RefundProcessor",
+        "class_name": "RefundProcessor",
+        "file_path": "demo_data/code/refund_processor.py",
+        "signature": "__init__(self, notifier)",
+        "line_start": 20,
+        "line_end": 22,
+        "docstring": null
+      }
+    },
+    "func:refund_processor.py:validate_refund_eligibility": {
+      "id": "func:refund_processor.py:validate_refund_eligibility",
+      "label": "Function",
+      "properties": {
+        "id": "func:refund_processor.py:validate_refund_eligibility",
+        "name": "validate_refund_eligibility",
+        "class_id": "class:refund_processor.py:RefundProcessor",
+        "class_name": "RefundProcessor",
+        "file_path": "demo_data/code/refund_processor.py",
+        "signature": "validate_refund_eligibility(self, settled_timestamp)",
+        "line_start": 24,
+        "line_end": 40,
+        "docstring": "Validates whether transaction falls within the 30-day refund window.\nImplements REQ-007 (SCEN-011, SCEN-012)."
+      }
+    },
+    "func:refund_processor.py:queue_refund_job": {
+      "id": "func:refund_processor.py:queue_refund_job",
+      "label": "Function",
+      "properties": {
+        "id": "func:refund_processor.py:queue_refund_job",
+        "name": "queue_refund_job",
+        "class_id": "class:refund_processor.py:RefundProcessor",
+        "class_name": "RefundProcessor",
+        "file_path": "demo_data/code/refund_processor.py",
+        "signature": "queue_refund_job(self, order_id, amount_cents, settled_timestamp)",
+        "line_start": 42,
+        "line_end": 56,
+        "docstring": "Enqueues refund into async queue. Governed by ADR-002."
+      }
+    },
+    "func:refund_processor.py:execute_refund": {
+      "id": "func:refund_processor.py:execute_refund",
+      "label": "Function",
+      "properties": {
+        "id": "func:refund_processor.py:execute_refund",
+        "name": "execute_refund",
+        "class_id": "class:refund_processor.py:RefundProcessor",
+        "class_name": "RefundProcessor",
+        "file_path": "demo_data/code/refund_processor.py",
+        "signature": "execute_refund(self, order_id, amount_cents, settled_timestamp)",
+        "line_start": 58,
+        "line_end": 83,
+        "docstring": "Executes full refund for an order.\nValidates 30-day limit -> enqueues async job -> notifies merchant."
       }
     },
     "PRD-PAYFLOW-101": {
@@ -1175,6 +1414,96 @@
         "invariants": "- **Positive:** Reduces transaction false-drop rate by 98.4% during upstream jitter.\n- **Negative:** Adds up to 3.5 seconds of worst-case latency during complete partner outages before failing over.\n- **Critical Risk:** Modifying `retry_with_backoff` without cross-functional approval historically caused `BUG-112` and `BUG-298`."
       }
     },
+    "ADR-002": {
+      "id": "ADR-002",
+      "label": "ADR",
+      "properties": {
+        "id": "ADR-002",
+        "title": "ADR-002: Asynchronous Queuing and Concurrency for High-Volume Refunds",
+        "status": "ACCEPTED",
+        "date": "2026-01-10",
+        "context": "During high-volume sales events (such as Black Friday/Cyber Monday), merchants issue batch refund requests exceeding 500 operations per second. Synchronous HTTP execution caused gateway worker pool exhaustion, thread starvation, and cascading 504 Gateway Timeouts across the primary payment authorization flow.",
+        "decision": "1. **Asynchronous Decoupling:** The `RefundProcessor` will enqueue refund jobs into a durable distributed queue and immediately return a pending tracking token to the caller.\n2. **Worker Pool Concurrency of 5:** Queue consumers MUST run with exactly 5 concurrent workers per instance.\n   - Setting concurrency below 5 causes message accumulation, lag, and `REFUND_TIMEOUT` alerts under peak load.\n   - Setting concurrency above 10 causes banking partner API rate-limits (`HTTP 429 Too Many Requests`).\n3. **Strict 30-Day Age Check:** Refund eligibility must be checked against the settlement timestamp before queue dispatch.",
+        "consequences": "- Prevents refund spikes from impacting real-time checkout availability.\n- Requires careful worker pool tuning: decreasing concurrency below 5 was the direct root cause of incident `BUG-342`."
+      }
+    },
+    "dec:ADR-002:core": {
+      "id": "dec:ADR-002:core",
+      "label": "Decision",
+      "properties": {
+        "id": "dec:ADR-002:core",
+        "arch_id": "arch:ADR-002",
+        "adr_id": "ADR-002",
+        "title": "Decision for ADR-002: Asynchronous Queuing and Concurrency for High-Volume Refunds",
+        "statement": "1. **Asynchronous Decoupling:** The `RefundProcessor` will enqueue refund jobs into a durable distributed queue and immediately return a pending tracking token to the caller.\n2. **Worker Pool Concurrency of 5:** Queue consumers MUST run with exactly 5 concurrent workers per instance.\n   - Setting concurrency below 5 causes message accumulation, lag, and `REFUND_TIMEOUT` alerts under peak load.\n   - Setting concurrency above 10 causes banking partner API rate-limits (`HTTP 429 Too Many Requests`).\n3. **Strict 30-Day Age Check:** Refund eligibility must be checked against the settlement timestamp before queue dispatch.",
+        "rationale": "During high-volume sales events (such as Black Friday/Cyber Monday), merchants issue batch refund requests exceeding 500 operations per second. Synchronous HTTP execution caused gateway worker pool exhaustion, thread starvation, and cascading 504 Gateway Timeouts across the primary payment authorization flow.",
+        "invariants": "- Prevents refund spikes from impacting real-time checkout availability.\n- Requires careful worker pool tuning: decreasing concurrency below 5 was the direct root cause of incident `BUG-342`."
+      }
+    },
+    "timeline:commit:ac3f90f": {
+      "id": "timeline:commit:ac3f90f",
+      "label": "ChangeTimeline",
+      "properties": {
+        "id": "timeline:commit:ac3f90f",
+        "project_id": "project:test_ent",
+        "commit_hash": "ac3f90ff12c4a0980645069150e12e3a339ea25a",
+        "author": "Ashwin",
+        "timestamp": "2026-10-17T12:00:00Z",
+        "date": "2026-10-17",
+        "what_changed": "test: add comprehensive 48-test suite, ADR-008, and doc updates",
+        "why_changed": "Recorded from git commit message: test: add comprehensive 48-test suite, ADR-008, and doc updates",
+        "change_category": "ADR_ENFORCEMENT",
+        "diff_summary": "test: add comprehensive 48-test suite, ADR-008, and doc updates"
+      }
+    },
+    "timeline:commit:79f4265": {
+      "id": "timeline:commit:79f4265",
+      "label": "ChangeTimeline",
+      "properties": {
+        "id": "timeline:commit:79f4265",
+        "project_id": "project:test_ent",
+        "commit_hash": "79f426518140e626e74985e039f414ed0de69297",
+        "author": "Ashwin",
+        "timestamp": "2026-10-17T12:00:00Z",
+        "date": "2026-10-17",
+        "what_changed": "docs: create ADRs for all 7 project components and update master docs",
+        "why_changed": "Recorded from git commit message: docs: create ADRs for all 7 project components and update master docs",
+        "change_category": "ADR_ENFORCEMENT",
+        "diff_summary": "docs: create ADRs for all 7 project components and update master docs"
+      }
+    },
+    "timeline:commit:950b794": {
+      "id": "timeline:commit:950b794",
+      "label": "ChangeTimeline",
+      "properties": {
+        "id": "timeline:commit:950b794",
+        "project_id": "project:test_ent",
+        "commit_hash": "950b794e70f7f758696b425fefae874c3c8672da",
+        "author": "Ashwin",
+        "timestamp": "2026-10-17T12:00:00Z",
+        "date": "2026-10-17",
+        "what_changed": "feat: redefine graph schema to 4-pillar model with Project anchor and timeline lineage",
+        "why_changed": "Recorded from git commit message: feat: redefine graph schema to 4-pillar model with Project anchor and timeline lineage",
+        "change_category": "PRD_FEATURE",
+        "diff_summary": "feat: redefine graph schema to 4-pillar model with Project anchor and timeline lineage"
+      }
+    },
+    "timeline:commit:58c5a9b": {
+      "id": "timeline:commit:58c5a9b",
+      "label": "ChangeTimeline",
+      "properties": {
+        "id": "timeline:commit:58c5a9b",
+        "project_id": "project:test_ent",
+        "commit_hash": "58c5a9b4c86aae6509528605f75f8a0264088441",
+        "author": "Ashwin",
+        "timestamp": "2026-10-17T12:00:00Z",
+        "date": "2026-10-17",
+        "what_changed": "feat: initial implementation of CodeGraph MCP Server and Knowledge Graph",
+        "why_changed": "Recorded from git commit message: feat: initial implementation of CodeGraph MCP Server and Knowledge Graph",
+        "change_category": "PRD_FEATURE",
+        "diff_summary": "feat: initial implementation of CodeGraph MCP Server and Knowledge Graph"
+      }
+    },
     "BUG-342": {
       "id": "BUG-342",
       "label": "BugFix",
@@ -1253,234 +1582,6 @@
         "resolution_steps": "1. Refer to `ADR-001` (Fraud Risk Scoring and Mandatory Retry Ceiling).\n  2. Restore `MAX_RETRIES = 3` and `INITIAL_BACKOFF_SECONDS = 0.5`.\n  3. Run verification test suite."
       }
     },
-    "file:fraud_detector.py": {
-      "id": "file:fraud_detector.py",
-      "label": "File",
-      "properties": {
-        "path": "demo_data/code/fraud_detector.py",
-        "filename": "fraud_detector.py",
-        "language": "python"
-      }
-    },
-    "class:fraud_detector.py:FraudDetector": {
-      "id": "class:fraud_detector.py:FraudDetector",
-      "label": "Class",
-      "properties": {
-        "id": "class:fraud_detector.py:FraudDetector",
-        "name": "FraudDetector",
-        "file_path": "demo_data/code/fraud_detector.py",
-        "line_start": 12,
-        "line_end": 74,
-        "docstring": null
-      }
-    },
-    "func:fraud_detector.py:__init__": {
-      "id": "func:fraud_detector.py:__init__",
-      "label": "Function",
-      "properties": {
-        "id": "func:fraud_detector.py:__init__",
-        "name": "__init__",
-        "class_id": "class:fraud_detector.py:FraudDetector",
-        "class_name": "FraudDetector",
-        "file_path": "demo_data/code/fraud_detector.py",
-        "signature": "__init__(self)",
-        "line_start": 21,
-        "line_end": 22,
-        "docstring": null
-      }
-    },
-    "func:fraud_detector.py:retry_with_backoff": {
-      "id": "func:fraud_detector.py:retry_with_backoff",
-      "label": "Function",
-      "properties": {
-        "id": "func:fraud_detector.py:retry_with_backoff",
-        "name": "retry_with_backoff",
-        "class_id": "class:fraud_detector.py:FraudDetector",
-        "class_name": "FraudDetector",
-        "file_path": "demo_data/code/fraud_detector.py",
-        "signature": "retry_with_backoff(self, operation, operation_name)",
-        "line_start": 24,
-        "line_end": 44,
-        "docstring": "Executes a network operation with exponential retry backoff.\nGoverned by ADR-001.\nWARNING: Reducing MAX_RETRIES below 3 violates partner SLA and causes cascade failures."
-      }
-    },
-    "func:fraud_detector.py:assess_risk": {
-      "id": "func:fraud_detector.py:assess_risk",
-      "label": "Function",
-      "properties": {
-        "id": "func:fraud_detector.py:assess_risk",
-        "name": "assess_risk",
-        "class_id": "class:fraud_detector.py:FraudDetector",
-        "class_name": "FraudDetector",
-        "file_path": "demo_data/code/fraud_detector.py",
-        "signature": "assess_risk(self, card_number, amount_cents, metadata)",
-        "line_start": 46,
-        "line_end": 74,
-        "docstring": "Calculates transaction risk score (0-100) and decides risk action.\nImplements REQ-003 (SCEN-005, SCEN-006, SCEN-007).\nGoverned by ADR-001."
-      }
-    },
-    "func:fraud_detector.py:_call_risk_engine": {
-      "id": "func:fraud_detector.py:_call_risk_engine",
-      "label": "Function",
-      "properties": {
-        "id": "func:fraud_detector.py:_call_risk_engine",
-        "name": "_call_risk_engine",
-        "class_id": "class:fraud_detector.py:FraudDetector",
-        "class_name": "FraudDetector",
-        "file_path": "demo_data/code/fraud_detector.py",
-        "signature": "_call_risk_engine()",
-        "line_start": 52,
-        "line_end": 63,
-        "docstring": null
-      }
-    },
-    "file:notification_service.py": {
-      "id": "file:notification_service.py",
-      "label": "File",
-      "properties": {
-        "path": "demo_data/code/notification_service.py",
-        "filename": "notification_service.py",
-        "language": "python"
-      }
-    },
-    "class:notification_service.py:NotificationService": {
-      "id": "class:notification_service.py:NotificationService",
-      "label": "Class",
-      "properties": {
-        "id": "class:notification_service.py:NotificationService",
-        "name": "NotificationService",
-        "file_path": "demo_data/code/notification_service.py",
-        "line_start": 10,
-        "line_end": 37,
-        "docstring": null
-      }
-    },
-    "func:notification_service.py:__init__": {
-      "id": "func:notification_service.py:__init__",
-      "label": "Function",
-      "properties": {
-        "id": "func:notification_service.py:__init__",
-        "name": "__init__",
-        "class_id": "class:notification_service.py:NotificationService",
-        "class_name": "NotificationService",
-        "file_path": "demo_data/code/notification_service.py",
-        "signature": "__init__(self)",
-        "line_start": 11,
-        "line_end": 12,
-        "docstring": null
-      }
-    },
-    "func:notification_service.py:send_webhook": {
-      "id": "func:notification_service.py:send_webhook",
-      "label": "Function",
-      "properties": {
-        "id": "func:notification_service.py:send_webhook",
-        "name": "send_webhook",
-        "class_id": "class:notification_service.py:NotificationService",
-        "class_name": "NotificationService",
-        "file_path": "demo_data/code/notification_service.py",
-        "signature": "send_webhook(self, event_type, payload)",
-        "line_start": 14,
-        "line_end": 26,
-        "docstring": "Dispatches signed webhook event to registered merchant endpoints.\nImplements REQ-006."
-      }
-    },
-    "func:notification_service.py:send_receipt": {
-      "id": "func:notification_service.py:send_receipt",
-      "label": "Function",
-      "properties": {
-        "id": "func:notification_service.py:send_receipt",
-        "name": "send_receipt",
-        "class_id": "class:notification_service.py:NotificationService",
-        "class_name": "NotificationService",
-        "file_path": "demo_data/code/notification_service.py",
-        "signature": "send_receipt(self, email, transaction_id, amount_cents)",
-        "line_start": 28,
-        "line_end": 37,
-        "docstring": "Sends email confirmation receipt to customer."
-      }
-    },
-    "file:refund_processor.py": {
-      "id": "file:refund_processor.py",
-      "label": "File",
-      "properties": {
-        "path": "demo_data/code/refund_processor.py",
-        "filename": "refund_processor.py",
-        "language": "python"
-      }
-    },
-    "class:refund_processor.py:RefundProcessor": {
-      "id": "class:refund_processor.py:RefundProcessor",
-      "label": "Class",
-      "properties": {
-        "id": "class:refund_processor.py:RefundProcessor",
-        "name": "RefundProcessor",
-        "file_path": "demo_data/code/refund_processor.py",
-        "line_start": 13,
-        "line_end": 83,
-        "docstring": null
-      }
-    },
-    "func:refund_processor.py:__init__": {
-      "id": "func:refund_processor.py:__init__",
-      "label": "Function",
-      "properties": {
-        "id": "func:refund_processor.py:__init__",
-        "name": "__init__",
-        "class_id": "class:refund_processor.py:RefundProcessor",
-        "class_name": "RefundProcessor",
-        "file_path": "demo_data/code/refund_processor.py",
-        "signature": "__init__(self, notifier)",
-        "line_start": 20,
-        "line_end": 22,
-        "docstring": null
-      }
-    },
-    "func:refund_processor.py:validate_refund_eligibility": {
-      "id": "func:refund_processor.py:validate_refund_eligibility",
-      "label": "Function",
-      "properties": {
-        "id": "func:refund_processor.py:validate_refund_eligibility",
-        "name": "validate_refund_eligibility",
-        "class_id": "class:refund_processor.py:RefundProcessor",
-        "class_name": "RefundProcessor",
-        "file_path": "demo_data/code/refund_processor.py",
-        "signature": "validate_refund_eligibility(self, settled_timestamp)",
-        "line_start": 24,
-        "line_end": 40,
-        "docstring": "Validates whether transaction falls within the 30-day refund window.\nImplements REQ-007 (SCEN-011, SCEN-012)."
-      }
-    },
-    "func:refund_processor.py:queue_refund_job": {
-      "id": "func:refund_processor.py:queue_refund_job",
-      "label": "Function",
-      "properties": {
-        "id": "func:refund_processor.py:queue_refund_job",
-        "name": "queue_refund_job",
-        "class_id": "class:refund_processor.py:RefundProcessor",
-        "class_name": "RefundProcessor",
-        "file_path": "demo_data/code/refund_processor.py",
-        "signature": "queue_refund_job(self, order_id, amount_cents, settled_timestamp)",
-        "line_start": 42,
-        "line_end": 56,
-        "docstring": "Enqueues refund into async queue. Governed by ADR-002."
-      }
-    },
-    "func:refund_processor.py:execute_refund": {
-      "id": "func:refund_processor.py:execute_refund",
-      "label": "Function",
-      "properties": {
-        "id": "func:refund_processor.py:execute_refund",
-        "name": "execute_refund",
-        "class_id": "class:refund_processor.py:RefundProcessor",
-        "class_name": "RefundProcessor",
-        "file_path": "demo_data/code/refund_processor.py",
-        "signature": "execute_refund(self, order_id, amount_cents, settled_timestamp)",
-        "line_start": 58,
-        "line_end": 83,
-        "docstring": "Executes full refund for an order.\nValidates 30-day limit -> enqueues async job -> notifies merchant."
-      }
-    },
     "issue:BUG-999-TEST": {
       "id": "issue:BUG-999-TEST",
       "label": "Issue",
@@ -1529,6 +1630,17 @@
         "commit_hash": "approved_hash",
         "approved_by": "lead_reviewer",
         "approval_status": "APPROVED"
+      }
+    },
+    "project:test_ent": {
+      "id": "project:test_ent",
+      "label": "Project",
+      "properties": {
+        "id": "project:test_ent",
+        "name": "Test Enterprise Service",
+        "description": "Automated knowledge graph for Test Enterprise Service",
+        "repository": "https://github.com/organization/repo",
+        "created_at": "2025-10-01"
       }
     }
   },
@@ -2263,6 +2375,812 @@
       "from": "timeline:commit:b7c8d9e",
       "rel": "MOTIVATED_BY_FIX",
       "to": "fix:BUG-342:restore_concurrency_5",
+      "properties": {}
+    },
+    {
+      "from": "file:fraud_detector.py",
+      "rel": "ROUTED_TO_CLASS",
+      "to": "class:fraud_detector.py:FraudDetector",
+      "properties": {}
+    },
+    {
+      "from": "file:fraud_detector.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:fraud_detector.py:__init__",
+      "properties": {}
+    },
+    {
+      "from": "class:fraud_detector.py:FraudDetector",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:fraud_detector.py:__init__",
+      "properties": {}
+    },
+    {
+      "from": "file:fraud_detector.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:fraud_detector.py:retry_with_backoff",
+      "properties": {}
+    },
+    {
+      "from": "class:fraud_detector.py:FraudDetector",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:fraud_detector.py:retry_with_backoff",
+      "properties": {}
+    },
+    {
+      "from": "func:fraud_detector.py:retry_with_backoff",
+      "rel": "CALLS",
+      "to": "func_call_target:RuntimeError",
+      "properties": {
+        "callee_name": "RuntimeError"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:retry_with_backoff",
+      "rel": "CALLS",
+      "to": "func_call_target:operation",
+      "properties": {
+        "callee_name": "operation"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:retry_with_backoff",
+      "rel": "CALLS",
+      "to": "func_call_target:sleep",
+      "properties": {
+        "callee_name": "sleep"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:retry_with_backoff",
+      "rel": "CALLS",
+      "to": "func_call_target:RuntimeError",
+      "properties": {
+        "callee_name": "RuntimeError"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:retry_with_backoff",
+      "rel": "CALLS",
+      "to": "func_call_target:str",
+      "properties": {
+        "callee_name": "str"
+      }
+    },
+    {
+      "from": "file:fraud_detector.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:fraud_detector.py:assess_risk",
+      "properties": {}
+    },
+    {
+      "from": "class:fraud_detector.py:FraudDetector",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:fraud_detector.py:assess_risk",
+      "properties": {}
+    },
+    {
+      "from": "func:fraud_detector.py:assess_risk",
+      "rel": "CALLS",
+      "to": "func_call_target:retry_with_backoff",
+      "properties": {
+        "callee_name": "retry_with_backoff"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:assess_risk",
+      "rel": "CALLS",
+      "to": "func_call_target:min",
+      "properties": {
+        "callee_name": "min"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:assess_risk",
+      "rel": "CALLS",
+      "to": "func_call_target:get",
+      "properties": {
+        "callee_name": "get"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:assess_risk",
+      "rel": "CALLS",
+      "to": "func_call_target:get",
+      "properties": {
+        "callee_name": "get"
+      }
+    },
+    {
+      "from": "file:fraud_detector.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:fraud_detector.py:_call_risk_engine",
+      "properties": {}
+    },
+    {
+      "from": "class:fraud_detector.py:FraudDetector",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:fraud_detector.py:_call_risk_engine",
+      "properties": {}
+    },
+    {
+      "from": "func:fraud_detector.py:_call_risk_engine",
+      "rel": "CALLS",
+      "to": "func_call_target:min",
+      "properties": {
+        "callee_name": "min"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:_call_risk_engine",
+      "rel": "CALLS",
+      "to": "func_call_target:get",
+      "properties": {
+        "callee_name": "get"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:_call_risk_engine",
+      "rel": "CALLS",
+      "to": "func_call_target:get",
+      "properties": {
+        "callee_name": "get"
+      }
+    },
+    {
+      "from": "file:notification_service.py",
+      "rel": "ROUTED_TO_CLASS",
+      "to": "class:notification_service.py:NotificationService",
+      "properties": {}
+    },
+    {
+      "from": "file:notification_service.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:notification_service.py:__init__",
+      "properties": {}
+    },
+    {
+      "from": "class:notification_service.py:NotificationService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:notification_service.py:__init__",
+      "properties": {}
+    },
+    {
+      "from": "file:notification_service.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:notification_service.py:send_webhook",
+      "properties": {}
+    },
+    {
+      "from": "class:notification_service.py:NotificationService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:notification_service.py:send_webhook",
+      "properties": {}
+    },
+    {
+      "from": "func:notification_service.py:send_webhook",
+      "rel": "CALLS",
+      "to": "func_call_target:append",
+      "properties": {
+        "callee_name": "append"
+      }
+    },
+    {
+      "from": "file:notification_service.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:notification_service.py:send_receipt",
+      "properties": {}
+    },
+    {
+      "from": "class:notification_service.py:NotificationService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:notification_service.py:send_receipt",
+      "properties": {}
+    },
+    {
+      "from": "file:payment_service.py",
+      "rel": "ROUTED_TO_CLASS",
+      "to": "class:payment_service.py:PaymentService",
+      "properties": {}
+    },
+    {
+      "from": "file:payment_service.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:payment_service.py:__init__",
+      "properties": {}
+    },
+    {
+      "from": "class:payment_service.py:PaymentService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:payment_service.py:__init__",
+      "properties": {}
+    },
+    {
+      "from": "func:payment_service.py:__init__",
+      "rel": "CALLS",
+      "to": "func_call_target:FraudDetector",
+      "properties": {
+        "callee_name": "FraudDetector"
+      }
+    },
+    {
+      "from": "func:payment_service.py:__init__",
+      "rel": "CALLS",
+      "to": "func_call_target:NotificationService",
+      "properties": {
+        "callee_name": "NotificationService"
+      }
+    },
+    {
+      "from": "file:payment_service.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:payment_service.py:validate_card",
+      "properties": {}
+    },
+    {
+      "from": "class:payment_service.py:PaymentService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:payment_service.py:validate_card",
+      "properties": {}
+    },
+    {
+      "from": "func:payment_service.py:validate_card",
+      "rel": "CALLS",
+      "to": "func_call_target:replace",
+      "properties": {
+        "callee_name": "replace"
+      }
+    },
+    {
+      "from": "func:payment_service.py:validate_card",
+      "rel": "CALLS",
+      "to": "func_call_target:enumerate",
+      "properties": {
+        "callee_name": "enumerate"
+      }
+    },
+    {
+      "from": "func:payment_service.py:validate_card",
+      "rel": "CALLS",
+      "to": "func_call_target:int",
+      "properties": {
+        "callee_name": "int"
+      }
+    },
+    {
+      "from": "func:payment_service.py:validate_card",
+      "rel": "CALLS",
+      "to": "func_call_target:replace",
+      "properties": {
+        "callee_name": "replace"
+      }
+    },
+    {
+      "from": "func:payment_service.py:validate_card",
+      "rel": "CALLS",
+      "to": "func_call_target:isdigit",
+      "properties": {
+        "callee_name": "isdigit"
+      }
+    },
+    {
+      "from": "func:payment_service.py:validate_card",
+      "rel": "CALLS",
+      "to": "func_call_target:len",
+      "properties": {
+        "callee_name": "len"
+      }
+    },
+    {
+      "from": "file:payment_service.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:payment_service.py:authorize_payment",
+      "properties": {}
+    },
+    {
+      "from": "class:payment_service.py:PaymentService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:payment_service.py:authorize_payment",
+      "properties": {}
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func_call_target:validate_card",
+      "properties": {
+        "callee_name": "validate_card"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func_call_target:assess_risk",
+      "properties": {
+        "callee_name": "assess_risk"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func_call_target:send_webhook",
+      "properties": {
+        "callee_name": "send_webhook"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func_call_target:time",
+      "properties": {
+        "callee_name": "time"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func_call_target:int",
+      "properties": {
+        "callee_name": "int"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func_call_target:time",
+      "properties": {
+        "callee_name": "time"
+      }
+    },
+    {
+      "from": "file:refund_processor.py",
+      "rel": "ROUTED_TO_CLASS",
+      "to": "class:refund_processor.py:RefundProcessor",
+      "properties": {}
+    },
+    {
+      "from": "file:refund_processor.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:refund_processor.py:__init__",
+      "properties": {}
+    },
+    {
+      "from": "class:refund_processor.py:RefundProcessor",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:refund_processor.py:__init__",
+      "properties": {}
+    },
+    {
+      "from": "func:refund_processor.py:__init__",
+      "rel": "CALLS",
+      "to": "func_call_target:NotificationService",
+      "properties": {
+        "callee_name": "NotificationService"
+      }
+    },
+    {
+      "from": "file:refund_processor.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:refund_processor.py:validate_refund_eligibility",
+      "properties": {}
+    },
+    {
+      "from": "class:refund_processor.py:RefundProcessor",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:refund_processor.py:validate_refund_eligibility",
+      "properties": {}
+    },
+    {
+      "from": "func:refund_processor.py:validate_refund_eligibility",
+      "rel": "CALLS",
+      "to": "func_call_target:time",
+      "properties": {
+        "callee_name": "time"
+      }
+    },
+    {
+      "from": "file:refund_processor.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:refund_processor.py:queue_refund_job",
+      "properties": {}
+    },
+    {
+      "from": "class:refund_processor.py:RefundProcessor",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:refund_processor.py:queue_refund_job",
+      "properties": {}
+    },
+    {
+      "from": "func:refund_processor.py:queue_refund_job",
+      "rel": "CALLS",
+      "to": "func_call_target:append",
+      "properties": {
+        "callee_name": "append"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:queue_refund_job",
+      "rel": "CALLS",
+      "to": "func_call_target:time",
+      "properties": {
+        "callee_name": "time"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:queue_refund_job",
+      "rel": "CALLS",
+      "to": "func_call_target:int",
+      "properties": {
+        "callee_name": "int"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:queue_refund_job",
+      "rel": "CALLS",
+      "to": "func_call_target:time",
+      "properties": {
+        "callee_name": "time"
+      }
+    },
+    {
+      "from": "file:refund_processor.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:refund_processor.py:execute_refund",
+      "properties": {}
+    },
+    {
+      "from": "class:refund_processor.py:RefundProcessor",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:refund_processor.py:execute_refund",
+      "properties": {}
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func_call_target:validate_refund_eligibility",
+      "properties": {
+        "callee_name": "validate_refund_eligibility"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func_call_target:queue_refund_job",
+      "properties": {
+        "callee_name": "queue_refund_job"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func_call_target:send_webhook",
+      "properties": {
+        "callee_name": "send_webhook"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:assess_risk",
+      "rel": "CALLS",
+      "to": "func:retry_with_backoff",
+      "properties": {
+        "callee_name": "retry_with_backoff"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:validate_card",
+      "properties": {
+        "callee_name": "validate_card"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:assess_risk",
+      "properties": {
+        "callee_name": "assess_risk"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:send_webhook",
+      "properties": {
+        "callee_name": "send_webhook"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func:validate_refund_eligibility",
+      "properties": {
+        "callee_name": "validate_refund_eligibility"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func:queue_refund_job",
+      "properties": {
+        "callee_name": "queue_refund_job"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func:send_webhook",
+      "properties": {
+        "callee_name": "send_webhook"
+      }
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-001",
+      "properties": {}
+    },
+    {
+      "from": "REQ-001",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-001",
+      "properties": {}
+    },
+    {
+      "from": "REQ-001",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-002",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-002",
+      "properties": {}
+    },
+    {
+      "from": "REQ-002",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-003",
+      "properties": {}
+    },
+    {
+      "from": "REQ-002",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-004",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-003",
+      "properties": {}
+    },
+    {
+      "from": "REQ-003",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-005",
+      "properties": {}
+    },
+    {
+      "from": "REQ-003",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-006",
+      "properties": {}
+    },
+    {
+      "from": "REQ-003",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-007",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-004",
+      "properties": {}
+    },
+    {
+      "from": "REQ-004",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-008",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-005",
+      "properties": {}
+    },
+    {
+      "from": "REQ-005",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-009",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-006",
+      "properties": {}
+    },
+    {
+      "from": "REQ-006",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-010",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-007",
+      "properties": {}
+    },
+    {
+      "from": "REQ-007",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-011",
+      "properties": {}
+    },
+    {
+      "from": "REQ-007",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-012",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-008",
+      "properties": {}
+    },
+    {
+      "from": "REQ-008",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-013",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-009",
+      "properties": {}
+    },
+    {
+      "from": "REQ-009",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-014",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-010",
+      "properties": {}
+    },
+    {
+      "from": "REQ-010",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-015",
+      "properties": {}
+    },
+    {
+      "from": "ADR-001",
+      "rel": "LEADS_TO_DECISION",
+      "to": "dec:ADR-001:core",
+      "properties": {}
+    },
+    {
+      "from": "ADR-002",
+      "rel": "LEADS_TO_DECISION",
+      "to": "dec:ADR-002:core",
+      "properties": {}
+    },
+    {
+      "from": "project:enterprise",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:ac3f90f",
+      "properties": {}
+    },
+    {
+      "from": "project:enterprise",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:79f4265",
+      "properties": {}
+    },
+    {
+      "from": "project:enterprise",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:950b794",
+      "properties": {}
+    },
+    {
+      "from": "project:enterprise",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:58c5a9b",
+      "properties": {}
+    },
+    {
+      "from": "dec:ADR-001:core",
+      "rel": "CONSTRAINS_FUNCTION",
+      "to": "func:retry_with_backoff",
+      "properties": {}
+    },
+    {
+      "from": "dec:ADR-002:core",
+      "rel": "CONSTRAINS_FUNCTION",
+      "to": "func:queue_refund_job",
+      "properties": {}
+    },
+    {
+      "from": "dec:ADR-001:core",
+      "rel": "CONSTRAINS_FUNCTION",
+      "to": "func:fraud_detector.py:retry_with_backoff",
+      "properties": {}
+    },
+    {
+      "from": "REQ-003",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:fraud_detector.py:assess_risk",
+      "properties": {}
+    },
+    {
+      "from": "dec:ADR-001:core",
+      "rel": "CONSTRAINS_FUNCTION",
+      "to": "func:fraud_detector.py:assess_risk",
+      "properties": {}
+    },
+    {
+      "from": "REQ-006",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:notification_service.py:send_webhook",
+      "properties": {}
+    },
+    {
+      "from": "REQ-002",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:payment_service.py:validate_card",
+      "properties": {}
+    },
+    {
+      "from": "REQ-001",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:payment_service.py:authorize_payment",
+      "properties": {}
+    },
+    {
+      "from": "REQ-002",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:payment_service.py:authorize_payment",
+      "properties": {}
+    },
+    {
+      "from": "REQ-003",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:payment_service.py:authorize_payment",
+      "properties": {}
+    },
+    {
+      "from": "REQ-005",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:payment_service.py:authorize_payment",
+      "properties": {}
+    },
+    {
+      "from": "REQ-007",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:refund_processor.py:validate_refund_eligibility",
+      "properties": {}
+    },
+    {
+      "from": "dec:ADR-002:core",
+      "rel": "CONSTRAINS_FUNCTION",
+      "to": "func:refund_processor.py:queue_refund_job",
+      "properties": {}
+    },
+    {
+      "from": "timeline:commit:e4f5a6b",
+      "rel": "MOTIVATED_BY_ADR",
+      "to": "dec:ADR-001:core",
       "properties": {}
     },
     {
@@ -3074,6 +3992,62 @@
       }
     },
     {
+      "from": "func:fraud_detector.py:assess_risk",
+      "rel": "CALLS",
+      "to": "func:retry_with_backoff",
+      "properties": {
+        "callee_name": "retry_with_backoff"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:validate_card",
+      "properties": {
+        "callee_name": "validate_card"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:assess_risk",
+      "properties": {
+        "callee_name": "assess_risk"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:send_webhook",
+      "properties": {
+        "callee_name": "send_webhook"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func:validate_refund_eligibility",
+      "properties": {
+        "callee_name": "validate_refund_eligibility"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func:queue_refund_job",
+      "properties": {
+        "callee_name": "queue_refund_job"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func:send_webhook",
+      "properties": {
+        "callee_name": "send_webhook"
+      }
+    },
+    {
       "from": "func:payment_service.py:authorize_payment",
       "rel": "CALLS",
       "to": "func:validate_card",
@@ -3348,6 +4322,966 @@
       "properties": {
         "approval_status": "APPROVED"
       }
+    },
+    {
+      "from": "file:fraud_detector.py",
+      "rel": "ROUTED_TO_CLASS",
+      "to": "class:fraud_detector.py:FraudDetector",
+      "properties": {}
+    },
+    {
+      "from": "file:fraud_detector.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:fraud_detector.py:__init__",
+      "properties": {}
+    },
+    {
+      "from": "class:fraud_detector.py:FraudDetector",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:fraud_detector.py:__init__",
+      "properties": {}
+    },
+    {
+      "from": "file:fraud_detector.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:fraud_detector.py:retry_with_backoff",
+      "properties": {}
+    },
+    {
+      "from": "class:fraud_detector.py:FraudDetector",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:fraud_detector.py:retry_with_backoff",
+      "properties": {}
+    },
+    {
+      "from": "func:fraud_detector.py:retry_with_backoff",
+      "rel": "CALLS",
+      "to": "func_call_target:RuntimeError",
+      "properties": {
+        "callee_name": "RuntimeError"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:retry_with_backoff",
+      "rel": "CALLS",
+      "to": "func_call_target:operation",
+      "properties": {
+        "callee_name": "operation"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:retry_with_backoff",
+      "rel": "CALLS",
+      "to": "func_call_target:sleep",
+      "properties": {
+        "callee_name": "sleep"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:retry_with_backoff",
+      "rel": "CALLS",
+      "to": "func_call_target:RuntimeError",
+      "properties": {
+        "callee_name": "RuntimeError"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:retry_with_backoff",
+      "rel": "CALLS",
+      "to": "func_call_target:str",
+      "properties": {
+        "callee_name": "str"
+      }
+    },
+    {
+      "from": "file:fraud_detector.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:fraud_detector.py:assess_risk",
+      "properties": {}
+    },
+    {
+      "from": "class:fraud_detector.py:FraudDetector",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:fraud_detector.py:assess_risk",
+      "properties": {}
+    },
+    {
+      "from": "func:fraud_detector.py:assess_risk",
+      "rel": "CALLS",
+      "to": "func_call_target:retry_with_backoff",
+      "properties": {
+        "callee_name": "retry_with_backoff"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:assess_risk",
+      "rel": "CALLS",
+      "to": "func_call_target:min",
+      "properties": {
+        "callee_name": "min"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:assess_risk",
+      "rel": "CALLS",
+      "to": "func_call_target:get",
+      "properties": {
+        "callee_name": "get"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:assess_risk",
+      "rel": "CALLS",
+      "to": "func_call_target:get",
+      "properties": {
+        "callee_name": "get"
+      }
+    },
+    {
+      "from": "file:fraud_detector.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:fraud_detector.py:_call_risk_engine",
+      "properties": {}
+    },
+    {
+      "from": "class:fraud_detector.py:FraudDetector",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:fraud_detector.py:_call_risk_engine",
+      "properties": {}
+    },
+    {
+      "from": "func:fraud_detector.py:_call_risk_engine",
+      "rel": "CALLS",
+      "to": "func_call_target:min",
+      "properties": {
+        "callee_name": "min"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:_call_risk_engine",
+      "rel": "CALLS",
+      "to": "func_call_target:get",
+      "properties": {
+        "callee_name": "get"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:_call_risk_engine",
+      "rel": "CALLS",
+      "to": "func_call_target:get",
+      "properties": {
+        "callee_name": "get"
+      }
+    },
+    {
+      "from": "file:notification_service.py",
+      "rel": "ROUTED_TO_CLASS",
+      "to": "class:notification_service.py:NotificationService",
+      "properties": {}
+    },
+    {
+      "from": "file:notification_service.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:notification_service.py:__init__",
+      "properties": {}
+    },
+    {
+      "from": "class:notification_service.py:NotificationService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:notification_service.py:__init__",
+      "properties": {}
+    },
+    {
+      "from": "file:notification_service.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:notification_service.py:send_webhook",
+      "properties": {}
+    },
+    {
+      "from": "class:notification_service.py:NotificationService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:notification_service.py:send_webhook",
+      "properties": {}
+    },
+    {
+      "from": "func:notification_service.py:send_webhook",
+      "rel": "CALLS",
+      "to": "func_call_target:append",
+      "properties": {
+        "callee_name": "append"
+      }
+    },
+    {
+      "from": "file:notification_service.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:notification_service.py:send_receipt",
+      "properties": {}
+    },
+    {
+      "from": "class:notification_service.py:NotificationService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:notification_service.py:send_receipt",
+      "properties": {}
+    },
+    {
+      "from": "file:payment_service.py",
+      "rel": "ROUTED_TO_CLASS",
+      "to": "class:payment_service.py:PaymentService",
+      "properties": {}
+    },
+    {
+      "from": "file:payment_service.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:payment_service.py:__init__",
+      "properties": {}
+    },
+    {
+      "from": "class:payment_service.py:PaymentService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:payment_service.py:__init__",
+      "properties": {}
+    },
+    {
+      "from": "func:payment_service.py:__init__",
+      "rel": "CALLS",
+      "to": "func_call_target:FraudDetector",
+      "properties": {
+        "callee_name": "FraudDetector"
+      }
+    },
+    {
+      "from": "func:payment_service.py:__init__",
+      "rel": "CALLS",
+      "to": "func_call_target:NotificationService",
+      "properties": {
+        "callee_name": "NotificationService"
+      }
+    },
+    {
+      "from": "file:payment_service.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:payment_service.py:validate_card",
+      "properties": {}
+    },
+    {
+      "from": "class:payment_service.py:PaymentService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:payment_service.py:validate_card",
+      "properties": {}
+    },
+    {
+      "from": "func:payment_service.py:validate_card",
+      "rel": "CALLS",
+      "to": "func_call_target:replace",
+      "properties": {
+        "callee_name": "replace"
+      }
+    },
+    {
+      "from": "func:payment_service.py:validate_card",
+      "rel": "CALLS",
+      "to": "func_call_target:enumerate",
+      "properties": {
+        "callee_name": "enumerate"
+      }
+    },
+    {
+      "from": "func:payment_service.py:validate_card",
+      "rel": "CALLS",
+      "to": "func_call_target:int",
+      "properties": {
+        "callee_name": "int"
+      }
+    },
+    {
+      "from": "func:payment_service.py:validate_card",
+      "rel": "CALLS",
+      "to": "func_call_target:replace",
+      "properties": {
+        "callee_name": "replace"
+      }
+    },
+    {
+      "from": "func:payment_service.py:validate_card",
+      "rel": "CALLS",
+      "to": "func_call_target:isdigit",
+      "properties": {
+        "callee_name": "isdigit"
+      }
+    },
+    {
+      "from": "func:payment_service.py:validate_card",
+      "rel": "CALLS",
+      "to": "func_call_target:len",
+      "properties": {
+        "callee_name": "len"
+      }
+    },
+    {
+      "from": "file:payment_service.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:payment_service.py:authorize_payment",
+      "properties": {}
+    },
+    {
+      "from": "class:payment_service.py:PaymentService",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:payment_service.py:authorize_payment",
+      "properties": {}
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func_call_target:validate_card",
+      "properties": {
+        "callee_name": "validate_card"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func_call_target:assess_risk",
+      "properties": {
+        "callee_name": "assess_risk"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func_call_target:send_webhook",
+      "properties": {
+        "callee_name": "send_webhook"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func_call_target:time",
+      "properties": {
+        "callee_name": "time"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func_call_target:int",
+      "properties": {
+        "callee_name": "int"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func_call_target:time",
+      "properties": {
+        "callee_name": "time"
+      }
+    },
+    {
+      "from": "file:refund_processor.py",
+      "rel": "ROUTED_TO_CLASS",
+      "to": "class:refund_processor.py:RefundProcessor",
+      "properties": {}
+    },
+    {
+      "from": "file:refund_processor.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:refund_processor.py:__init__",
+      "properties": {}
+    },
+    {
+      "from": "class:refund_processor.py:RefundProcessor",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:refund_processor.py:__init__",
+      "properties": {}
+    },
+    {
+      "from": "func:refund_processor.py:__init__",
+      "rel": "CALLS",
+      "to": "func_call_target:NotificationService",
+      "properties": {
+        "callee_name": "NotificationService"
+      }
+    },
+    {
+      "from": "file:refund_processor.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:refund_processor.py:validate_refund_eligibility",
+      "properties": {}
+    },
+    {
+      "from": "class:refund_processor.py:RefundProcessor",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:refund_processor.py:validate_refund_eligibility",
+      "properties": {}
+    },
+    {
+      "from": "func:refund_processor.py:validate_refund_eligibility",
+      "rel": "CALLS",
+      "to": "func_call_target:time",
+      "properties": {
+        "callee_name": "time"
+      }
+    },
+    {
+      "from": "file:refund_processor.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:refund_processor.py:queue_refund_job",
+      "properties": {}
+    },
+    {
+      "from": "class:refund_processor.py:RefundProcessor",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:refund_processor.py:queue_refund_job",
+      "properties": {}
+    },
+    {
+      "from": "func:refund_processor.py:queue_refund_job",
+      "rel": "CALLS",
+      "to": "func_call_target:append",
+      "properties": {
+        "callee_name": "append"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:queue_refund_job",
+      "rel": "CALLS",
+      "to": "func_call_target:time",
+      "properties": {
+        "callee_name": "time"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:queue_refund_job",
+      "rel": "CALLS",
+      "to": "func_call_target:int",
+      "properties": {
+        "callee_name": "int"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:queue_refund_job",
+      "rel": "CALLS",
+      "to": "func_call_target:time",
+      "properties": {
+        "callee_name": "time"
+      }
+    },
+    {
+      "from": "file:refund_processor.py",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:refund_processor.py:execute_refund",
+      "properties": {}
+    },
+    {
+      "from": "class:refund_processor.py:RefundProcessor",
+      "rel": "CONTAINS_FUNCTION",
+      "to": "func:refund_processor.py:execute_refund",
+      "properties": {}
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func_call_target:validate_refund_eligibility",
+      "properties": {
+        "callee_name": "validate_refund_eligibility"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func_call_target:queue_refund_job",
+      "properties": {
+        "callee_name": "queue_refund_job"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func_call_target:send_webhook",
+      "properties": {
+        "callee_name": "send_webhook"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:assess_risk",
+      "rel": "CALLS",
+      "to": "func:retry_with_backoff",
+      "properties": {
+        "callee_name": "retry_with_backoff"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:validate_card",
+      "properties": {
+        "callee_name": "validate_card"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:assess_risk",
+      "properties": {
+        "callee_name": "assess_risk"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:send_webhook",
+      "properties": {
+        "callee_name": "send_webhook"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func:validate_refund_eligibility",
+      "properties": {
+        "callee_name": "validate_refund_eligibility"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func:queue_refund_job",
+      "properties": {
+        "callee_name": "queue_refund_job"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func:send_webhook",
+      "properties": {
+        "callee_name": "send_webhook"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:validate_card",
+      "properties": {
+        "callee_name": "validate_card"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:assess_risk",
+      "properties": {
+        "callee_name": "assess_risk"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:send_webhook",
+      "properties": {
+        "callee_name": "send_webhook"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:assess_risk",
+      "rel": "CALLS",
+      "to": "func:retry_with_backoff",
+      "properties": {
+        "callee_name": "retry_with_backoff"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:validate_card",
+      "properties": {
+        "callee_name": "validate_card"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:assess_risk",
+      "properties": {
+        "callee_name": "assess_risk"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:send_webhook",
+      "properties": {
+        "callee_name": "send_webhook"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func:validate_refund_eligibility",
+      "properties": {
+        "callee_name": "validate_refund_eligibility"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func:queue_refund_job",
+      "properties": {
+        "callee_name": "queue_refund_job"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func:send_webhook",
+      "properties": {
+        "callee_name": "send_webhook"
+      }
+    },
+    {
+      "from": "func:fraud_detector.py:assess_risk",
+      "rel": "CALLS",
+      "to": "func:retry_with_backoff",
+      "properties": {
+        "callee_name": "retry_with_backoff"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:validate_card",
+      "properties": {
+        "callee_name": "validate_card"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:assess_risk",
+      "properties": {
+        "callee_name": "assess_risk"
+      }
+    },
+    {
+      "from": "func:payment_service.py:authorize_payment",
+      "rel": "CALLS",
+      "to": "func:send_webhook",
+      "properties": {
+        "callee_name": "send_webhook"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func:validate_refund_eligibility",
+      "properties": {
+        "callee_name": "validate_refund_eligibility"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func:queue_refund_job",
+      "properties": {
+        "callee_name": "queue_refund_job"
+      }
+    },
+    {
+      "from": "func:refund_processor.py:execute_refund",
+      "rel": "CALLS",
+      "to": "func:send_webhook",
+      "properties": {
+        "callee_name": "send_webhook"
+      }
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-001",
+      "properties": {}
+    },
+    {
+      "from": "REQ-001",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-001",
+      "properties": {}
+    },
+    {
+      "from": "REQ-001",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-002",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-002",
+      "properties": {}
+    },
+    {
+      "from": "REQ-002",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-003",
+      "properties": {}
+    },
+    {
+      "from": "REQ-002",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-004",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-003",
+      "properties": {}
+    },
+    {
+      "from": "REQ-003",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-005",
+      "properties": {}
+    },
+    {
+      "from": "REQ-003",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-006",
+      "properties": {}
+    },
+    {
+      "from": "REQ-003",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-007",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-004",
+      "properties": {}
+    },
+    {
+      "from": "REQ-004",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-008",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-005",
+      "properties": {}
+    },
+    {
+      "from": "REQ-005",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-009",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-006",
+      "properties": {}
+    },
+    {
+      "from": "REQ-006",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-010",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-007",
+      "properties": {}
+    },
+    {
+      "from": "REQ-007",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-011",
+      "properties": {}
+    },
+    {
+      "from": "REQ-007",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-012",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-008",
+      "properties": {}
+    },
+    {
+      "from": "REQ-008",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-013",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-009",
+      "properties": {}
+    },
+    {
+      "from": "REQ-009",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-014",
+      "properties": {}
+    },
+    {
+      "from": "PRD-PAYFLOW-101",
+      "rel": "SPECIFIES_REQUIREMENT",
+      "to": "REQ-010",
+      "properties": {}
+    },
+    {
+      "from": "REQ-010",
+      "rel": "ENFORCES_GUARDRAIL",
+      "to": "SCEN-015",
+      "properties": {}
+    },
+    {
+      "from": "ADR-001",
+      "rel": "LEADS_TO_DECISION",
+      "to": "dec:ADR-001:core",
+      "properties": {}
+    },
+    {
+      "from": "ADR-002",
+      "rel": "LEADS_TO_DECISION",
+      "to": "dec:ADR-002:core",
+      "properties": {}
+    },
+    {
+      "from": "proc:RB-PAY-001:BUG-342",
+      "rel": "RESOLVED_BY_FIX",
+      "to": "BUG-342",
+      "properties": {}
+    },
+    {
+      "from": "proc:RB-PAY-001:BUG-112",
+      "rel": "RESOLVED_BY_FIX",
+      "to": "BUG-112",
+      "properties": {}
+    },
+    {
+      "from": "proc:RB-PAY-001:BUG-298",
+      "rel": "RESOLVED_BY_FIX",
+      "to": "BUG-298",
+      "properties": {}
+    },
+    {
+      "from": "project:test_ent",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:ac3f90f",
+      "properties": {}
+    },
+    {
+      "from": "project:test_ent",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:79f4265",
+      "properties": {}
+    },
+    {
+      "from": "project:test_ent",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:950b794",
+      "properties": {}
+    },
+    {
+      "from": "project:test_ent",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:58c5a9b",
+      "properties": {}
+    },
+    {
+      "from": "dec:ADR-001:core",
+      "rel": "CONSTRAINS_FUNCTION",
+      "to": "func:retry_with_backoff",
+      "properties": {}
+    },
+    {
+      "from": "dec:ADR-002:core",
+      "rel": "CONSTRAINS_FUNCTION",
+      "to": "func:queue_refund_job",
+      "properties": {}
+    },
+    {
+      "from": "dec:ADR-001:core",
+      "rel": "CONSTRAINS_FUNCTION",
+      "to": "func:fraud_detector.py:retry_with_backoff",
+      "properties": {}
+    },
+    {
+      "from": "REQ-003",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:fraud_detector.py:assess_risk",
+      "properties": {}
+    },
+    {
+      "from": "dec:ADR-001:core",
+      "rel": "CONSTRAINS_FUNCTION",
+      "to": "func:fraud_detector.py:assess_risk",
+      "properties": {}
+    },
+    {
+      "from": "REQ-006",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:notification_service.py:send_webhook",
+      "properties": {}
+    },
+    {
+      "from": "REQ-002",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:payment_service.py:validate_card",
+      "properties": {}
+    },
+    {
+      "from": "REQ-001",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:payment_service.py:authorize_payment",
+      "properties": {}
+    },
+    {
+      "from": "REQ-002",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:payment_service.py:authorize_payment",
+      "properties": {}
+    },
+    {
+      "from": "REQ-003",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:payment_service.py:authorize_payment",
+      "properties": {}
+    },
+    {
+      "from": "REQ-005",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:payment_service.py:authorize_payment",
+      "properties": {}
+    },
+    {
+      "from": "REQ-007",
+      "rel": "IMPLEMENTED_BY_FUNCTION",
+      "to": "func:refund_processor.py:validate_refund_eligibility",
+      "properties": {}
+    },
+    {
+      "from": "dec:ADR-002:core",
+      "rel": "CONSTRAINS_FUNCTION",
+      "to": "func:refund_processor.py:queue_refund_job",
+      "properties": {}
+    },
+    {
+      "from": "timeline:commit:e4f5a6b",
+      "rel": "MOTIVATED_BY_ADR",
+      "to": "dec:ADR-001:core",
+      "properties": {}
     }
   ]
 }

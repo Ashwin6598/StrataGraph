@@ -147,3 +147,24 @@ def test_record_bugfix_approval_workflow_approved():
     fix_node = db.memory_graph.nodes.get("fix:BUG-1000-TEST")
     assert fix_node is not None
     assert fix_node["properties"]["approval_status"] == "APPROVED"
+
+
+def test_unified_ingestion_pipeline():
+    """Verify unified pipeline processes arbitrary repositories, documents, and auto-links them."""
+    from codegraph.ingest.pipeline import IngestionPipeline
+    pipeline = IngestionPipeline(project_name="Test Enterprise Service", project_id="project:test_ent")
+    res = pipeline.run(
+        code_dir="demo_data/code",
+        prd_dir="demo_data/prd",
+        adr_dir="demo_data/adr",
+        runbook_dir="demo_data/runbooks",
+        git_repo_path="."
+    )
+
+    assert res["status"] == "SUCCESS"
+    s = res["summary"]
+    assert s["code_files_processed"] >= 3
+    assert s["prds_processed"] >= 1
+    assert s["adrs_processed"] >= 2
+    assert s["cross_links_created"] > 0
+
