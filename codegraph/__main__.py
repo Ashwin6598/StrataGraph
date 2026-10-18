@@ -36,16 +36,23 @@ def serve(transport: str, port: int):
 @main.command()
 @click.option("--project-name", "-n", default="Enterprise Service", help="Name of the project")
 @click.option("--project-id", "-i", default="project:enterprise", help="Unique ID of the project node")
+@click.option("--codebase-owner", default=None, help="Email of the Codebase Owner")
+@click.option("--prd-owner", default=None, help="Email of the PRD / Product Owner")
 @click.option("--code", "-c", default=None, help="Directory containing source code files")
 @click.option("--prd", default=None, help="Directory containing PRD markdown files")
 @click.option("--adr", default=None, help="Directory containing ADR markdown files")
 @click.option("--runbooks", default=None, help="Directory containing Incident Runbook markdown files")
 @click.option("--git", "-g", default=".", help="Path to git repository for commit extraction")
 @click.option("--max-commits", default=50, type=int, help="Maximum recent commits to extract")
-def ingest(project_name: str, project_id: str, code: str, prd: str, adr: str, runbooks: str, git: str, max_commits: int):
+def ingest(project_name: str, project_id: str, codebase_owner: str, prd_owner: str, code: str, prd: str, adr: str, runbooks: str, git: str, max_commits: int):
     """Run the unified ingestion pipeline on arbitrary repositories and documents."""
     from .ingest.pipeline import IngestionPipeline
-    pipeline = IngestionPipeline(project_name=project_name, project_id=project_id)
+    pipeline = IngestionPipeline(
+        project_name=project_name,
+        project_id=project_id,
+        codebase_owner=codebase_owner,
+        prd_owner=prd_owner
+    )
     click.echo(f"\n🚀 Running CodeGraph Ingestion Pipeline for '{project_name}'...")
     res = pipeline.run(
         code_dir=code,
@@ -58,6 +65,8 @@ def ingest(project_name: str, project_id: str, code: str, prd: str, adr: str, ru
     s = res["summary"]
     stats = res["graph_stats"]
     click.echo("✅ Ingestion & Auto-Linking Complete!")
+    click.echo(f"  • Codebase Owner:       {s['codebase_owner']}")
+    click.echo(f"  • PRD Owner:            {s['prd_owner']}")
     click.echo(f"  • Code Files Processed: {s['code_files_processed']}")
     click.echo(f"  • PRD Documents:        {s['prds_processed']}")
     click.echo(f"  • ADR Documents:        {s['adrs_processed']}")
@@ -108,7 +117,22 @@ def status():
     click.echo(f"  • Graph Namespace: {info['graph_name']}")
     click.echo(f"  • Nodes Indexed:   {info['node_count']}")
     click.echo(f"  • Edges Indexed:   {info['edge_count']}")
-    click.echo(f"  • MCP Transport:   {settings.mcp_transport}\n")
+    click.echo(f"  • MCP Transport:   {settings.mcp_transport}")
+
+    # Inspect Root Project Node
+    project_props = None
+    for n in db.memory_graph.nodes.values():
+        if n.get("label") == "Project":
+            project_props = n.get("properties", {})
+            break
+
+    if project_props:
+        click.echo(f"  • Project Name:    {project_props.get('name')}")
+        click.echo(f"  • Codebase Owner:  {project_props.get('codebase_owner', 'N/A')}")
+        click.echo(f"  • PRD Owner:       {project_props.get('prd_owner', 'N/A')}\n")
+    else:
+        click.echo("")
+
 
 
 @main.command()

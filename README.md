@@ -69,7 +69,7 @@ Instead of a siloed custom UI, CodeGraph is an **MCP (Model Context Protocol) Se
 
 ### 🔗 The 4-Pillar Connected Data Model
 
-All entities stem from **`Project`** and are interconnected across their lifecycle:
+All entities stem from **`Project`** (which explicitly records the **`codebase_owner`** and **`prd_owner`**) and are interconnected across their lifecycle:
 
 1. **CodeBase Chain:** `Project` ➔ `CodeInput` ➔ `LogicFlow` ➔ `Class` ➔ `Function` ➔ `CodeLogic` ➔ `CodeOutput`
 2. **PRD Chain:** `Project` ➔ `PRDInput` ➔ `FunctionalRequirement` ➔ `Guardrail` ➔ `PRDOutput`
@@ -77,11 +77,16 @@ All entities stem from **`Project`** and are interconnected across their lifecyc
 4. **Operations Chain:** `Project` ➔ `Issue` ➔ `RCA` ➔ `Fix` ➔ `OpResult`
 5. **Timeline & History:** `ChangeTimeline` records **WHAT** changed and **WHY** it changed, linked to `FunctionalRequirement`, `Decision`, and `Fix`.
 
+#### Dual-Ownership Model on `Project`:
+* **`codebase_owner`** (e.g., `payment-tech-lead@payflow.internal`): Escalation lead for architectural constraints, AST breaks, and code regressions.
+* **`prd_owner`** (e.g., `product-lead@payflow.internal`): Escalation lead for requirement coverage gaps and business guardrail failures.
+
 #### Cross-Entity Interlinks:
 * **Code is built from ADR:** `Decision` ➔ `CONSTRAINS_FUNCTION` / `ENFORCED_IN_CODE_LOGIC` ➔ `Function` / `CodeLogic`
 * **ADR is built from PRD:** `FunctionalRequirement` ➔ `DRIVES_ADR_REQUIREMENT` ➔ `ADRRequirement`, `Guardrail` ➔ `JUSTIFIES_DECISION` ➔ `Decision`
 * **Code implements PRD:** `FunctionalRequirement` ➔ `IMPLEMENTED_BY_FUNCTION` ➔ `Function`, `Guardrail` ➔ `VERIFIED_BY_LOGIC` ➔ `CodeLogic`
 * **Operations fixes the CodeBase:** `Issue` ➔ `MANIFESTED_IN_FUNCTION`, `Issue` ➔ `VIOLATED_DECISION`, `Fix` ➔ `MODIFIES_CODE_LOGIC` / `FIXES_FUNCTION`
+
 
 ---
 
@@ -306,17 +311,18 @@ When an AI agent or engineer fixes an incident via `record_bugfix()`, unapproved
 
 ## 🧪 Running Automated Tests
 
-Run the full 63-test pytest suite:
+Run the full 68-test pytest suite:
 
 ```bash
 uv run pytest -v
-# 63 passed in 0.56s
+# 68 passed in 0.59s
 ```
 
 The modular test suite in [`tests/`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/) provides comprehensive test coverage:
 * `test_db_engine.py`: Graph database engine, CRUD, neighbor traversal, and fallback storage
 * `test_parsers.py`: Multi-language code parser (Python AST, TypeScript, Go), document converter (HTML, JSON/Jira, Markdown, Plain Text), PRD & ADR parsers, runbooks
 * `test_email_approval.py`: Code Domain Owner resolution (.github/CODEOWNERS), email dispatch, token verification, and DB ingestion
+* `test_project_owners.py`: Project dual-ownership model (`codebase_owner` & `prd_owner`), pipeline ingestion, and status CLI
 * `test_product_tools.py`: PRD compliance metrics, plain-English scenario simulation, change timeline
 * `test_developer_tools.py`: Incident diagnostics, safe-to-change checks, 4-pillar lineage, PR diff audits
 * `test_shared_and_ingest.py`: Full-text search, N-hop neighborhood expansion, unified pipeline, approval workflow
@@ -350,6 +356,8 @@ Foundational architectural decisions for every CodeGraph component are documente
 * [**ADR-009:** Unified Production Ingestion Pipeline & Auto-Linker](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/009-unified-production-ingestion-pipeline.md)
 * [**ADR-010:** Multi-Format Enterprise Document & Polyglot Ingestion Adapter](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/010-multi-format-enterprise-document-and-polyglot-ingestion.md)
 * [**ADR-011:** Code Domain Owner Email Approval & Ingestion Workflow](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/011-domain-owner-email-approval-and-ingestion-flow.md)
+* [**ADR-012:** Project Entity Dual-Ownership Model (Codebase & PRD Owner)](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/012-project-entity-dual-ownership-model.md)
+
 
 
 

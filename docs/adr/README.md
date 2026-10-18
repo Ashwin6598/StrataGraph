@@ -19,6 +19,7 @@ This directory documents all foundational architectural decisions made for the *
 | [**ADR-009**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/009-unified-production-ingestion-pipeline.md) | Unified Production Ingestion Pipeline & Auto-Linker | Production Ingestion (`codegraph/ingest/pipeline.py`) | `ACCEPTED` | 2026-10-18 |
 | [**ADR-010**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/010-multi-format-enterprise-document-and-polyglot-ingestion.md) | Multi-Format Enterprise Document & Polyglot Ingestion Adapter | Multi-Format Adapter (`codegraph/ingest/document_converter.py`) | `ACCEPTED` | 2026-10-18 |
 | [**ADR-011**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/011-domain-owner-email-approval-and-ingestion-flow.md) | Code Domain Owner Email Approval & Ingestion Workflow | Approval & Notification Layer (`codegraph/approval_service.py`) | `ACCEPTED` | 2026-10-18 |
+| [**ADR-012**](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/012-project-entity-dual-ownership-model.md) | Project Entity Dual-Ownership Model (Codebase & PRD Owner) | Root Anchor Schema (`codegraph/schema.py`) | `ACCEPTED` | 2026-10-18 |
 
 ---
 

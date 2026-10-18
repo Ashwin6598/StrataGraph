@@ -33,7 +33,9 @@ def seed_all():
         name="PayFlow Payment Gateway",
         description="Enterprise payment orchestration platform handling card authorizations, fraud analysis, and asynchronous refunds.",
         repository="https://github.com/payflow/payflow-core",
-        created_at="2025-10-01"
+        created_at="2025-10-01",
+        codebase_owner="payment-tech-lead@payflow.internal",
+        prd_owner="product-lead@payflow.internal"
     )
     db.create_node(project_id, "Project", project.model_dump())
     print(f"📦 Created Root Project: {project.name}")

@@ -22,6 +22,9 @@ class ProjectNode(BaseModel):
     description: str
     repository: str = "https://github.com/payflow/payflow-core"
     created_at: str = "2025-10-01"
+    codebase_owner: str = "payment-tech-lead@payflow.internal"
+    prd_owner: str = "product-lead@payflow.internal"
+
 
 
 # File and document artifact models
