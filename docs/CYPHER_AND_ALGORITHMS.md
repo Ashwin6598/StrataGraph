@@ -1,7 +1,7 @@
 # 📐 Cypher Queries and Graph Algorithms
 
 > **StrataGraph Technical Reference Manual**  
-> **Target Graph Engine**: FalkorDB (SuiteSparse:GraphBLAS) with Deterministic In-Memory Fallback  
+> **Target Graph Engine**: FalkorDB (SuiteSparse:GraphBLAS)  
 
 ---
 
@@ -45,7 +45,7 @@ flowchart LR
 ---
 
 ### 2. Bounded Breadth-First Search (BFS) with Cycle Avoidance
-- **Component**: [`LocalMemoryGraph.get_neighbors()`](../codegraph/db.py) and [`get_related_entities()`](../codegraph/tools/shared_tools.py).
+- **Component**: [`GraphDatabase.get_neighbors()`](../codegraph/db.py) and [`get_related_entities()`](../codegraph/tools/shared_tools.py).
 - **Algorithm Description**: 
   - Expands an $N$-hop neighborhood ($1 \le N \le 5$) starting from any arbitrary node.
   - Maintains a FIFO traversal queue and a `visited: Set[str]` tracking visited node identifiers to avoid infinite loops on circular call graphs or recursive requirement dependencies.

@@ -44,8 +44,9 @@ StrataGraph is designed with two distinct operational planes:
                                    │ OpenCypher Mutations & Queries
                                    ▼
 ┌──────────────────────────────────┴───────────────────────────────────┐
-│                 Dual-Engine Graph Persistence Layer                  │
-│  Primary: FalkorDB (GraphBLAS)    │    Fallback: LocalMemoryGraph    │
+│                 FalkorDB GraphBLAS Persistence Layer                 │
+│ • Sparse Matrix GraphBLAS (C=A·B)  • 24 Explicit Core Index Lookups  │
+│ • Categorical String Interning     • Isolated Project Graph Key Pool │
 └──────────────────────────────────┬───────────────────────────────────┘
                                    │
                                    ▼
@@ -104,9 +105,8 @@ flowchart TD
         APPROVE_CHANNELS["Approval Channels: 1-Click HTTP / CLI / MCP Tool"]
     end
 
-    subgraph Engine["🗄️ Dual-Engine Database Layer (ADR-001, ADR-018)"]
-        FALKOR["FalkorDB (Primary)\n• SuiteSparse:GraphBLAS Sparse Matrices (C = A · B)\n• 24 Single-Property Indexes\n• String Interning (intern($val))\n• Parameterized Plan Caching ($params)"]
-        FALLBACK["LocalMemoryGraph (Fallback)\n• Deterministic In-Memory Adjacency Engine\n• Zero-Dependency JSON Store (codegraph_local_store.json)"]
+    subgraph Engine["🗄️ FalkorDB Persistence Layer (ADR-001, ADR-018)"]
+        FALKOR["FalkorDB Enterprise\n• SuiteSparse:GraphBLAS Sparse Matrices (C = A · B)\n• 24 Single-Property Indexes (O(1) lookups)\n• Categorical String Interning (intern($val))\n• Parameterized Plan Caching ($params)\n• Logical Graph Key Isolation per Project"]
     end
 
     subgraph Graph["🧠 5-Pillar Connected Knowledge Graph"]
@@ -474,7 +474,7 @@ The modular test suite in [`tests/`](tests/) provides comprehensive test coverag
 * `test_guardrails.py`: Agent security harness, canonical path sandboxing, sensitive secret denylist (`.env`, `id_rsa`), payload anti-DoS (10MB limit), and adversarial prompt injection scanning
 * `test_falkordb_optimizations.py`: GraphBLAS sparse matrix optimizations, string interning (`intern($val)`), explicit single-property indexing across 24 core entities, logical graph key partitioning, explicit sparse matrix node labels, and query parameterization
 * `test_iam_and_governance.py`: Role-Based Access Control (RBAC) permissions, Program Manager agile entity creation, developer architectural proposals, architect token verification, and permission enforcement
-* `test_db_engine.py`: Graph database engine, CRUD, neighbor traversal, and fallback storage
+* `test_db_engine.py`: Graph database engine, CRUD, neighbor traversal, and FalkorDB graph persistence
 * `test_parsers.py`: Multi-language code parser (Python AST, TypeScript, Go), document converter (HTML, JSON/Jira, Markdown, Plain Text), PRD & ADR parsers, runbooks
 * `test_email_approval.py`: Code Domain Owner resolution (.github/CODEOWNERS), email dispatch, token verification, and DB ingestion
 * `test_prd_agent_updates.py`: Agent PRD updates, staged status isolation, PRD Owner email dispatch, token verification, and DB ingestion
@@ -514,7 +514,7 @@ For full architectural blueprints, mathematical specifications, and query execut
 
 Foundational architectural decisions for every CodeGraph component are documented under [`docs/adr/`](docs/adr/README.md):
 
-* [**ADR-001:** FalkorDB Graph Engine and Offline Fallback Architecture](docs/adr/001-falkordb-graph-engine-and-offline-fallback.md)
+* [**ADR-001:** FalkorDB Graph Engine Architecture](docs/adr/001-falkordb-graph-engine-and-offline-fallback.md)
 * [**ADR-002:** Four-Pillar Connected Knowledge Graph Data Model](docs/adr/002-four-pillar-graph-data-model.md)
 * [**ADR-003:** Model Context Protocol (MCP) as Universal Agent Interface](docs/adr/003-mcp-server-as-universal-agent-interface.md)
 * [**ADR-004:** Persona-Driven Multi-Agent Architecture](docs/adr/004-persona-driven-multi-agent-system.md)

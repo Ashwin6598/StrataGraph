@@ -55,7 +55,7 @@ def query_program_delivery_status(
     features_found = []
     stories_found = []
 
-    # Local memory graph traversal fallback
+    # Graph traversal
     for neighbor in db.get_neighbors(project_id, direction="outgoing"):
         if neighbor.get("relationship") == Relationships.HAS_EPIC:
             e_node = neighbor.get("node", {})

@@ -8,7 +8,7 @@ This directory documents all foundational architectural decisions made for the *
 
 | ADR ID | Title | Component | Status | Date |
 |---|---|---|---|---|
-| [**ADR-001**](001-falkordb-graph-engine-and-offline-fallback.md) | FalkorDB Graph Engine and Offline Fallback Architecture | Database & Storage Layer (`codegraph/db.py`) | `ACCEPTED` | 2026-10-17 |
+| [**ADR-001**](001-falkordb-graph-engine-and-offline-fallback.md) | FalkorDB Graph Engine Architecture | Database & Storage Layer (`codegraph/db.py`) | `ACCEPTED` | 2026-10-17 |
 | [**ADR-002**](002-four-pillar-graph-data-model.md) | Four-Pillar Connected Knowledge Graph Data Model | Schema & Domain Model (`codegraph/schema.py`) | `ACCEPTED` | 2026-10-17 |
 | [**ADR-003**](003-mcp-server-as-universal-agent-interface.md) | Model Context Protocol (MCP) as Universal Agent Interface | Interface Layer (`codegraph/mcp_server.py`) | `ACCEPTED` | 2026-10-17 |
 | [**ADR-004**](004-persona-driven-multi-agent-system.md) | Persona-Driven Multi-Agent Architecture | Tool & Persona Layer (`codegraph/tools/`) | `ACCEPTED` | 2026-10-17 |

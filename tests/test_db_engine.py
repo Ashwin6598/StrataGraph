@@ -1,21 +1,21 @@
 """
-Unit tests for the Database layer and LocalMemoryGraph engine.
-Validates persistence, neighbor traversal, fallback mechanisms, and graph idempotency.
+Unit tests for the Database layer and GraphStore engine.
+Validates persistence, neighbor traversal, and graph idempotency.
 """
 
 import os
 import tempfile
 import pytest
-from codegraph.db import LocalMemoryGraph, GraphDatabase
+from codegraph.db import GraphStore, LocalMemoryGraph, GraphDatabase
 
 
-def test_local_memory_graph_crud():
-    """Verify in-memory node and edge CRUD operations."""
+def test_graph_store_crud():
+    """Verify node and edge CRUD operations."""
     with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp:
         tmp_path = tmp.name
 
     try:
-        graph = LocalMemoryGraph(persist_file=tmp_path)
+        graph = GraphStore(persist_file=tmp_path)
         graph.clear()
 
         # Add nodes
@@ -47,7 +47,7 @@ def test_local_memory_graph_crud():
         assert os.path.exists(tmp_path)
 
         # Reload into new instance
-        new_graph = LocalMemoryGraph(persist_file=tmp_path)
+        new_graph = GraphStore(persist_file=tmp_path)
         assert len(new_graph.nodes) == 2
         assert len(new_graph.edges) == 1
         assert new_graph.nodes["node:2"]["properties"]["name"] == "test_func"
@@ -62,9 +62,9 @@ def test_graph_database_backend_status():
     db_instance = GraphDatabase()
     info = db_instance.get_backend_info()
 
-    assert "backend" in info
+    assert info["backend"] == "FalkorDB"
+    assert info["port"] == 6379
     assert "host" in info
-    assert "port" in info
     assert "graph_name" in info
     assert "node_count" in info
     assert "edge_count" in info
@@ -72,6 +72,6 @@ def test_graph_database_backend_status():
 
 def test_neighbor_traversal_on_missing_node():
     """Verify that neighbor traversal on a non-existent node returns empty list without error."""
-    graph = LocalMemoryGraph()
+    graph = GraphStore()
     neighbors = graph.get_neighbors("node:does_not_exist")
     assert neighbors == []

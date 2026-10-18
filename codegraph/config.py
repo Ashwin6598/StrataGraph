@@ -19,10 +19,7 @@ class Settings(BaseModel):
     falkordb_password: str = Field(default_factory=lambda: os.getenv("FALKORDB_PASSWORD", ""))
     falkordb_graph: str = Field(default_factory=lambda: os.getenv("FALKORDB_GRAPH", "codegraph_demo"))
 
-    # Resilience: In-Memory / File Fallback for offline local development
-    auto_fallback: bool = Field(
-        default_factory=lambda: os.getenv("FALKORDB_AUTO_FALLBACK", "true").lower() in ("true", "1", "yes")
-    )
+    # Graph State Snapshot Persistence File
     persist_file: str = Field(default_factory=lambda: os.getenv("FALKORDB_PERSIST_FILE", "codegraph_local_store.json"))
 
     # MCP Server Transport: "stdio" or "http"

@@ -26,7 +26,7 @@ We implement a zero-dependency, unified production orchestrator (`codegraph/inge
    - Scans function and class docstrings for requirement tags (e.g. `Implements REQ-xxx`), ADR tags (e.g. `Governed by ADR-xxx`), and incident tags (e.g. `caused BUG-xxx`).
    - Automatically generates the corresponding graph relationships (`IMPLEMENTED_BY_FUNCTION`, `CONSTRAINS_FUNCTION`, `MANIFESTED_IN_FUNCTION`).
    - Analyzes commit messages to link `ChangeTimeline` entries to their motivating PRD, ADR, or BugFix nodes (`MOTIVATED_BY_PRD`, `MOTIVATED_BY_ADR`, `MOTIVATED_BY_FIX`).
-4. **Environment-Only Configuration:** Transitioning from local fallback to enterprise cloud FalkorDB clusters requires zero code changes—only updating `FALKORDB_HOST`, `FALKORDB_PORT`, and `FALKORDB_PASSWORD`.
+4. **Environment-Only Configuration:** Transitioning to enterprise cloud FalkorDB clusters requires zero code changes—only updating `FALKORDB_HOST`, `FALKORDB_PORT`, and `FALKORDB_PASSWORD`.
 
 ## Consequences
 

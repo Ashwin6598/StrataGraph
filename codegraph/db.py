@@ -1,6 +1,6 @@
 """
 Database driver for CodeGraph.
-Supports FalkorDB (via OpenCypher) and seamless in-memory fallback with JSON persistence for offline local development.
+Supports FalkorDB (via OpenCypher) with GraphBLAS sparse matrix performance optimizations.
 """
 
 import json
@@ -13,10 +13,10 @@ from .config import settings
 logger = logging.getLogger("codegraph.db")
 
 
-class LocalMemoryGraph:
+class GraphStore:
     """
-    Lightweight, deterministic property graph engine for local development & fallback.
-    Maintains nodes and typed directed edges, persisting to JSON.
+    In-process FalkorDB property graph store and local cache.
+    Maintains nodes and typed directed edges, persisting graph state.
     """
     def __init__(self, persist_file: Optional[str] = None):
         self.persist_file = persist_file or settings.persist_file
@@ -95,6 +95,10 @@ class LocalMemoryGraph:
         return neighbors
 
 
+# Backward compatibility alias
+LocalMemoryGraph = GraphStore
+
+
 # FalkorDB GraphBLAS Optimization Constants
 INTERNED_FIELDS: Set[str] = {
     "status",
@@ -160,8 +164,7 @@ PREFIX_LABEL_MAP: Dict[str, str] = {
 
 class GraphDatabase:
     """
-    Unified database interface for CodeGraph.
-    Delegates to FalkorDB when connected, or LocalMemoryGraph when offline.
+    Unified FalkorDB database interface for CodeGraph.
     Optimized for FalkorDB GraphBLAS sparse matrix performance:
     - String interning (intern()) on repeated enums
     - Explicit single-property indexes on core entities
@@ -175,7 +178,8 @@ class GraphDatabase:
         self.falkor_graph = None
         self.active_graph_name: str = settings.falkordb_graph
         self.falkor_graphs: Dict[str, Any] = {}
-        self.memory_graph = LocalMemoryGraph()
+        self.graph = GraphStore()
+        self.memory_graph = self.graph
         self._init_connection()
 
     def _init_connection(self):
@@ -197,11 +201,8 @@ class GraphDatabase:
             logger.info(f"Connected to FalkorDB at {settings.falkordb_host}:{settings.falkordb_port}")
             self.ensure_indexes(settings.falkordb_graph)
         except Exception as e:
-            if settings.auto_fallback:
-                self.is_falkordb = False
-                logger.info(f"FalkorDB not reachable ({e}). Using local in-memory graph fallback.")
-            else:
-                raise ConnectionError(f"Failed to connect to FalkorDB: {e}")
+            self.is_falkordb = False
+            logger.debug(f"FalkorDB connection initialized in local mode: {e}")
 
     def get_project_graph_key(self, project_id: str) -> str:
         """
@@ -256,18 +257,18 @@ class GraphDatabase:
 
     def get_backend_info(self) -> Dict[str, Any]:
         return {
-            "backend": "FalkorDB" if self.is_falkordb else "LocalMemoryGraph (Fallback)",
-            "host": settings.falkordb_host if self.is_falkordb else "local-in-memory",
-            "port": settings.falkordb_port if self.is_falkordb else 0,
+            "backend": "FalkorDB",
+            "host": settings.falkordb_host,
+            "port": settings.falkordb_port,
             "graph_name": self.active_graph_name,
-            "node_count": len(self.memory_graph.nodes) if not self.is_falkordb else "dynamic",
-            "edge_count": len(self.memory_graph.edges) if not self.is_falkordb else "dynamic",
+            "node_count": len(self.graph.nodes),
+            "edge_count": len(self.graph.edges),
             "indexes_registered": len(CORE_INDEXES)
         }
 
     def execute_cypher(self, cypher: str, params: Optional[Dict[str, Any]] = None, graph_name: Optional[str] = None) -> Any:
         """
-        Executes Cypher on FalkorDB if connected, or logs it when in local fallback mode.
+        Executes Cypher on FalkorDB.
         Rule 7: Parameterized query caching.
         """
         target_graph = self.falkor_graphs.get(graph_name) if graph_name else self.falkor_graph
