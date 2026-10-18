@@ -44,7 +44,10 @@
         "title": "Card Payment Authorization",
         "description": "Authorize payment transactions securely with tokenized card details and enforce transaction limits.",
         "priority": "CRITICAL",
-        "status": "IMPLEMENTED"
+        "status": "IMPLEMENTED",
+        "approval_token": null,
+        "prd_owner_email": null,
+        "approved_by": null
       }
     },
     "req:REQ-002": {
@@ -56,7 +59,10 @@
         "title": "Expiry & Luhn Card Validation",
         "description": "Validate card expiration date and Luhn checksum before forwarding to external payment rails.",
         "priority": "CRITICAL",
-        "status": "IMPLEMENTED"
+        "status": "IMPLEMENTED",
+        "approval_token": null,
+        "prd_owner_email": null,
+        "approved_by": null
       }
     },
     "req:REQ-003": {
@@ -68,7 +74,10 @@
         "title": "Real-Time ML Fraud Risk Assessment",
         "description": "Evaluate transaction risk score between 0 and 100 before capturing charges.",
         "priority": "HIGH",
-        "status": "IMPLEMENTED"
+        "status": "IMPLEMENTED",
+        "approval_token": null,
+        "prd_owner_email": null,
+        "approved_by": null
       }
     },
     "req:REQ-004": {
@@ -80,7 +89,10 @@
         "title": "Multi-Currency Dynamic Currency Conversion (DCC)",
         "description": "Allow cross-border buyers to pay in their local home currency with dynamic FX spread calculation.",
         "priority": "MEDIUM",
-        "status": "PENDING_DEV"
+        "status": "PENDING_DEV",
+        "approval_token": null,
+        "prd_owner_email": null,
+        "approved_by": null
       }
     },
     "req:REQ-005": {
@@ -92,7 +104,10 @@
         "title": "Idempotent Payment Submission",
         "description": "Repeated requests with duplicate Idempotency-Key return cached results without double charging.",
         "priority": "HIGH",
-        "status": "IMPLEMENTED"
+        "status": "IMPLEMENTED",
+        "approval_token": null,
+        "prd_owner_email": null,
+        "approved_by": null
       }
     },
     "req:REQ-006": {
@@ -104,7 +119,10 @@
         "title": "Asynchronous Webhook Event Delivery",
         "description": "Dispatch signed JSON webhooks to merchant endpoints upon status transitions.",
         "priority": "HIGH",
-        "status": "IMPLEMENTED"
+        "status": "IMPLEMENTED",
+        "approval_token": null,
+        "prd_owner_email": null,
+        "approved_by": null
       }
     },
     "req:REQ-007": {
@@ -116,7 +134,10 @@
         "title": "Full Refund Processing with 30-Day Window",
         "description": "Issue 100% full refunds against settled transactions within 30 days of the original settlement date.",
         "priority": "HIGH",
-        "status": "IMPLEMENTED"
+        "status": "IMPLEMENTED",
+        "approval_token": null,
+        "prd_owner_email": null,
+        "approved_by": null
       }
     },
     "req:REQ-008": {
@@ -128,7 +149,10 @@
         "title": "Partial Refund Support",
         "description": "Allow merchants to refund arbitrary line items or portions up to the remaining unrefunded balance.",
         "priority": "LOW",
-        "status": "PENDING_DEV"
+        "status": "PENDING_DEV",
+        "approval_token": null,
+        "prd_owner_email": null,
+        "approved_by": null
       }
     },
     "req:REQ-010": {
@@ -140,7 +164,10 @@
         "title": "High-Concurrency Rate Limiting & Retry Backoff",
         "description": "Throttle downstream requests to avoid partner 429 rejections using exponential backoff.",
         "priority": "HIGH",
-        "status": "IMPLEMENTED"
+        "status": "IMPLEMENTED",
+        "approval_token": null,
+        "prd_owner_email": null,
+        "approved_by": null
       }
     },
     "guardrail:card_luhn_and_expiry": {
@@ -808,17 +835,17 @@
         "diff_summary": "WORKER_POOL_CONCURRENCY = 5  # Restored per ADR-002 to resolve BUG-342"
       }
     },
-    "project:enterprise": {
-      "id": "project:enterprise",
+    "project:custom_ingest": {
+      "id": "project:custom_ingest",
       "label": "Project",
       "properties": {
-        "id": "project:enterprise",
-        "name": "Test Service",
-        "description": "Automated knowledge graph for Test Service",
+        "id": "project:custom_ingest",
+        "name": "Custom Ingestion Service",
+        "description": "Automated knowledge graph for Custom Ingestion Service",
         "repository": "https://github.com/organization/repo",
         "created_at": "2025-10-01",
-        "codebase_owner": "payment-tech-lead@payflow.internal",
-        "prd_owner": "product-lead@payflow.internal"
+        "codebase_owner": "arch-lead@custom.internal",
+        "prd_owner": "platform-pm@custom.internal"
       }
     },
     "file:fraud_detector.py": {
@@ -1143,356 +1170,33 @@
         "domain_owner": null
       }
     },
-    "PRD-PAYFLOW-101": {
-      "id": "PRD-PAYFLOW-101",
-      "label": "PRD",
+    "project:cli_test": {
+      "id": "project:cli_test",
+      "label": "Project",
       "properties": {
-        "id": "PRD-PAYFLOW-101",
-        "title": "PayFlow Core Payment Processing Gateway",
-        "version": "1.2",
-        "author": "Sarah Jenkins (Principal Product Manager)",
-        "status": "APPROVED",
-        "created_at": null,
-        "raw_content": "# PRD: PayFlow Core Payment Processing Gateway\n\n- **Document ID:** PRD-PAYFLOW-101\n- **Title:** PayFlow Core Payment Processing Gateway\n- **Version:** 1.2\n- **Status:** APPROVED\n- **Author:** Sarah Jenkins (Principal Product Manager)\n- **Last Updated:** 2026-03-15\n\n---\n\n## 1. Overview\nPayFlow is an enterprise payment processing gateway handling credit card authorizations, fraud evaluations, webhooks, and refund lifecycle operations.\n\n---\n\n## 2. Requirements & Scenarios\n\n### REQ-001: Card Payment Authorization\n- **Priority:** CRITICAL\n- **Status:** IMPLEMENTED\n- **Description:** The system must authorize payment transactions securely with tokenized card details and enforce strict transaction limits.\n- **Scenarios:**\n  - **SCEN-001:** Standard Visa/Mastercard payment with valid balance authorizes and returns HTTP 200 with transaction token.\n  - **SCEN-002:** Payment exceeding user limit returns `TRANSACTION_LIMIT_EXCEEDED` and aborts before charging.\n\n### REQ-002: Expiry & Luhn Card Validation\n- **Priority:** CRITICAL\n- **Status:** IMPLEMENTED\n- **Description:** All incoming payment requests must validate card number checksum (Luhn algorithm) and card expiration dates prior to contacting payment networks.\n- **Scenarios:**\n  - **SCEN-003:** Card with past expiration month/year returns `CARD_EXPIRED` at validation stage with zero bank fees incurred.\n  - **SCEN-004:** Malformed card number failing checksum returns `INVALID_CARD_NUMBER`.\n\n### REQ-003: Real-Time ML Fraud Risk Assessment\n- **Priority:** HIGH\n- **Status:** IMPLEMENTED\n- **Description:** Every transaction must pass through the fraud detection engine to receive a risk score between 0 and 100 before capture.\n- **Scenarios:**\n  - **SCEN-005:** Risk score under 50 passes without challenge.\n  - **SCEN-006:** Risk score 50 to 85 triggers 3D-Secure secondary challenge.\n  - **SCEN-007:** Risk score above 85 returns `FRAUD_RISK_REJECTED` and freezes transaction.\n\n### REQ-004: Multi-Currency Dynamic Currency Conversion (DCC)\n- **Priority:** MEDIUM\n- **Status:** PENDING_DEV\n- **Description:** Allow cross-border buyers to pay in their local home currency with real-time foreign exchange spread calculation.\n- **Scenarios:**\n  - **SCEN-008:** Buyer paying in GBP for EUR item receives live spot rate plus 1.5% markup.\n\n### REQ-005: Idempotent Payment Submission\n- **Priority:** HIGH\n- **Status:** IMPLEMENTED\n- **Description:** Repeated payment requests bearing the same `Idempotency-Key` within 24 hours must return identical cached responses without double-charging.\n- **Scenarios:**\n  - **SCEN-009:** Network retry with duplicate key returns original transaction ID and status `SUCCESS`.\n\n### REQ-006: Asynchronous Webhook Event Delivery\n- **Priority:** HIGH\n- **Status:** IMPLEMENTED\n- **Description:** Dispatch signed JSON webhooks to merchant endpoints upon status transitions (`payment.authorized`, `payment.failed`, `refund.processed`).\n- **Scenarios:**\n  - **SCEN-010:** Merchant webhook endpoint unreachable initiates exponential backoff delivery.\n\n### REQ-007: Full Refund Processing with 30-Day Window\n- **Priority:** HIGH\n- **Status:** IMPLEMENTED\n- **Description:** Merchants can issue 100% full refunds against settled transactions within 30 days of the original settlement date.\n- **Scenarios:**\n  - **SCEN-011:** Refund requested on day 14 settles successfully and transitions order to `REFUNDED`.\n  - **SCEN-012:** Refund requested after 30 days is rejected with error `REFUND_WINDOW_EXPIRED`.\n\n### REQ-008: Partial Refund Support\n- **Priority:** LOW\n- **Status:** PENDING_DEV\n- **Description:** Allow merchants to refund arbitrary line items or portions of an order up to the remaining unrefunded balance.\n- **Scenarios:**\n  - **SCEN-013:** Refunding $30 of a $100 order keeps $70 captured and allows subsequent refunds up to $70.\n\n### REQ-009: Dispute & Chargeback Lifecycle Management\n- **Priority:** MEDIUM\n- **Status:** IMPLEMENTED\n- **Description:** Ingest bank chargeback notices, place funds on reserve hold, and notify the compliance team.\n- **Scenarios:**\n  - **SCEN-014:** Incoming chargeback triggers merchant notification email and debit from balance.\n\n### REQ-010: High-Concurrency Rate Limiting & Retry Backoff\n- **Priority:** HIGH\n- **Status:** IMPLEMENTED\n- **Description:** Throttle downstream banking requests to avoid 429 partner rejections, utilizing exactly 3 exponential retry attempts.\n- **Scenarios:**\n  - **SCEN-015:** Transient network error on attempt 1 succeeds on retry attempt 2 after 1.0s delay.\n"
+        "id": "project:cli_test",
+        "name": "CLI Project",
+        "description": "Automated knowledge graph for CLI Project",
+        "repository": "https://github.com/organization/repo",
+        "created_at": "2025-10-01",
+        "codebase_owner": "cli-dev@payflow.internal",
+        "prd_owner": "cli-pm@payflow.internal"
       }
     },
-    "REQ-001": {
-      "id": "REQ-001",
-      "label": "Requirement",
+    "timeline:commit:f2202ac": {
+      "id": "timeline:commit:f2202ac",
+      "label": "ChangeTimeline",
       "properties": {
-        "id": "REQ-001",
-        "prd_id": "PRD-PAYFLOW-101",
-        "title": "Card Payment Authorization",
-        "description": "The system must authorize payment transactions securely with tokenized card details and enforce strict transaction limits.",
-        "priority": "CRITICAL",
-        "status": "IMPLEMENTED"
-      }
-    },
-    "SCEN-001": {
-      "id": "SCEN-001",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-001",
-        "req_id": "REQ-001",
-        "description": "Standard Visa/Mastercard payment with valid balance authorizes and returns HTTP 200 with transaction token.",
-        "expected_behavior": "Standard Visa/Mastercard payment with valid balance authorizes and returns HTTP 200 with transaction token.",
-        "covered_by_code": true
-      }
-    },
-    "SCEN-002": {
-      "id": "SCEN-002",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-002",
-        "req_id": "REQ-001",
-        "description": "Payment exceeding user limit returns `TRANSACTION_LIMIT_EXCEEDED` and aborts before charging.",
-        "expected_behavior": "Payment exceeding user limit returns `TRANSACTION_LIMIT_EXCEEDED` and aborts before charging.",
-        "covered_by_code": true
-      }
-    },
-    "REQ-002": {
-      "id": "REQ-002",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-002",
-        "prd_id": "PRD-PAYFLOW-101",
-        "title": "Expiry & Luhn Card Validation",
-        "description": "All incoming payment requests must validate card number checksum (Luhn algorithm) and card expiration dates prior to contacting payment networks.",
-        "priority": "CRITICAL",
-        "status": "IMPLEMENTED"
-      }
-    },
-    "SCEN-003": {
-      "id": "SCEN-003",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-003",
-        "req_id": "REQ-002",
-        "description": "Card with past expiration month/year returns `CARD_EXPIRED` at validation stage with zero bank fees incurred.",
-        "expected_behavior": "Card with past expiration month/year returns `CARD_EXPIRED` at validation stage with zero bank fees incurred.",
-        "covered_by_code": true
-      }
-    },
-    "SCEN-004": {
-      "id": "SCEN-004",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-004",
-        "req_id": "REQ-002",
-        "description": "Malformed card number failing checksum returns `INVALID_CARD_NUMBER`.",
-        "expected_behavior": "Malformed card number failing checksum returns `INVALID_CARD_NUMBER`.",
-        "covered_by_code": true
-      }
-    },
-    "REQ-003": {
-      "id": "REQ-003",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-003",
-        "prd_id": "PRD-PAYFLOW-101",
-        "title": "Real-Time ML Fraud Risk Assessment",
-        "description": "Every transaction must pass through the fraud detection engine to receive a risk score between 0 and 100 before capture.",
-        "priority": "HIGH",
-        "status": "IMPLEMENTED"
-      }
-    },
-    "SCEN-005": {
-      "id": "SCEN-005",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-005",
-        "req_id": "REQ-003",
-        "description": "Risk score under 50 passes without challenge.",
-        "expected_behavior": "Risk score under 50 passes without challenge.",
-        "covered_by_code": true
-      }
-    },
-    "SCEN-006": {
-      "id": "SCEN-006",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-006",
-        "req_id": "REQ-003",
-        "description": "Risk score 50 to 85 triggers 3D-Secure secondary challenge.",
-        "expected_behavior": "Risk score 50 to 85 triggers 3D-Secure secondary challenge.",
-        "covered_by_code": true
-      }
-    },
-    "SCEN-007": {
-      "id": "SCEN-007",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-007",
-        "req_id": "REQ-003",
-        "description": "Risk score above 85 returns `FRAUD_RISK_REJECTED` and freezes transaction.",
-        "expected_behavior": "Risk score above 85 returns `FRAUD_RISK_REJECTED` and freezes transaction.",
-        "covered_by_code": true
-      }
-    },
-    "REQ-004": {
-      "id": "REQ-004",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-004",
-        "prd_id": "PRD-PAYFLOW-101",
-        "title": "Multi-Currency Dynamic Currency Conversion (DCC)",
-        "description": "Allow cross-border buyers to pay in their local home currency with real-time foreign exchange spread calculation.",
-        "priority": "MEDIUM",
-        "status": "PENDING_DEV"
-      }
-    },
-    "SCEN-008": {
-      "id": "SCEN-008",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-008",
-        "req_id": "REQ-004",
-        "description": "Buyer paying in GBP for EUR item receives live spot rate plus 1.5% markup.",
-        "expected_behavior": "Buyer paying in GBP for EUR item receives live spot rate plus 1.5% markup.",
-        "covered_by_code": false
-      }
-    },
-    "REQ-005": {
-      "id": "REQ-005",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-005",
-        "prd_id": "PRD-PAYFLOW-101",
-        "title": "Idempotent Payment Submission",
-        "description": "Repeated payment requests bearing the same `Idempotency-Key` within 24 hours must return identical cached responses without double-charging.",
-        "priority": "HIGH",
-        "status": "IMPLEMENTED"
-      }
-    },
-    "SCEN-009": {
-      "id": "SCEN-009",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-009",
-        "req_id": "REQ-005",
-        "description": "Network retry with duplicate key returns original transaction ID and status `SUCCESS`.",
-        "expected_behavior": "Network retry with duplicate key returns original transaction ID and status `SUCCESS`.",
-        "covered_by_code": true
-      }
-    },
-    "REQ-006": {
-      "id": "REQ-006",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-006",
-        "prd_id": "PRD-PAYFLOW-101",
-        "title": "Asynchronous Webhook Event Delivery",
-        "description": "Dispatch signed JSON webhooks to merchant endpoints upon status transitions (`payment.authorized`, `payment.failed`, `refund.processed`).",
-        "priority": "HIGH",
-        "status": "IMPLEMENTED"
-      }
-    },
-    "SCEN-010": {
-      "id": "SCEN-010",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-010",
-        "req_id": "REQ-006",
-        "description": "Merchant webhook endpoint unreachable initiates exponential backoff delivery.",
-        "expected_behavior": "Merchant webhook endpoint unreachable initiates exponential backoff delivery.",
-        "covered_by_code": true
-      }
-    },
-    "REQ-007": {
-      "id": "REQ-007",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-007",
-        "prd_id": "PRD-PAYFLOW-101",
-        "title": "Full Refund Processing with 30-Day Window",
-        "description": "Merchants can issue 100% full refunds against settled transactions within 30 days of the original settlement date.",
-        "priority": "HIGH",
-        "status": "IMPLEMENTED"
-      }
-    },
-    "SCEN-011": {
-      "id": "SCEN-011",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-011",
-        "req_id": "REQ-007",
-        "description": "Refund requested on day 14 settles successfully and transitions order to `REFUNDED`.",
-        "expected_behavior": "Refund requested on day 14 settles successfully and transitions order to `REFUNDED`.",
-        "covered_by_code": true
-      }
-    },
-    "SCEN-012": {
-      "id": "SCEN-012",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-012",
-        "req_id": "REQ-007",
-        "description": "Refund requested after 30 days is rejected with error `REFUND_WINDOW_EXPIRED`.",
-        "expected_behavior": "Refund requested after 30 days is rejected with error `REFUND_WINDOW_EXPIRED`.",
-        "covered_by_code": true
-      }
-    },
-    "REQ-008": {
-      "id": "REQ-008",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-008",
-        "prd_id": "PRD-PAYFLOW-101",
-        "title": "Partial Refund Support",
-        "description": "Allow merchants to refund arbitrary line items or portions of an order up to the remaining unrefunded balance.",
-        "priority": "LOW",
-        "status": "PENDING_DEV"
-      }
-    },
-    "SCEN-013": {
-      "id": "SCEN-013",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-013",
-        "req_id": "REQ-008",
-        "description": "Refunding $30 of a $100 order keeps $70 captured and allows subsequent refunds up to $70.",
-        "expected_behavior": "Refunding $30 of a $100 order keeps $70 captured and allows subsequent refunds up to $70.",
-        "covered_by_code": false
-      }
-    },
-    "REQ-009": {
-      "id": "REQ-009",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-009",
-        "prd_id": "PRD-PAYFLOW-101",
-        "title": "Dispute & Chargeback Lifecycle Management",
-        "description": "Ingest bank chargeback notices, place funds on reserve hold, and notify the compliance team.",
-        "priority": "MEDIUM",
-        "status": "IMPLEMENTED"
-      }
-    },
-    "SCEN-014": {
-      "id": "SCEN-014",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-014",
-        "req_id": "REQ-009",
-        "description": "Incoming chargeback triggers merchant notification email and debit from balance.",
-        "expected_behavior": "Incoming chargeback triggers merchant notification email and debit from balance.",
-        "covered_by_code": true
-      }
-    },
-    "REQ-010": {
-      "id": "REQ-010",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-010",
-        "prd_id": "PRD-PAYFLOW-101",
-        "title": "High-Concurrency Rate Limiting & Retry Backoff",
-        "description": "Throttle downstream banking requests to avoid 429 partner rejections, utilizing exactly 3 exponential retry attempts.",
-        "priority": "HIGH",
-        "status": "IMPLEMENTED"
-      }
-    },
-    "SCEN-015": {
-      "id": "SCEN-015",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-015",
-        "req_id": "REQ-010",
-        "description": "Transient network error on attempt 1 succeeds on retry attempt 2 after 1.0s delay.",
-        "expected_behavior": "Transient network error on attempt 1 succeeds on retry attempt 2 after 1.0s delay.",
-        "covered_by_code": true
-      }
-    },
-    "ADR-001": {
-      "id": "ADR-001",
-      "label": "ADR",
-      "properties": {
-        "id": "ADR-001",
-        "title": "ADR-001: Fraud Risk Scoring and Mandatory Retry Ceiling",
-        "status": "ACCEPTED",
-        "date": "2025-11-20",
-        "context": "Payment processing systems must evaluate high-risk signals in real time while maintaining resilient connections to external risk and clearing networks. During initial tests, unstable network segments caused random drops. Developers attempted to either bypass risk evaluation under latency or reduce retry attempts to 1, causing thousands of legitimate card transactions to fail.",
-        "decision": "1. **Mandatory 3-Retry Ceiling:** Every external fraud evaluation and network call MUST execute exactly 3 retry attempts with exponential backoff (initial delay: 0.5s, factor: 2.0).\n2. **Hard-Reject Boundary:** Any risk assessment resulting in a score strictly greater than 85 MUST trigger an immediate, non-overridable `FRAUD_RISK_REJECTED` error.\n3. **Never Lower Retries:** Developers are explicitly forbidden from lowering the retry count below 3 or suppressing backoff delays, as this violates our card-scheme service level agreement (SLA).",
-        "consequences": "- **Positive:** Reduces transaction false-drop rate by 98.4% during upstream jitter.\n- **Negative:** Adds up to 3.5 seconds of worst-case latency during complete partner outages before failing over.\n- **Critical Risk:** Modifying `retry_with_backoff` without cross-functional approval historically caused `BUG-112` and `BUG-298`.",
-        "raw_content": "# ADR-001: Fraud Risk Scoring and Mandatory Retry Ceiling\n\n- **ADR ID:** ADR-001\n- **Title:** Fraud Risk Scoring and Mandatory Retry Ceiling\n- **Date:** 2025-11-20\n- **Status:** ACCEPTED\n- **Authors:** Alex Chen (Principal Architect), Marcus Vance (Lead Security Engineer)\n\n## Context\nPayment processing systems must evaluate high-risk signals in real time while maintaining resilient connections to external risk and clearing networks. During initial tests, unstable network segments caused random drops. Developers attempted to either bypass risk evaluation under latency or reduce retry attempts to 1, causing thousands of legitimate card transactions to fail.\n\n## Decision\n1. **Mandatory 3-Retry Ceiling:** Every external fraud evaluation and network call MUST execute exactly 3 retry attempts with exponential backoff (initial delay: 0.5s, factor: 2.0).\n2. **Hard-Reject Boundary:** Any risk assessment resulting in a score strictly greater than 85 MUST trigger an immediate, non-overridable `FRAUD_RISK_REJECTED` error.\n3. **Never Lower Retries:** Developers are explicitly forbidden from lowering the retry count below 3 or suppressing backoff delays, as this violates our card-scheme service level agreement (SLA).\n\n## Consequences\n- **Positive:** Reduces transaction false-drop rate by 98.4% during upstream jitter.\n- **Negative:** Adds up to 3.5 seconds of worst-case latency during complete partner outages before failing over.\n- **Critical Risk:** Modifying `retry_with_backoff` without cross-functional approval historically caused `BUG-112` and `BUG-298`.\n"
-      }
-    },
-    "dec:ADR-001:core": {
-      "id": "dec:ADR-001:core",
-      "label": "Decision",
-      "properties": {
-        "id": "dec:ADR-001:core",
-        "arch_id": "arch:ADR-001",
-        "adr_id": "ADR-001",
-        "title": "Decision for ADR-001: Fraud Risk Scoring and Mandatory Retry Ceiling",
-        "statement": "1. **Mandatory 3-Retry Ceiling:** Every external fraud evaluation and network call MUST execute exactly 3 retry attempts with exponential backoff (initial delay: 0.5s, factor: 2.0).\n2. **Hard-Reject Boundary:** Any risk assessment resulting in a score strictly greater than 85 MUST trigger an immediate, non-overridable `FRAUD_RISK_REJECTED` error.\n3. **Never Lower Retries:** Developers are explicitly forbidden from lowering the retry count below 3 or suppressing backoff delays, as this violates our card-scheme service level agreement (SLA).",
-        "rationale": "Payment processing systems must evaluate high-risk signals in real time while maintaining resilient connections to external risk and clearing networks. During initial tests, unstable network segments caused random drops. Developers attempted to either bypass risk evaluation under latency or reduce retry attempts to 1, causing thousands of legitimate card transactions to fail.",
-        "invariants": "- **Positive:** Reduces transaction false-drop rate by 98.4% during upstream jitter.\n- **Negative:** Adds up to 3.5 seconds of worst-case latency during complete partner outages before failing over.\n- **Critical Risk:** Modifying `retry_with_backoff` without cross-functional approval historically caused `BUG-112` and `BUG-298`."
-      }
-    },
-    "ADR-002": {
-      "id": "ADR-002",
-      "label": "ADR",
-      "properties": {
-        "id": "ADR-002",
-        "title": "ADR-002: Asynchronous Queuing and Concurrency for High-Volume Refunds",
-        "status": "ACCEPTED",
-        "date": "2026-01-10",
-        "context": "During high-volume sales events (such as Black Friday/Cyber Monday), merchants issue batch refund requests exceeding 500 operations per second. Synchronous HTTP execution caused gateway worker pool exhaustion, thread starvation, and cascading 504 Gateway Timeouts across the primary payment authorization flow.",
-        "decision": "1. **Asynchronous Decoupling:** The `RefundProcessor` will enqueue refund jobs into a durable distributed queue and immediately return a pending tracking token to the caller.\n2. **Worker Pool Concurrency of 5:** Queue consumers MUST run with exactly 5 concurrent workers per instance.\n   - Setting concurrency below 5 causes message accumulation, lag, and `REFUND_TIMEOUT` alerts under peak load.\n   - Setting concurrency above 10 causes banking partner API rate-limits (`HTTP 429 Too Many Requests`).\n3. **Strict 30-Day Age Check:** Refund eligibility must be checked against the settlement timestamp before queue dispatch.",
-        "consequences": "- Prevents refund spikes from impacting real-time checkout availability.\n- Requires careful worker pool tuning: decreasing concurrency below 5 was the direct root cause of incident `BUG-342`.",
-        "raw_content": "# ADR-002: Asynchronous Queuing and Concurrency for High-Volume Refunds\n\n- **ADR ID:** ADR-002\n- **Title:** Asynchronous Queuing and Concurrency for High-Volume Refunds\n- **Date:** 2026-01-10\n- **Status:** ACCEPTED\n- **Authors:** Alex Chen (Principal Architect), David Kim (Infrastructure Lead)\n\n## Context\nDuring high-volume sales events (such as Black Friday/Cyber Monday), merchants issue batch refund requests exceeding 500 operations per second. Synchronous HTTP execution caused gateway worker pool exhaustion, thread starvation, and cascading 504 Gateway Timeouts across the primary payment authorization flow.\n\n## Decision\n1. **Asynchronous Decoupling:** The `RefundProcessor` will enqueue refund jobs into a durable distributed queue and immediately return a pending tracking token to the caller.\n2. **Worker Pool Concurrency of 5:** Queue consumers MUST run with exactly 5 concurrent workers per instance.\n   - Setting concurrency below 5 causes message accumulation, lag, and `REFUND_TIMEOUT` alerts under peak load.\n   - Setting concurrency above 10 causes banking partner API rate-limits (`HTTP 429 Too Many Requests`).\n3. **Strict 30-Day Age Check:** Refund eligibility must be checked against the settlement timestamp before queue dispatch.\n\n## Consequences\n- Prevents refund spikes from impacting real-time checkout availability.\n- Requires careful worker pool tuning: decreasing concurrency below 5 was the direct root cause of incident `BUG-342`.\n"
-      }
-    },
-    "dec:ADR-002:core": {
-      "id": "dec:ADR-002:core",
-      "label": "Decision",
-      "properties": {
-        "id": "dec:ADR-002:core",
-        "arch_id": "arch:ADR-002",
-        "adr_id": "ADR-002",
-        "title": "Decision for ADR-002: Asynchronous Queuing and Concurrency for High-Volume Refunds",
-        "statement": "1. **Asynchronous Decoupling:** The `RefundProcessor` will enqueue refund jobs into a durable distributed queue and immediately return a pending tracking token to the caller.\n2. **Worker Pool Concurrency of 5:** Queue consumers MUST run with exactly 5 concurrent workers per instance.\n   - Setting concurrency below 5 causes message accumulation, lag, and `REFUND_TIMEOUT` alerts under peak load.\n   - Setting concurrency above 10 causes banking partner API rate-limits (`HTTP 429 Too Many Requests`).\n3. **Strict 30-Day Age Check:** Refund eligibility must be checked against the settlement timestamp before queue dispatch.",
-        "rationale": "During high-volume sales events (such as Black Friday/Cyber Monday), merchants issue batch refund requests exceeding 500 operations per second. Synchronous HTTP execution caused gateway worker pool exhaustion, thread starvation, and cascading 504 Gateway Timeouts across the primary payment authorization flow.",
-        "invariants": "- Prevents refund spikes from impacting real-time checkout availability.\n- Requires careful worker pool tuning: decreasing concurrency below 5 was the direct root cause of incident `BUG-342`."
+        "id": "timeline:commit:f2202ac",
+        "project_id": "project:test_ent",
+        "commit_hash": "f2202ac63927b18e19e2a4175fd2849b9fc9d7c0",
+        "author": "Ashwin",
+        "timestamp": "2026-10-18T12:00:00Z",
+        "date": "2026-10-18",
+        "what_changed": "feat: add codebase_owner and prd_owner to Project entity, ADR-012, and 68 tests",
+        "why_changed": "Recorded from git commit message: feat: add codebase_owner and prd_owner to Project entity, ADR-012, and 68 tests",
+        "change_category": "PRD_FEATURE",
+        "diff_summary": "feat: add codebase_owner and prd_owner to Project entity, ADR-012, and 68 tests"
       }
     },
     "timeline:commit:1585342": {
@@ -1559,219 +1263,438 @@
         "diff_summary": "feat: preserve complete raw content and function source code in graph nodes"
       }
     },
-    "timeline:commit:35eb46d": {
-      "id": "timeline:commit:35eb46d",
-      "label": "ChangeTimeline",
+    "PRD-PAYFLOW-101": {
+      "id": "PRD-PAYFLOW-101",
+      "label": "PRD",
       "properties": {
-        "id": "timeline:commit:35eb46d",
-        "project_id": "project:test_ent",
-        "commit_hash": "35eb46d0aaeab326a7f1b5cc8bc0cb528018200a",
-        "author": "Ashwin",
-        "timestamp": "2026-10-18T12:00:00Z",
-        "date": "2026-10-18",
-        "what_changed": "feat: add unified production ingestion pipeline, auto-linker, CI/CD action, and ADR-009",
-        "why_changed": "Recorded from git commit message: feat: add unified production ingestion pipeline, auto-linker, CI/CD action, and ADR-009",
-        "change_category": "PRD_FEATURE",
-        "diff_summary": "feat: add unified production ingestion pipeline, auto-linker, CI/CD action, and ADR-009"
+        "id": "PRD-PAYFLOW-101",
+        "title": "PayFlow Core Payment Processing Gateway",
+        "version": "1.2",
+        "author": "Sarah Jenkins (Principal Product Manager)",
+        "status": "APPROVED",
+        "created_at": null,
+        "raw_content": "# PRD: PayFlow Core Payment Processing Gateway\n\n- **Document ID:** PRD-PAYFLOW-101\n- **Title:** PayFlow Core Payment Processing Gateway\n- **Version:** 1.2\n- **Status:** APPROVED\n- **Author:** Sarah Jenkins (Principal Product Manager)\n- **Last Updated:** 2026-03-15\n\n---\n\n## 1. Overview\nPayFlow is an enterprise payment processing gateway handling credit card authorizations, fraud evaluations, webhooks, and refund lifecycle operations.\n\n---\n\n## 2. Requirements & Scenarios\n\n### REQ-001: Card Payment Authorization\n- **Priority:** CRITICAL\n- **Status:** IMPLEMENTED\n- **Description:** The system must authorize payment transactions securely with tokenized card details and enforce strict transaction limits.\n- **Scenarios:**\n  - **SCEN-001:** Standard Visa/Mastercard payment with valid balance authorizes and returns HTTP 200 with transaction token.\n  - **SCEN-002:** Payment exceeding user limit returns `TRANSACTION_LIMIT_EXCEEDED` and aborts before charging.\n\n### REQ-002: Expiry & Luhn Card Validation\n- **Priority:** CRITICAL\n- **Status:** IMPLEMENTED\n- **Description:** All incoming payment requests must validate card number checksum (Luhn algorithm) and card expiration dates prior to contacting payment networks.\n- **Scenarios:**\n  - **SCEN-003:** Card with past expiration month/year returns `CARD_EXPIRED` at validation stage with zero bank fees incurred.\n  - **SCEN-004:** Malformed card number failing checksum returns `INVALID_CARD_NUMBER`.\n\n### REQ-003: Real-Time ML Fraud Risk Assessment\n- **Priority:** HIGH\n- **Status:** IMPLEMENTED\n- **Description:** Every transaction must pass through the fraud detection engine to receive a risk score between 0 and 100 before capture.\n- **Scenarios:**\n  - **SCEN-005:** Risk score under 50 passes without challenge.\n  - **SCEN-006:** Risk score 50 to 85 triggers 3D-Secure secondary challenge.\n  - **SCEN-007:** Risk score above 85 returns `FRAUD_RISK_REJECTED` and freezes transaction.\n\n### REQ-004: Multi-Currency Dynamic Currency Conversion (DCC)\n- **Priority:** MEDIUM\n- **Status:** PENDING_DEV\n- **Description:** Allow cross-border buyers to pay in their local home currency with real-time foreign exchange spread calculation.\n- **Scenarios:**\n  - **SCEN-008:** Buyer paying in GBP for EUR item receives live spot rate plus 1.5% markup.\n\n### REQ-005: Idempotent Payment Submission\n- **Priority:** HIGH\n- **Status:** IMPLEMENTED\n- **Description:** Repeated payment requests bearing the same `Idempotency-Key` within 24 hours must return identical cached responses without double-charging.\n- **Scenarios:**\n  - **SCEN-009:** Network retry with duplicate key returns original transaction ID and status `SUCCESS`.\n\n### REQ-006: Asynchronous Webhook Event Delivery\n- **Priority:** HIGH\n- **Status:** IMPLEMENTED\n- **Description:** Dispatch signed JSON webhooks to merchant endpoints upon status transitions (`payment.authorized`, `payment.failed`, `refund.processed`).\n- **Scenarios:**\n  - **SCEN-010:** Merchant webhook endpoint unreachable initiates exponential backoff delivery.\n\n### REQ-007: Full Refund Processing with 30-Day Window\n- **Priority:** HIGH\n- **Status:** IMPLEMENTED\n- **Description:** Merchants can issue 100% full refunds against settled transactions within 30 days of the original settlement date.\n- **Scenarios:**\n  - **SCEN-011:** Refund requested on day 14 settles successfully and transitions order to `REFUNDED`.\n  - **SCEN-012:** Refund requested after 30 days is rejected with error `REFUND_WINDOW_EXPIRED`.\n\n### REQ-008: Partial Refund Support\n- **Priority:** LOW\n- **Status:** PENDING_DEV\n- **Description:** Allow merchants to refund arbitrary line items or portions of an order up to the remaining unrefunded balance.\n- **Scenarios:**\n  - **SCEN-013:** Refunding $30 of a $100 order keeps $70 captured and allows subsequent refunds up to $70.\n\n### REQ-009: Dispute & Chargeback Lifecycle Management\n- **Priority:** MEDIUM\n- **Status:** IMPLEMENTED\n- **Description:** Ingest bank chargeback notices, place funds on reserve hold, and notify the compliance team.\n- **Scenarios:**\n  - **SCEN-014:** Incoming chargeback triggers merchant notification email and debit from balance.\n\n### REQ-010: High-Concurrency Rate Limiting & Retry Backoff\n- **Priority:** HIGH\n- **Status:** IMPLEMENTED\n- **Description:** Throttle downstream banking requests to avoid 429 partner rejections, utilizing exactly 3 exponential retry attempts.\n- **Scenarios:**\n  - **SCEN-015:** Transient network error on attempt 1 succeeds on retry attempt 2 after 1.0s delay.\n"
       }
     },
-    "timeline:commit:ac3f90f": {
-      "id": "timeline:commit:ac3f90f",
-      "label": "ChangeTimeline",
+    "REQ-001": {
+      "id": "REQ-001",
+      "label": "Requirement",
       "properties": {
-        "id": "timeline:commit:ac3f90f",
-        "project_id": "project:test_ent",
-        "commit_hash": "ac3f90ff12c4a0980645069150e12e3a339ea25a",
-        "author": "Ashwin",
-        "timestamp": "2026-10-17T12:00:00Z",
-        "date": "2026-10-17",
-        "what_changed": "test: add comprehensive 48-test suite, ADR-008, and doc updates",
-        "why_changed": "Recorded from git commit message: test: add comprehensive 48-test suite, ADR-008, and doc updates",
-        "change_category": "ADR_ENFORCEMENT",
-        "diff_summary": "test: add comprehensive 48-test suite, ADR-008, and doc updates"
+        "id": "REQ-001",
+        "prd_id": "PRD-PAYFLOW-101",
+        "title": "Card Payment Authorization",
+        "description": "The system must authorize payment transactions securely with tokenized card details and enforce strict transaction limits.",
+        "priority": "CRITICAL",
+        "status": "IMPLEMENTED"
       }
     },
-    "timeline:commit:79f4265": {
-      "id": "timeline:commit:79f4265",
-      "label": "ChangeTimeline",
+    "SCEN-001": {
+      "id": "SCEN-001",
+      "label": "Scenario",
       "properties": {
-        "id": "timeline:commit:79f4265",
-        "project_id": "project:test_ent",
-        "commit_hash": "79f426518140e626e74985e039f414ed0de69297",
-        "author": "Ashwin",
-        "timestamp": "2026-10-17T12:00:00Z",
-        "date": "2026-10-17",
-        "what_changed": "docs: create ADRs for all 7 project components and update master docs",
-        "why_changed": "Recorded from git commit message: docs: create ADRs for all 7 project components and update master docs",
-        "change_category": "ADR_ENFORCEMENT",
-        "diff_summary": "docs: create ADRs for all 7 project components and update master docs"
+        "id": "SCEN-001",
+        "req_id": "REQ-001",
+        "description": "Standard Visa/Mastercard payment with valid balance authorizes and returns HTTP 200 with transaction token.",
+        "expected_behavior": "Standard Visa/Mastercard payment with valid balance authorizes and returns HTTP 200 with transaction token.",
+        "covered_by_code": true,
+        "status": "APPROVED"
       }
     },
-    "timeline:commit:950b794": {
-      "id": "timeline:commit:950b794",
-      "label": "ChangeTimeline",
+    "SCEN-002": {
+      "id": "SCEN-002",
+      "label": "Scenario",
       "properties": {
-        "id": "timeline:commit:950b794",
-        "project_id": "project:test_ent",
-        "commit_hash": "950b794e70f7f758696b425fefae874c3c8672da",
-        "author": "Ashwin",
-        "timestamp": "2026-10-17T12:00:00Z",
-        "date": "2026-10-17",
-        "what_changed": "feat: redefine graph schema to 4-pillar model with Project anchor and timeline lineage",
-        "why_changed": "Recorded from git commit message: feat: redefine graph schema to 4-pillar model with Project anchor and timeline lineage",
-        "change_category": "PRD_FEATURE",
-        "diff_summary": "feat: redefine graph schema to 4-pillar model with Project anchor and timeline lineage"
+        "id": "SCEN-002",
+        "req_id": "REQ-001",
+        "description": "Payment exceeding user limit returns `TRANSACTION_LIMIT_EXCEEDED` and aborts before charging.",
+        "expected_behavior": "Payment exceeding user limit returns `TRANSACTION_LIMIT_EXCEEDED` and aborts before charging.",
+        "covered_by_code": true,
+        "status": "APPROVED"
       }
     },
-    "timeline:commit:58c5a9b": {
-      "id": "timeline:commit:58c5a9b",
-      "label": "ChangeTimeline",
+    "REQ-002": {
+      "id": "REQ-002",
+      "label": "Requirement",
       "properties": {
-        "id": "timeline:commit:58c5a9b",
-        "project_id": "project:test_ent",
-        "commit_hash": "58c5a9b4c86aae6509528605f75f8a0264088441",
-        "author": "Ashwin",
-        "timestamp": "2026-10-17T12:00:00Z",
-        "date": "2026-10-17",
-        "what_changed": "feat: initial implementation of CodeGraph MCP Server and Knowledge Graph",
-        "why_changed": "Recorded from git commit message: feat: initial implementation of CodeGraph MCP Server and Knowledge Graph",
-        "change_category": "PRD_FEATURE",
-        "diff_summary": "feat: initial implementation of CodeGraph MCP Server and Knowledge Graph"
+        "id": "REQ-002",
+        "prd_id": "PRD-PAYFLOW-101",
+        "title": "Expiry & Luhn Card Validation",
+        "description": "All incoming payment requests must validate card number checksum (Luhn algorithm) and card expiration dates prior to contacting payment networks.",
+        "priority": "CRITICAL",
+        "status": "IMPLEMENTED"
       }
     },
-    "issue:BUG-777-EMAIL": {
-      "id": "issue:BUG-777-EMAIL",
+    "SCEN-003": {
+      "id": "SCEN-003",
+      "label": "Scenario",
+      "properties": {
+        "id": "SCEN-003",
+        "req_id": "REQ-002",
+        "description": "Card with past expiration month/year returns `CARD_EXPIRED` at validation stage with zero bank fees incurred.",
+        "expected_behavior": "Card with past expiration month/year returns `CARD_EXPIRED` at validation stage with zero bank fees incurred.",
+        "covered_by_code": true,
+        "status": "APPROVED"
+      }
+    },
+    "SCEN-004": {
+      "id": "SCEN-004",
+      "label": "Scenario",
+      "properties": {
+        "id": "SCEN-004",
+        "req_id": "REQ-002",
+        "description": "Malformed card number failing checksum returns `INVALID_CARD_NUMBER`.",
+        "expected_behavior": "Malformed card number failing checksum returns `INVALID_CARD_NUMBER`.",
+        "covered_by_code": true,
+        "status": "APPROVED"
+      }
+    },
+    "REQ-003": {
+      "id": "REQ-003",
+      "label": "Requirement",
+      "properties": {
+        "id": "REQ-003",
+        "prd_id": "PRD-PAYFLOW-101",
+        "title": "Real-Time ML Fraud Risk Assessment",
+        "description": "Every transaction must pass through the fraud detection engine to receive a risk score between 0 and 100 before capture.",
+        "priority": "HIGH",
+        "status": "IMPLEMENTED"
+      }
+    },
+    "SCEN-005": {
+      "id": "SCEN-005",
+      "label": "Scenario",
+      "properties": {
+        "id": "SCEN-005",
+        "req_id": "REQ-003",
+        "description": "Risk score under 50 passes without challenge.",
+        "expected_behavior": "Risk score under 50 passes without challenge.",
+        "covered_by_code": true,
+        "status": "APPROVED"
+      }
+    },
+    "SCEN-006": {
+      "id": "SCEN-006",
+      "label": "Scenario",
+      "properties": {
+        "id": "SCEN-006",
+        "req_id": "REQ-003",
+        "description": "Risk score 50 to 85 triggers 3D-Secure secondary challenge.",
+        "expected_behavior": "Risk score 50 to 85 triggers 3D-Secure secondary challenge.",
+        "covered_by_code": true,
+        "status": "APPROVED"
+      }
+    },
+    "SCEN-007": {
+      "id": "SCEN-007",
+      "label": "Scenario",
+      "properties": {
+        "id": "SCEN-007",
+        "req_id": "REQ-003",
+        "description": "Risk score above 85 returns `FRAUD_RISK_REJECTED` and freezes transaction.",
+        "expected_behavior": "Risk score above 85 returns `FRAUD_RISK_REJECTED` and freezes transaction.",
+        "covered_by_code": true,
+        "status": "APPROVED"
+      }
+    },
+    "REQ-004": {
+      "id": "REQ-004",
+      "label": "Requirement",
+      "properties": {
+        "id": "REQ-004",
+        "prd_id": "PRD-PAYFLOW-101",
+        "title": "Multi-Currency Dynamic Currency Conversion (DCC)",
+        "description": "Allow cross-border buyers to pay in their local home currency with real-time foreign exchange spread calculation.",
+        "priority": "MEDIUM",
+        "status": "PENDING_DEV"
+      }
+    },
+    "SCEN-008": {
+      "id": "SCEN-008",
+      "label": "Scenario",
+      "properties": {
+        "id": "SCEN-008",
+        "req_id": "REQ-004",
+        "description": "Buyer paying in GBP for EUR item receives live spot rate plus 1.5% markup.",
+        "expected_behavior": "Buyer paying in GBP for EUR item receives live spot rate plus 1.5% markup.",
+        "covered_by_code": false,
+        "status": "APPROVED"
+      }
+    },
+    "REQ-005": {
+      "id": "REQ-005",
+      "label": "Requirement",
+      "properties": {
+        "id": "REQ-005",
+        "prd_id": "PRD-PAYFLOW-101",
+        "title": "Idempotent Payment Submission",
+        "description": "Repeated payment requests bearing the same `Idempotency-Key` within 24 hours must return identical cached responses without double-charging.",
+        "priority": "HIGH",
+        "status": "IMPLEMENTED"
+      }
+    },
+    "SCEN-009": {
+      "id": "SCEN-009",
+      "label": "Scenario",
+      "properties": {
+        "id": "SCEN-009",
+        "req_id": "REQ-005",
+        "description": "Network retry with duplicate key returns original transaction ID and status `SUCCESS`.",
+        "expected_behavior": "Network retry with duplicate key returns original transaction ID and status `SUCCESS`.",
+        "covered_by_code": true,
+        "status": "APPROVED"
+      }
+    },
+    "REQ-006": {
+      "id": "REQ-006",
+      "label": "Requirement",
+      "properties": {
+        "id": "REQ-006",
+        "prd_id": "PRD-PAYFLOW-101",
+        "title": "Asynchronous Webhook Event Delivery",
+        "description": "Dispatch signed JSON webhooks to merchant endpoints upon status transitions (`payment.authorized`, `payment.failed`, `refund.processed`).",
+        "priority": "HIGH",
+        "status": "IMPLEMENTED"
+      }
+    },
+    "SCEN-010": {
+      "id": "SCEN-010",
+      "label": "Scenario",
+      "properties": {
+        "id": "SCEN-010",
+        "req_id": "REQ-006",
+        "description": "Merchant webhook endpoint unreachable initiates exponential backoff delivery.",
+        "expected_behavior": "Merchant webhook endpoint unreachable initiates exponential backoff delivery.",
+        "covered_by_code": true,
+        "status": "APPROVED"
+      }
+    },
+    "REQ-007": {
+      "id": "REQ-007",
+      "label": "Requirement",
+      "properties": {
+        "id": "REQ-007",
+        "prd_id": "PRD-PAYFLOW-101",
+        "title": "Full Refund Processing with 30-Day Window",
+        "description": "Merchants can issue 100% full refunds against settled transactions within 30 days of the original settlement date.",
+        "priority": "HIGH",
+        "status": "IMPLEMENTED"
+      }
+    },
+    "SCEN-011": {
+      "id": "SCEN-011",
+      "label": "Scenario",
+      "properties": {
+        "id": "SCEN-011",
+        "req_id": "REQ-007",
+        "description": "Refund requested on day 14 settles successfully and transitions order to `REFUNDED`.",
+        "expected_behavior": "Refund requested on day 14 settles successfully and transitions order to `REFUNDED`.",
+        "covered_by_code": true,
+        "status": "APPROVED"
+      }
+    },
+    "SCEN-012": {
+      "id": "SCEN-012",
+      "label": "Scenario",
+      "properties": {
+        "id": "SCEN-012",
+        "req_id": "REQ-007",
+        "description": "Refund requested after 30 days is rejected with error `REFUND_WINDOW_EXPIRED`.",
+        "expected_behavior": "Refund requested after 30 days is rejected with error `REFUND_WINDOW_EXPIRED`.",
+        "covered_by_code": true,
+        "status": "APPROVED"
+      }
+    },
+    "REQ-008": {
+      "id": "REQ-008",
+      "label": "Requirement",
+      "properties": {
+        "id": "REQ-008",
+        "prd_id": "PRD-PAYFLOW-101",
+        "title": "Partial Refund Support",
+        "description": "Allow merchants to refund arbitrary line items or portions of an order up to the remaining unrefunded balance.",
+        "priority": "LOW",
+        "status": "PENDING_DEV"
+      }
+    },
+    "SCEN-013": {
+      "id": "SCEN-013",
+      "label": "Scenario",
+      "properties": {
+        "id": "SCEN-013",
+        "req_id": "REQ-008",
+        "description": "Refunding $30 of a $100 order keeps $70 captured and allows subsequent refunds up to $70.",
+        "expected_behavior": "Refunding $30 of a $100 order keeps $70 captured and allows subsequent refunds up to $70.",
+        "covered_by_code": false,
+        "status": "APPROVED"
+      }
+    },
+    "REQ-009": {
+      "id": "REQ-009",
+      "label": "Requirement",
+      "properties": {
+        "id": "REQ-009",
+        "prd_id": "PRD-PAYFLOW-101",
+        "title": "Dispute & Chargeback Lifecycle Management",
+        "description": "Ingest bank chargeback notices, place funds on reserve hold, and notify the compliance team.",
+        "priority": "MEDIUM",
+        "status": "IMPLEMENTED"
+      }
+    },
+    "SCEN-014": {
+      "id": "SCEN-014",
+      "label": "Scenario",
+      "properties": {
+        "id": "SCEN-014",
+        "req_id": "REQ-009",
+        "description": "Incoming chargeback triggers merchant notification email and debit from balance.",
+        "expected_behavior": "Incoming chargeback triggers merchant notification email and debit from balance.",
+        "covered_by_code": true,
+        "status": "APPROVED"
+      }
+    },
+    "REQ-010": {
+      "id": "REQ-010",
+      "label": "Requirement",
+      "properties": {
+        "id": "REQ-010",
+        "prd_id": "PRD-PAYFLOW-101",
+        "title": "High-Concurrency Rate Limiting & Retry Backoff",
+        "description": "Throttle downstream banking requests to avoid 429 partner rejections, utilizing exactly 3 exponential retry attempts.",
+        "priority": "HIGH",
+        "status": "IMPLEMENTED"
+      }
+    },
+    "SCEN-015": {
+      "id": "SCEN-015",
+      "label": "Scenario",
+      "properties": {
+        "id": "SCEN-015",
+        "req_id": "REQ-010",
+        "description": "Transient network error on attempt 1 succeeds on retry attempt 2 after 1.0s delay.",
+        "expected_behavior": "Transient network error on attempt 1 succeeds on retry attempt 2 after 1.0s delay.",
+        "covered_by_code": true,
+        "status": "APPROVED"
+      }
+    },
+    "ADR-001": {
+      "id": "ADR-001",
+      "label": "ADR",
+      "properties": {
+        "id": "ADR-001",
+        "title": "ADR-001: Fraud Risk Scoring and Mandatory Retry Ceiling",
+        "status": "ACCEPTED",
+        "date": "2025-11-20",
+        "context": "Payment processing systems must evaluate high-risk signals in real time while maintaining resilient connections to external risk and clearing networks. During initial tests, unstable network segments caused random drops. Developers attempted to either bypass risk evaluation under latency or reduce retry attempts to 1, causing thousands of legitimate card transactions to fail.",
+        "decision": "1. **Mandatory 3-Retry Ceiling:** Every external fraud evaluation and network call MUST execute exactly 3 retry attempts with exponential backoff (initial delay: 0.5s, factor: 2.0).\n2. **Hard-Reject Boundary:** Any risk assessment resulting in a score strictly greater than 85 MUST trigger an immediate, non-overridable `FRAUD_RISK_REJECTED` error.\n3. **Never Lower Retries:** Developers are explicitly forbidden from lowering the retry count below 3 or suppressing backoff delays, as this violates our card-scheme service level agreement (SLA).",
+        "consequences": "- **Positive:** Reduces transaction false-drop rate by 98.4% during upstream jitter.\n- **Negative:** Adds up to 3.5 seconds of worst-case latency during complete partner outages before failing over.\n- **Critical Risk:** Modifying `retry_with_backoff` without cross-functional approval historically caused `BUG-112` and `BUG-298`.",
+        "raw_content": "# ADR-001: Fraud Risk Scoring and Mandatory Retry Ceiling\n\n- **ADR ID:** ADR-001\n- **Title:** Fraud Risk Scoring and Mandatory Retry Ceiling\n- **Date:** 2025-11-20\n- **Status:** ACCEPTED\n- **Authors:** Alex Chen (Principal Architect), Marcus Vance (Lead Security Engineer)\n\n## Context\nPayment processing systems must evaluate high-risk signals in real time while maintaining resilient connections to external risk and clearing networks. During initial tests, unstable network segments caused random drops. Developers attempted to either bypass risk evaluation under latency or reduce retry attempts to 1, causing thousands of legitimate card transactions to fail.\n\n## Decision\n1. **Mandatory 3-Retry Ceiling:** Every external fraud evaluation and network call MUST execute exactly 3 retry attempts with exponential backoff (initial delay: 0.5s, factor: 2.0).\n2. **Hard-Reject Boundary:** Any risk assessment resulting in a score strictly greater than 85 MUST trigger an immediate, non-overridable `FRAUD_RISK_REJECTED` error.\n3. **Never Lower Retries:** Developers are explicitly forbidden from lowering the retry count below 3 or suppressing backoff delays, as this violates our card-scheme service level agreement (SLA).\n\n## Consequences\n- **Positive:** Reduces transaction false-drop rate by 98.4% during upstream jitter.\n- **Negative:** Adds up to 3.5 seconds of worst-case latency during complete partner outages before failing over.\n- **Critical Risk:** Modifying `retry_with_backoff` without cross-functional approval historically caused `BUG-112` and `BUG-298`.\n"
+      }
+    },
+    "dec:ADR-001:core": {
+      "id": "dec:ADR-001:core",
+      "label": "Decision",
+      "properties": {
+        "id": "dec:ADR-001:core",
+        "arch_id": "arch:ADR-001",
+        "adr_id": "ADR-001",
+        "title": "Decision for ADR-001: Fraud Risk Scoring and Mandatory Retry Ceiling",
+        "statement": "1. **Mandatory 3-Retry Ceiling:** Every external fraud evaluation and network call MUST execute exactly 3 retry attempts with exponential backoff (initial delay: 0.5s, factor: 2.0).\n2. **Hard-Reject Boundary:** Any risk assessment resulting in a score strictly greater than 85 MUST trigger an immediate, non-overridable `FRAUD_RISK_REJECTED` error.\n3. **Never Lower Retries:** Developers are explicitly forbidden from lowering the retry count below 3 or suppressing backoff delays, as this violates our card-scheme service level agreement (SLA).",
+        "rationale": "Payment processing systems must evaluate high-risk signals in real time while maintaining resilient connections to external risk and clearing networks. During initial tests, unstable network segments caused random drops. Developers attempted to either bypass risk evaluation under latency or reduce retry attempts to 1, causing thousands of legitimate card transactions to fail.",
+        "invariants": "- **Positive:** Reduces transaction false-drop rate by 98.4% during upstream jitter.\n- **Negative:** Adds up to 3.5 seconds of worst-case latency during complete partner outages before failing over.\n- **Critical Risk:** Modifying `retry_with_backoff` without cross-functional approval historically caused `BUG-112` and `BUG-298`."
+      }
+    },
+    "issue:BUG-999-TEST": {
+      "id": "issue:BUG-999-TEST",
       "label": "Issue",
       "properties": {
-        "id": "issue:BUG-777-EMAIL",
+        "id": "issue:BUG-999-TEST",
         "project_id": "project:payflow",
-        "ticket": "BUG-777-EMAIL",
-        "title": "Incident BUG-777-EMAIL: Currency precision discrepancy in billing",
-        "symptom": "Currency precision discrepancy in billing",
+        "ticket": "BUG-999-TEST",
+        "title": "Incident BUG-999-TEST: Simulated memory leak under synthetic test",
+        "symptom": "Simulated memory leak under synthetic test",
         "severity": "HIGH",
         "reported_at": "2026-10-17"
       }
     },
-    "fix:BUG-777-EMAIL": {
-      "id": "fix:BUG-777-EMAIL",
+    "fix:BUG-999-TEST": {
+      "id": "fix:BUG-999-TEST",
       "label": "Fix",
       "properties": {
-        "id": "fix:BUG-777-EMAIL",
-        "rca_id": "rca:BUG-777-EMAIL",
-        "action_taken": "Switched to decimal.Decimal arithmetic",
+        "id": "fix:BUG-999-TEST",
+        "rca_id": "rca:BUG-999-TEST",
+        "action_taken": "Added garbage collection hook",
         "commit_hash": "pending",
         "approved_by": "unapproved",
         "approval_status": "PENDING_APPROVAL",
         "domain_owner_email": "payment-domain-owner@payflow.internal",
-        "approval_token": "dc6efb798cbe9263e9432987b75358dd"
+        "approval_token": "cb5bab258c341b5a5050fed18fe52e78"
       }
     },
-    "issue:BUG-888-APPROVE": {
-      "id": "issue:BUG-888-APPROVE",
+    "issue:BUG-1000-TEST": {
+      "id": "issue:BUG-1000-TEST",
       "label": "Issue",
       "properties": {
-        "id": "issue:BUG-888-APPROVE",
+        "id": "issue:BUG-1000-TEST",
         "project_id": "project:payflow",
-        "ticket": "BUG-888-APPROVE",
-        "title": "Incident BUG-888-APPROVE: Race condition in ledger balance",
-        "symptom": "Race condition in ledger balance",
+        "ticket": "BUG-1000-TEST",
+        "title": "Incident BUG-1000-TEST: Minor rounding difference on currency conversion",
+        "symptom": "Minor rounding difference on currency conversion",
         "severity": "HIGH",
         "reported_at": "2026-10-17"
       }
     },
-    "fix:BUG-888-APPROVE": {
-      "id": "fix:BUG-888-APPROVE",
+    "fix:BUG-1000-TEST": {
+      "id": "fix:BUG-1000-TEST",
       "label": "Fix",
       "properties": {
-        "id": "fix:BUG-888-APPROVE",
-        "rca_id": "rca:BUG-888-APPROVE",
-        "action_taken": "Added Redis distributed lock",
-        "commit_hash": "approved_d6877fe3",
-        "approved_by": "payment-domain-owner@payflow.internal",
+        "id": "fix:BUG-1000-TEST",
+        "rca_id": "rca:BUG-1000-TEST",
+        "action_taken": "Used decimal.Decimal representation",
+        "commit_hash": "approved_hash",
+        "approved_by": "lead_reviewer",
         "approval_status": "APPROVED",
         "domain_owner_email": "payment-domain-owner@payflow.internal",
-        "approval_token": "d6877fe385cfd20f11aa4e957f908ba7"
+        "approval_token": null
       }
     },
-    "issue:BUG-999-TAMPER": {
-      "id": "issue:BUG-999-TAMPER",
-      "label": "Issue",
+    "project:test_ent": {
+      "id": "project:test_ent",
+      "label": "Project",
       "properties": {
-        "id": "issue:BUG-999-TAMPER",
-        "project_id": "project:payflow",
-        "ticket": "BUG-999-TAMPER",
-        "title": "Incident BUG-999-TAMPER: Unchecked buffer allocation",
-        "symptom": "Unchecked buffer allocation",
-        "severity": "HIGH",
-        "reported_at": "2026-10-17"
+        "id": "project:test_ent",
+        "name": "Test Enterprise Service",
+        "description": "Automated knowledge graph for Test Enterprise Service",
+        "repository": "https://github.com/organization/repo",
+        "created_at": "2025-10-01",
+        "codebase_owner": "payment-tech-lead@payflow.internal",
+        "prd_owner": "product-lead@payflow.internal"
       }
     },
-    "fix:BUG-999-TAMPER": {
-      "id": "fix:BUG-999-TAMPER",
-      "label": "Fix",
+    "ADR-002": {
+      "id": "ADR-002",
+      "label": "ADR",
       "properties": {
-        "id": "fix:BUG-999-TAMPER",
-        "rca_id": "rca:BUG-999-TAMPER",
-        "action_taken": "Restricted buffer size",
-        "commit_hash": "pending",
-        "approved_by": "unapproved",
-        "approval_status": "PENDING_APPROVAL",
-        "domain_owner_email": "payment-domain-owner@payflow.internal",
-        "approval_token": "e809ed968e7c392dba073b6677c11f50"
+        "id": "ADR-002",
+        "title": "ADR-002: Asynchronous Queuing and Concurrency for High-Volume Refunds",
+        "status": "ACCEPTED",
+        "date": "2026-01-10",
+        "context": "During high-volume sales events (such as Black Friday/Cyber Monday), merchants issue batch refund requests exceeding 500 operations per second. Synchronous HTTP execution caused gateway worker pool exhaustion, thread starvation, and cascading 504 Gateway Timeouts across the primary payment authorization flow.",
+        "decision": "1. **Asynchronous Decoupling:** The `RefundProcessor` will enqueue refund jobs into a durable distributed queue and immediately return a pending tracking token to the caller.\n2. **Worker Pool Concurrency of 5:** Queue consumers MUST run with exactly 5 concurrent workers per instance.\n   - Setting concurrency below 5 causes message accumulation, lag, and `REFUND_TIMEOUT` alerts under peak load.\n   - Setting concurrency above 10 causes banking partner API rate-limits (`HTTP 429 Too Many Requests`).\n3. **Strict 30-Day Age Check:** Refund eligibility must be checked against the settlement timestamp before queue dispatch.",
+        "consequences": "- Prevents refund spikes from impacting real-time checkout availability.\n- Requires careful worker pool tuning: decreasing concurrency below 5 was the direct root cause of incident `BUG-342`.",
+        "raw_content": "# ADR-002: Asynchronous Queuing and Concurrency for High-Volume Refunds\n\n- **ADR ID:** ADR-002\n- **Title:** Asynchronous Queuing and Concurrency for High-Volume Refunds\n- **Date:** 2026-01-10\n- **Status:** ACCEPTED\n- **Authors:** Alex Chen (Principal Architect), David Kim (Infrastructure Lead)\n\n## Context\nDuring high-volume sales events (such as Black Friday/Cyber Monday), merchants issue batch refund requests exceeding 500 operations per second. Synchronous HTTP execution caused gateway worker pool exhaustion, thread starvation, and cascading 504 Gateway Timeouts across the primary payment authorization flow.\n\n## Decision\n1. **Asynchronous Decoupling:** The `RefundProcessor` will enqueue refund jobs into a durable distributed queue and immediately return a pending tracking token to the caller.\n2. **Worker Pool Concurrency of 5:** Queue consumers MUST run with exactly 5 concurrent workers per instance.\n   - Setting concurrency below 5 causes message accumulation, lag, and `REFUND_TIMEOUT` alerts under peak load.\n   - Setting concurrency above 10 causes banking partner API rate-limits (`HTTP 429 Too Many Requests`).\n3. **Strict 30-Day Age Check:** Refund eligibility must be checked against the settlement timestamp before queue dispatch.\n\n## Consequences\n- Prevents refund spikes from impacting real-time checkout availability.\n- Requires careful worker pool tuning: decreasing concurrency below 5 was the direct root cause of incident `BUG-342`.\n"
       }
     },
-    "issue:BUG-1010-DOUBLE": {
-      "id": "issue:BUG-1010-DOUBLE",
-      "label": "Issue",
+    "dec:ADR-002:core": {
+      "id": "dec:ADR-002:core",
+      "label": "Decision",
       "properties": {
-        "id": "issue:BUG-1010-DOUBLE",
-        "project_id": "project:payflow",
-        "ticket": "BUG-1010-DOUBLE",
-        "title": "Incident BUG-1010-DOUBLE: Timeout on third-party webhook",
-        "symptom": "Timeout on third-party webhook",
-        "severity": "HIGH",
-        "reported_at": "2026-10-17"
-      }
-    },
-    "fix:BUG-1010-DOUBLE": {
-      "id": "fix:BUG-1010-DOUBLE",
-      "label": "Fix",
-      "properties": {
-        "id": "fix:BUG-1010-DOUBLE",
-        "rca_id": "rca:BUG-1010-DOUBLE",
-        "action_taken": "Added timeout retry policy",
-        "commit_hash": "approved_9d64204e",
-        "approved_by": "payment-domain-owner@payflow.internal",
-        "approval_status": "APPROVED",
-        "domain_owner_email": "payment-domain-owner@payflow.internal",
-        "approval_token": "9d64204e576cf73b00a5f43681bc24b6"
-      }
-    },
-    "issue:BUG-2020-CLI": {
-      "id": "issue:BUG-2020-CLI",
-      "label": "Issue",
-      "properties": {
-        "id": "issue:BUG-2020-CLI",
-        "project_id": "project:payflow",
-        "ticket": "BUG-2020-CLI",
-        "title": "Incident BUG-2020-CLI: CLI approval test",
-        "symptom": "CLI approval test",
-        "severity": "HIGH",
-        "reported_at": "2026-10-17"
-      }
-    },
-    "fix:BUG-2020-CLI": {
-      "id": "fix:BUG-2020-CLI",
-      "label": "Fix",
-      "properties": {
-        "id": "fix:BUG-2020-CLI",
-        "rca_id": "rca:BUG-2020-CLI",
-        "action_taken": "CLI verification",
-        "commit_hash": "approved_3d41937c",
-        "approved_by": "lead@payflow.internal",
-        "approval_status": "APPROVED",
-        "domain_owner_email": "payment-domain-owner@payflow.internal",
-        "approval_token": "3d41937ce5be83ff2735efb2e5af2641"
+        "id": "dec:ADR-002:core",
+        "arch_id": "arch:ADR-002",
+        "adr_id": "ADR-002",
+        "title": "Decision for ADR-002: Asynchronous Queuing and Concurrency for High-Volume Refunds",
+        "statement": "1. **Asynchronous Decoupling:** The `RefundProcessor` will enqueue refund jobs into a durable distributed queue and immediately return a pending tracking token to the caller.\n2. **Worker Pool Concurrency of 5:** Queue consumers MUST run with exactly 5 concurrent workers per instance.\n   - Setting concurrency below 5 causes message accumulation, lag, and `REFUND_TIMEOUT` alerts under peak load.\n   - Setting concurrency above 10 causes banking partner API rate-limits (`HTTP 429 Too Many Requests`).\n3. **Strict 30-Day Age Check:** Refund eligibility must be checked against the settlement timestamp before queue dispatch.",
+        "rationale": "During high-volume sales events (such as Black Friday/Cyber Monday), merchants issue batch refund requests exceeding 500 operations per second. Synchronous HTTP execution caused gateway worker pool exhaustion, thread starvation, and cascading 504 Gateway Timeouts across the primary payment authorization flow.",
+        "invariants": "- Prevents refund spikes from impacting real-time checkout availability.\n- Requires careful worker pool tuning: decreasing concurrency below 5 was the direct root cause of incident `BUG-342`."
       }
     },
     "BUG-342": {
@@ -1855,279 +1778,84 @@
         "raw_content": "# Runbook RB-PAY-001: Triage and Resolution for Payment and Refund Timeouts\n\n- **Runbook ID:** RB-PAY-001\n- **Service:** PayFlow Payment & Refund Gateway\n- **Audience:** On-Call Engineers & Senior Developers\n- **Last Verified:** 2026-03-01\n\n---\n\n## 1. Incident: REFUND_TIMEOUT Under Load\n- **Error Code / Symptom:** `REFUND_TIMEOUT`, `HTTP 504 Gateway Timeout` on `/v1/refunds` endpoint.\n- **Historical Reference:** `BUG-342` (Black Friday incident).\n- **Root Cause Analysis (RCA):**\n  The `RefundProcessor.WORKER_POOL_CONCURRENCY` was accidentally reduced from 5 to 2 in a hotfix PR. At concurrency 2, the async consumer queue becomes saturated whenever request volume exceeds 80 refunds/sec. Messages queue up, consumer lag reaches >120s, and API gateways drop connections with `REFUND_TIMEOUT`.\n- **Immediate Diagnostic Command:**\n  Check queue depth and consumer concurrency in `refund_processor.py`.\n- **Verified Resolution:**\n  1. Open `demo_data/code/refund_processor.py`.\n  2. Ensure `WORKER_POOL_CONCURRENCY` is set to `5` as specified in `ADR-002`.\n  3. Restart worker pool service.\n  4. Never set concurrency > 10 (triggers partner HTTP 429).\n\n---\n\n## 2. Incident: CASCADE_FRAUD_CHECK_FAILURES\n- **Error Code / Symptom:** `FRAUD_SERVICE_UNAVAILABLE`, spikes in legitimate card declines.\n- **Historical References:** `BUG-112`, `BUG-298`.\n- **Root Cause Analysis (RCA):**\n  A junior developer reduced `MAX_RETRIES` from 3 to 1 in `fraud_detector.py` to \"speed up checkout responses\". Because third-party credit card fraud networks experience 1-2% momentary packet drops, removing retry attempts caused 1 out of every 50 checkout requests to fail immediately.\n- **Verified Resolution:**\n  1. Refer to `ADR-001` (Fraud Risk Scoring and Mandatory Retry Ceiling).\n  2. Restore `MAX_RETRIES = 3` and `INITIAL_BACKOFF_SECONDS = 0.5`.\n  3. Run verification test suite.\n"
       }
     },
-    "file:billing.ts": {
-      "id": "file:billing.ts",
-      "label": "File",
+    "timeline:commit:35eb46d": {
+      "id": "timeline:commit:35eb46d",
+      "label": "ChangeTimeline",
       "properties": {
-        "path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-10/test_typescript_parser0/billing.ts",
-        "filename": "billing.ts",
-        "language": "typescript"
+        "id": "timeline:commit:35eb46d",
+        "project_id": "project:test_ent",
+        "commit_hash": "35eb46d0aaeab326a7f1b5cc8bc0cb528018200a",
+        "author": "Ashwin",
+        "timestamp": "2026-10-18T12:00:00Z",
+        "date": "2026-10-18",
+        "what_changed": "feat: add unified production ingestion pipeline, auto-linker, CI/CD action, and ADR-009",
+        "why_changed": "Recorded from git commit message: feat: add unified production ingestion pipeline, auto-linker, CI/CD action, and ADR-009",
+        "change_category": "PRD_FEATURE",
+        "diff_summary": "feat: add unified production ingestion pipeline, auto-linker, CI/CD action, and ADR-009"
       }
     },
-    "class:billing.ts:BillingService": {
-      "id": "class:billing.ts:BillingService",
-      "label": "Class",
+    "timeline:commit:ac3f90f": {
+      "id": "timeline:commit:ac3f90f",
+      "label": "ChangeTimeline",
       "properties": {
-        "id": "class:billing.ts:BillingService",
-        "name": "BillingService",
-        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-10/test_typescript_parser0/billing.ts",
-        "line_start": 7,
-        "line_end": 19,
-        "docstring": "Typescript class/struct BillingService"
+        "id": "timeline:commit:ac3f90f",
+        "project_id": "project:test_ent",
+        "commit_hash": "ac3f90ff12c4a0980645069150e12e3a339ea25a",
+        "author": "Ashwin",
+        "timestamp": "2026-10-17T12:00:00Z",
+        "date": "2026-10-17",
+        "what_changed": "test: add comprehensive 48-test suite, ADR-008, and doc updates",
+        "why_changed": "Recorded from git commit message: test: add comprehensive 48-test suite, ADR-008, and doc updates",
+        "change_category": "ADR_ENFORCEMENT",
+        "diff_summary": "test: add comprehensive 48-test suite, ADR-008, and doc updates"
       }
     },
-    "func:billing.ts:processSubscription": {
-      "id": "func:billing.ts:processSubscription",
-      "label": "Function",
+    "timeline:commit:79f4265": {
+      "id": "timeline:commit:79f4265",
+      "label": "ChangeTimeline",
       "properties": {
-        "id": "func:billing.ts:processSubscription",
-        "name": "processSubscription",
-        "class_id": "class:billing.ts:BillingService",
-        "class_name": "BillingService",
-        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-10/test_typescript_parser0/billing.ts",
-        "signature": "processSubscription(userId: string, planId: string)",
-        "line_start": 10,
-        "line_end": 13,
-        "docstring": null,
-        "source_code": "        async processSubscription(userId: string, planId: string): Promise<boolean> {\n            console.log(\"Processing subscription\");\n            return true;\n        }",
-        "domain_owner": null
+        "id": "timeline:commit:79f4265",
+        "project_id": "project:test_ent",
+        "commit_hash": "79f426518140e626e74985e039f414ed0de69297",
+        "author": "Ashwin",
+        "timestamp": "2026-10-17T12:00:00Z",
+        "date": "2026-10-17",
+        "what_changed": "docs: create ADRs for all 7 project components and update master docs",
+        "why_changed": "Recorded from git commit message: docs: create ADRs for all 7 project components and update master docs",
+        "change_category": "ADR_ENFORCEMENT",
+        "diff_summary": "docs: create ADRs for all 7 project components and update master docs"
       }
     },
-    "func:billing.ts:cancelSubscription": {
-      "id": "func:billing.ts:cancelSubscription",
-      "label": "Function",
+    "timeline:commit:950b794": {
+      "id": "timeline:commit:950b794",
+      "label": "ChangeTimeline",
       "properties": {
-        "id": "func:billing.ts:cancelSubscription",
-        "name": "cancelSubscription",
-        "class_id": "class:billing.ts:BillingService",
-        "class_name": "BillingService",
-        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-10/test_typescript_parser0/billing.ts",
-        "signature": "cancelSubscription(subId: string)",
-        "line_start": 16,
-        "line_end": 18,
-        "docstring": null,
-        "source_code": "    export const cancelSubscription = async (subId: string): Promise<void> => {\n        console.log(\"Cancelled\");\n    };",
-        "domain_owner": null
+        "id": "timeline:commit:950b794",
+        "project_id": "project:test_ent",
+        "commit_hash": "950b794e70f7f758696b425fefae874c3c8672da",
+        "author": "Ashwin",
+        "timestamp": "2026-10-17T12:00:00Z",
+        "date": "2026-10-17",
+        "what_changed": "feat: redefine graph schema to 4-pillar model with Project anchor and timeline lineage",
+        "why_changed": "Recorded from git commit message: feat: redefine graph schema to 4-pillar model with Project anchor and timeline lineage",
+        "change_category": "PRD_FEATURE",
+        "diff_summary": "feat: redefine graph schema to 4-pillar model with Project anchor and timeline lineage"
       }
     },
-    "file:handler.go": {
-      "id": "file:handler.go",
-      "label": "File",
+    "timeline:commit:58c5a9b": {
+      "id": "timeline:commit:58c5a9b",
+      "label": "ChangeTimeline",
       "properties": {
-        "path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-10/test_go_parser0/handler.go",
-        "filename": "handler.go",
-        "language": "go"
-      }
-    },
-    "class:handler.go:PaymentHandler": {
-      "id": "class:handler.go:PaymentHandler",
-      "label": "Class",
-      "properties": {
-        "id": "class:handler.go:PaymentHandler",
-        "name": "PaymentHandler",
-        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-10/test_go_parser0/handler.go",
-        "line_start": 8,
-        "line_end": 20,
-        "docstring": "Go class/struct PaymentHandler"
-      }
-    },
-    "func:handler.go:ProcessCharge": {
-      "id": "func:handler.go:ProcessCharge",
-      "label": "Function",
-      "properties": {
-        "id": "func:handler.go:ProcessCharge",
-        "name": "ProcessCharge",
-        "class_id": "class:handler.go:PaymentHandler",
-        "class_name": "PaymentHandler",
-        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-10/test_go_parser0/handler.go",
-        "signature": "ProcessCharge(amount int)",
-        "line_start": 12,
-        "line_end": 15,
-        "docstring": null,
-        "source_code": "    func (p *PaymentHandler) ProcessCharge(amount int) error {\n        fmt.Println(amount)\n        return nil\n    }",
-        "domain_owner": null
-      }
-    },
-    "func:handler.go:HealthCheck": {
-      "id": "func:handler.go:HealthCheck",
-      "label": "Function",
-      "properties": {
-        "id": "func:handler.go:HealthCheck",
-        "name": "HealthCheck",
-        "class_id": "class:handler.go:PaymentHandler",
-        "class_name": "PaymentHandler",
-        "file_path": "/private/var/folders/8t/vkk9z9j52yl_zynqg00dqw4r0000gp/T/pytest-of-ashwin/pytest-10/test_go_parser0/handler.go",
-        "signature": "HealthCheck()",
-        "line_start": 17,
-        "line_end": 19,
-        "docstring": null,
-        "source_code": "    func HealthCheck() string {\n        return \"OK\"\n    }",
-        "domain_owner": null
-      }
-    },
-    "PRD-CONF-202": {
-      "id": "PRD-CONF-202",
-      "label": "PRD",
-      "properties": {
-        "id": "PRD-CONF-202",
-        "title": "Subscription Management Portal",
-        "version": "1.0",
-        "author": null,
-        "status": "APPROVED",
-        "created_at": null,
-        "raw_content": "# PRD: Subscription Management Portal\n\n        \n\n**Document ID:** PRD-CONF-202\n        \n\n**Status:** APPROVED\n        \n\n### REQ-050: Auto-Renew Subscriptions\n\n        \n\n**Priority:** HIGH\n        \n\n**Status:** IMPLEMENTED\n        \n\n**Description:** Automatically charge customer card upon billing cycle end.\n        \n          \n- **SCEN-050-1:** Card charged on 30th day"
-      }
-    },
-    "REQ-050": {
-      "id": "REQ-050",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-050",
-        "prd_id": "PRD-CONF-202",
-        "title": "Auto-Renew Subscriptions",
-        "description": "Automatically charge customer card upon billing cycle end.",
-        "priority": "HIGH",
-        "status": "IMPLEMENTED"
-      }
-    },
-    "SCEN-050-1": {
-      "id": "SCEN-050-1",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-050-1",
-        "req_id": "REQ-050",
-        "description": "Card charged on 30th day",
-        "expected_behavior": "Card charged on 30th day",
-        "covered_by_code": true
-      }
-    },
-    "DOC-JIRA-EXPORT": {
-      "id": "DOC-JIRA-EXPORT",
-      "label": "PRD",
-      "properties": {
-        "id": "DOC-JIRA-EXPORT",
-        "title": "Jira Export",
-        "version": "1.0",
-        "author": null,
-        "status": "APPROVED",
-        "created_at": null,
-        "raw_content": "# PRD: Jira Export\n\n**Document ID:** DOC-JIRA-EXPORT\n\n**Status:** APPROVED\n\n## Requirements\n\n### REQ-701: Multi-Tenant Enterprise Isolation\n\n**Priority:** HIGH\n\n**Status:** IN PROGRESS\n\n**Description:** Isolate tenant transaction ledger tables.\n\n\n**Test Scenarios:**\n\n- **SCEN-REQ-701-1:** Tenant A cannot query Tenant B balance\n\n\n"
-      }
-    },
-    "REQ-701": {
-      "id": "REQ-701",
-      "label": "Requirement",
-      "properties": {
-        "id": "REQ-701",
-        "prd_id": "DOC-JIRA-EXPORT",
-        "title": "Multi-Tenant Enterprise Isolation",
-        "description": "Isolate tenant transaction ledger tables.",
-        "priority": "HIGH",
-        "status": "IN PROGRESS"
-      }
-    },
-    "SCEN-REQ-701-1": {
-      "id": "SCEN-REQ-701-1",
-      "label": "Scenario",
-      "properties": {
-        "id": "SCEN-REQ-701-1",
-        "req_id": "REQ-701",
-        "description": "Tenant A cannot query Tenant B balance",
-        "expected_behavior": "Tenant A cannot query Tenant B balance",
-        "covered_by_code": false
-      }
-    },
-    "project:custom_ingest": {
-      "id": "project:custom_ingest",
-      "label": "Project",
-      "properties": {
-        "id": "project:custom_ingest",
-        "name": "Custom Ingestion Service",
-        "description": "Automated knowledge graph for Custom Ingestion Service",
-        "repository": "https://github.com/organization/repo",
-        "created_at": "2025-10-01",
-        "codebase_owner": "arch-lead@custom.internal",
-        "prd_owner": "platform-pm@custom.internal"
-      }
-    },
-    "project:cli_test": {
-      "id": "project:cli_test",
-      "label": "Project",
-      "properties": {
-        "id": "project:cli_test",
-        "name": "CLI Project",
-        "description": "Automated knowledge graph for CLI Project",
-        "repository": "https://github.com/organization/repo",
-        "created_at": "2025-10-01",
-        "codebase_owner": "cli-dev@payflow.internal",
-        "prd_owner": "cli-pm@payflow.internal"
-      }
-    },
-    "issue:BUG-999-TEST": {
-      "id": "issue:BUG-999-TEST",
-      "label": "Issue",
-      "properties": {
-        "id": "issue:BUG-999-TEST",
-        "project_id": "project:payflow",
-        "ticket": "BUG-999-TEST",
-        "title": "Incident BUG-999-TEST: Simulated memory leak under synthetic test",
-        "symptom": "Simulated memory leak under synthetic test",
-        "severity": "HIGH",
-        "reported_at": "2026-10-17"
-      }
-    },
-    "fix:BUG-999-TEST": {
-      "id": "fix:BUG-999-TEST",
-      "label": "Fix",
-      "properties": {
-        "id": "fix:BUG-999-TEST",
-        "rca_id": "rca:BUG-999-TEST",
-        "action_taken": "Added garbage collection hook",
-        "commit_hash": "pending",
-        "approved_by": "unapproved",
-        "approval_status": "PENDING_APPROVAL",
-        "domain_owner_email": "payment-domain-owner@payflow.internal",
-        "approval_token": "65a8ad17c5c960f915e72b44aadec2c1"
-      }
-    },
-    "issue:BUG-1000-TEST": {
-      "id": "issue:BUG-1000-TEST",
-      "label": "Issue",
-      "properties": {
-        "id": "issue:BUG-1000-TEST",
-        "project_id": "project:payflow",
-        "ticket": "BUG-1000-TEST",
-        "title": "Incident BUG-1000-TEST: Minor rounding difference on currency conversion",
-        "symptom": "Minor rounding difference on currency conversion",
-        "severity": "HIGH",
-        "reported_at": "2026-10-17"
-      }
-    },
-    "fix:BUG-1000-TEST": {
-      "id": "fix:BUG-1000-TEST",
-      "label": "Fix",
-      "properties": {
-        "id": "fix:BUG-1000-TEST",
-        "rca_id": "rca:BUG-1000-TEST",
-        "action_taken": "Used decimal.Decimal representation",
-        "commit_hash": "approved_hash",
-        "approved_by": "lead_reviewer",
-        "approval_status": "APPROVED",
-        "domain_owner_email": "payment-domain-owner@payflow.internal",
-        "approval_token": null
-      }
-    },
-    "project:test_ent": {
-      "id": "project:test_ent",
-      "label": "Project",
-      "properties": {
-        "id": "project:test_ent",
-        "name": "Test Enterprise Service",
-        "description": "Automated knowledge graph for Test Enterprise Service",
-        "repository": "https://github.com/organization/repo",
-        "created_at": "2025-10-01",
-        "codebase_owner": "payment-tech-lead@payflow.internal",
-        "prd_owner": "product-lead@payflow.internal"
+        "id": "timeline:commit:58c5a9b",
+        "project_id": "project:test_ent",
+        "commit_hash": "58c5a9b4c86aae6509528605f75f8a0264088441",
+        "author": "Ashwin",
+        "timestamp": "2026-10-17T12:00:00Z",
+        "date": "2026-10-17",
+        "what_changed": "feat: initial implementation of CodeGraph MCP Server and Knowledge Graph",
+        "why_changed": "Recorded from git commit message: feat: initial implementation of CodeGraph MCP Server and Knowledge Graph",
+        "change_category": "PRD_FEATURE",
+        "diff_summary": "feat: initial implementation of CodeGraph MCP Server and Knowledge Graph"
       }
     }
   },
@@ -3401,295 +3129,79 @@
       }
     },
     {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-001",
-      "properties": {}
-    },
-    {
-      "from": "REQ-001",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-001",
-      "properties": {}
-    },
-    {
-      "from": "REQ-001",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-002",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-002",
-      "properties": {}
-    },
-    {
-      "from": "REQ-002",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-003",
-      "properties": {}
-    },
-    {
-      "from": "REQ-002",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-004",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-003",
-      "properties": {}
-    },
-    {
-      "from": "REQ-003",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-005",
-      "properties": {}
-    },
-    {
-      "from": "REQ-003",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-006",
-      "properties": {}
-    },
-    {
-      "from": "REQ-003",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-007",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-004",
-      "properties": {}
-    },
-    {
-      "from": "REQ-004",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-008",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-005",
-      "properties": {}
-    },
-    {
-      "from": "REQ-005",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-009",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-006",
-      "properties": {}
-    },
-    {
-      "from": "REQ-006",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-010",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-007",
-      "properties": {}
-    },
-    {
-      "from": "REQ-007",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-011",
-      "properties": {}
-    },
-    {
-      "from": "REQ-007",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-012",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-008",
-      "properties": {}
-    },
-    {
-      "from": "REQ-008",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-013",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-009",
-      "properties": {}
-    },
-    {
-      "from": "REQ-009",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-014",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-010",
-      "properties": {}
-    },
-    {
-      "from": "REQ-010",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-015",
-      "properties": {}
-    },
-    {
-      "from": "ADR-001",
-      "rel": "LEADS_TO_DECISION",
-      "to": "dec:ADR-001:core",
-      "properties": {}
-    },
-    {
-      "from": "ADR-002",
-      "rel": "LEADS_TO_DECISION",
-      "to": "dec:ADR-002:core",
-      "properties": {}
-    },
-    {
-      "from": "project:enterprise",
-      "rel": "HAS_TIMELINE_RECORD",
-      "to": "timeline:commit:1585342",
-      "properties": {}
-    },
-    {
-      "from": "project:enterprise",
-      "rel": "HAS_TIMELINE_RECORD",
-      "to": "timeline:commit:8a4aaf8",
-      "properties": {}
-    },
-    {
-      "from": "project:enterprise",
-      "rel": "HAS_TIMELINE_RECORD",
-      "to": "timeline:commit:4b051ea",
-      "properties": {}
-    },
-    {
-      "from": "project:enterprise",
-      "rel": "HAS_TIMELINE_RECORD",
-      "to": "timeline:commit:a1b29fd",
-      "properties": {}
-    },
-    {
-      "from": "project:enterprise",
-      "rel": "HAS_TIMELINE_RECORD",
-      "to": "timeline:commit:35eb46d",
-      "properties": {}
-    },
-    {
-      "from": "project:enterprise",
-      "rel": "HAS_TIMELINE_RECORD",
-      "to": "timeline:commit:ac3f90f",
-      "properties": {}
-    },
-    {
-      "from": "project:enterprise",
-      "rel": "HAS_TIMELINE_RECORD",
-      "to": "timeline:commit:79f4265",
-      "properties": {}
-    },
-    {
-      "from": "project:enterprise",
-      "rel": "HAS_TIMELINE_RECORD",
-      "to": "timeline:commit:950b794",
-      "properties": {}
-    },
-    {
-      "from": "project:enterprise",
-      "rel": "HAS_TIMELINE_RECORD",
-      "to": "timeline:commit:58c5a9b",
-      "properties": {}
-    },
-    {
-      "from": "dec:ADR-001:core",
+      "from": "decision:ADR-001:retry_ceiling",
       "rel": "CONSTRAINS_FUNCTION",
       "to": "func:retry_with_backoff",
       "properties": {}
     },
     {
-      "from": "dec:ADR-002:core",
+      "from": "decision:ADR-002:concurrency_5",
       "rel": "CONSTRAINS_FUNCTION",
       "to": "func:queue_refund_job",
       "properties": {}
     },
     {
-      "from": "dec:ADR-001:core",
+      "from": "decision:ADR-001:retry_ceiling",
       "rel": "CONSTRAINS_FUNCTION",
       "to": "func:fraud_detector.py:retry_with_backoff",
       "properties": {}
     },
     {
-      "from": "REQ-003",
+      "from": "req:REQ-003",
       "rel": "IMPLEMENTED_BY_FUNCTION",
       "to": "func:fraud_detector.py:assess_risk",
       "properties": {}
     },
     {
-      "from": "dec:ADR-001:core",
+      "from": "decision:ADR-001:retry_ceiling",
       "rel": "CONSTRAINS_FUNCTION",
       "to": "func:fraud_detector.py:assess_risk",
       "properties": {}
     },
     {
-      "from": "REQ-006",
+      "from": "req:REQ-006",
       "rel": "IMPLEMENTED_BY_FUNCTION",
       "to": "func:notification_service.py:send_webhook",
       "properties": {}
     },
     {
-      "from": "REQ-002",
+      "from": "req:REQ-002",
       "rel": "IMPLEMENTED_BY_FUNCTION",
       "to": "func:payment_service.py:validate_card",
       "properties": {}
     },
     {
-      "from": "REQ-001",
+      "from": "req:REQ-001",
       "rel": "IMPLEMENTED_BY_FUNCTION",
       "to": "func:payment_service.py:authorize_payment",
       "properties": {}
     },
     {
-      "from": "REQ-002",
+      "from": "req:REQ-002",
       "rel": "IMPLEMENTED_BY_FUNCTION",
       "to": "func:payment_service.py:authorize_payment",
       "properties": {}
     },
     {
-      "from": "REQ-003",
+      "from": "req:REQ-003",
       "rel": "IMPLEMENTED_BY_FUNCTION",
       "to": "func:payment_service.py:authorize_payment",
       "properties": {}
     },
     {
-      "from": "REQ-005",
+      "from": "req:REQ-005",
       "rel": "IMPLEMENTED_BY_FUNCTION",
       "to": "func:payment_service.py:authorize_payment",
       "properties": {}
     },
     {
-      "from": "REQ-007",
+      "from": "req:REQ-007",
       "rel": "IMPLEMENTED_BY_FUNCTION",
       "to": "func:refund_processor.py:validate_refund_eligibility",
       "properties": {}
     },
     {
-      "from": "dec:ADR-002:core",
+      "from": "decision:ADR-002:concurrency_5",
       "rel": "CONSTRAINS_FUNCTION",
       "to": "func:refund_processor.py:queue_refund_job",
       "properties": {}
@@ -3697,562 +3209,7 @@
     {
       "from": "timeline:commit:e4f5a6b",
       "rel": "MOTIVATED_BY_ADR",
-      "to": "dec:ADR-001:core",
-      "properties": {}
-    },
-    {
-      "from": "project:payflow",
-      "rel": "HAS_ISSUE",
-      "to": "issue:BUG-777-EMAIL",
-      "properties": {}
-    },
-    {
-      "from": "issue:BUG-777-EMAIL",
-      "rel": "MANIFESTED_IN_FUNCTION",
-      "to": "func:validate_card",
-      "properties": {}
-    },
-    {
-      "from": "fix:BUG-777-EMAIL",
-      "rel": "FIXES_FUNCTION",
-      "to": "func:validate_card",
-      "properties": {
-        "approval_status": "PENDING_APPROVAL"
-      }
-    },
-    {
-      "from": "project:payflow",
-      "rel": "HAS_ISSUE",
-      "to": "issue:BUG-888-APPROVE",
-      "properties": {}
-    },
-    {
-      "from": "issue:BUG-888-APPROVE",
-      "rel": "MANIFESTED_IN_FUNCTION",
-      "to": "func:validate_card",
-      "properties": {}
-    },
-    {
-      "from": "fix:BUG-888-APPROVE",
-      "rel": "FIXES_FUNCTION",
-      "to": "func:validate_card",
-      "properties": {
-        "approval_status": "APPROVED",
-        "status": "APPROVED"
-      }
-    },
-    {
-      "from": "project:payflow",
-      "rel": "HAS_ISSUE",
-      "to": "issue:BUG-999-TAMPER",
-      "properties": {}
-    },
-    {
-      "from": "issue:BUG-999-TAMPER",
-      "rel": "MANIFESTED_IN_FUNCTION",
-      "to": "func:validate_card",
-      "properties": {}
-    },
-    {
-      "from": "fix:BUG-999-TAMPER",
-      "rel": "FIXES_FUNCTION",
-      "to": "func:validate_card",
-      "properties": {
-        "approval_status": "PENDING_APPROVAL"
-      }
-    },
-    {
-      "from": "project:payflow",
-      "rel": "HAS_ISSUE",
-      "to": "issue:BUG-1010-DOUBLE",
-      "properties": {}
-    },
-    {
-      "from": "issue:BUG-1010-DOUBLE",
-      "rel": "MANIFESTED_IN_FUNCTION",
-      "to": "func:validate_card",
-      "properties": {}
-    },
-    {
-      "from": "fix:BUG-1010-DOUBLE",
-      "rel": "FIXES_FUNCTION",
-      "to": "func:validate_card",
-      "properties": {
-        "approval_status": "APPROVED",
-        "status": "APPROVED"
-      }
-    },
-    {
-      "from": "project:payflow",
-      "rel": "HAS_ISSUE",
-      "to": "issue:BUG-2020-CLI",
-      "properties": {}
-    },
-    {
-      "from": "issue:BUG-2020-CLI",
-      "rel": "MANIFESTED_IN_FUNCTION",
-      "to": "func:validate_card",
-      "properties": {}
-    },
-    {
-      "from": "fix:BUG-2020-CLI",
-      "rel": "FIXES_FUNCTION",
-      "to": "func:validate_card",
-      "properties": {
-        "approval_status": "APPROVED",
-        "status": "APPROVED"
-      }
-    },
-    {
-      "from": "file:payment_service.py",
-      "rel": "ROUTED_TO_CLASS",
-      "to": "class:payment_service.py:PaymentService",
-      "properties": {}
-    },
-    {
-      "from": "file:payment_service.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:payment_service.py:__init__",
-      "properties": {}
-    },
-    {
-      "from": "class:payment_service.py:PaymentService",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:payment_service.py:__init__",
-      "properties": {}
-    },
-    {
-      "from": "func:payment_service.py:__init__",
-      "rel": "CALLS",
-      "to": "func_call_target:FraudDetector",
-      "properties": {
-        "callee_name": "FraudDetector"
-      }
-    },
-    {
-      "from": "func:payment_service.py:__init__",
-      "rel": "CALLS",
-      "to": "func_call_target:NotificationService",
-      "properties": {
-        "callee_name": "NotificationService"
-      }
-    },
-    {
-      "from": "file:payment_service.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:payment_service.py:validate_card",
-      "properties": {}
-    },
-    {
-      "from": "class:payment_service.py:PaymentService",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:payment_service.py:validate_card",
-      "properties": {}
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:replace",
-      "properties": {
-        "callee_name": "replace"
-      }
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:enumerate",
-      "properties": {
-        "callee_name": "enumerate"
-      }
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:int",
-      "properties": {
-        "callee_name": "int"
-      }
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:replace",
-      "properties": {
-        "callee_name": "replace"
-      }
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:isdigit",
-      "properties": {
-        "callee_name": "isdigit"
-      }
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:len",
-      "properties": {
-        "callee_name": "len"
-      }
-    },
-    {
-      "from": "file:payment_service.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:payment_service.py:authorize_payment",
-      "properties": {}
-    },
-    {
-      "from": "class:payment_service.py:PaymentService",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:payment_service.py:authorize_payment",
-      "properties": {}
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:validate_card",
-      "properties": {
-        "callee_name": "validate_card"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:assess_risk",
-      "properties": {
-        "callee_name": "assess_risk"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:time",
-      "properties": {
-        "callee_name": "time"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:int",
-      "properties": {
-        "callee_name": "int"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:time",
-      "properties": {
-        "callee_name": "time"
-      }
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-001",
-      "properties": {}
-    },
-    {
-      "from": "REQ-001",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-001",
-      "properties": {}
-    },
-    {
-      "from": "REQ-001",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-002",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-002",
-      "properties": {}
-    },
-    {
-      "from": "REQ-002",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-003",
-      "properties": {}
-    },
-    {
-      "from": "REQ-002",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-004",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-003",
-      "properties": {}
-    },
-    {
-      "from": "REQ-003",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-005",
-      "properties": {}
-    },
-    {
-      "from": "REQ-003",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-006",
-      "properties": {}
-    },
-    {
-      "from": "REQ-003",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-007",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-004",
-      "properties": {}
-    },
-    {
-      "from": "REQ-004",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-008",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-005",
-      "properties": {}
-    },
-    {
-      "from": "REQ-005",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-009",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-006",
-      "properties": {}
-    },
-    {
-      "from": "REQ-006",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-010",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-007",
-      "properties": {}
-    },
-    {
-      "from": "REQ-007",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-011",
-      "properties": {}
-    },
-    {
-      "from": "REQ-007",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-012",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-008",
-      "properties": {}
-    },
-    {
-      "from": "REQ-008",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-013",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-009",
-      "properties": {}
-    },
-    {
-      "from": "REQ-009",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-014",
-      "properties": {}
-    },
-    {
-      "from": "PRD-PAYFLOW-101",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-010",
-      "properties": {}
-    },
-    {
-      "from": "REQ-010",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-015",
-      "properties": {}
-    },
-    {
-      "from": "ADR-001",
-      "rel": "LEADS_TO_DECISION",
-      "to": "dec:ADR-001:core",
-      "properties": {}
-    },
-    {
-      "from": "proc:RB-PAY-001:BUG-342",
-      "rel": "RESOLVED_BY_FIX",
-      "to": "BUG-342",
-      "properties": {}
-    },
-    {
-      "from": "proc:RB-PAY-001:BUG-112",
-      "rel": "RESOLVED_BY_FIX",
-      "to": "BUG-112",
-      "properties": {}
-    },
-    {
-      "from": "proc:RB-PAY-001:BUG-298",
-      "rel": "RESOLVED_BY_FIX",
-      "to": "BUG-298",
-      "properties": {}
-    },
-    {
-      "from": "file:billing.ts",
-      "rel": "ROUTED_TO_CLASS",
-      "to": "class:billing.ts:BillingService",
-      "properties": {}
-    },
-    {
-      "from": "file:billing.ts",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:billing.ts:processSubscription",
-      "properties": {}
-    },
-    {
-      "from": "class:billing.ts:BillingService",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:billing.ts:processSubscription",
-      "properties": {}
-    },
-    {
-      "from": "func:billing.ts:processSubscription",
-      "rel": "CALLS",
-      "to": "func_call_target:log",
-      "properties": {
-        "callee_name": "log"
-      }
-    },
-    {
-      "from": "file:billing.ts",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:billing.ts:cancelSubscription",
-      "properties": {}
-    },
-    {
-      "from": "class:billing.ts:BillingService",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:billing.ts:cancelSubscription",
-      "properties": {}
-    },
-    {
-      "from": "func:billing.ts:cancelSubscription",
-      "rel": "CALLS",
-      "to": "func_call_target:async",
-      "properties": {
-        "callee_name": "async"
-      }
-    },
-    {
-      "from": "func:billing.ts:cancelSubscription",
-      "rel": "CALLS",
-      "to": "func_call_target:log",
-      "properties": {
-        "callee_name": "log"
-      }
-    },
-    {
-      "from": "file:handler.go",
-      "rel": "ROUTED_TO_CLASS",
-      "to": "class:handler.go:PaymentHandler",
-      "properties": {}
-    },
-    {
-      "from": "file:handler.go",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:handler.go:ProcessCharge",
-      "properties": {}
-    },
-    {
-      "from": "class:handler.go:PaymentHandler",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:handler.go:ProcessCharge",
-      "properties": {}
-    },
-    {
-      "from": "func:handler.go:ProcessCharge",
-      "rel": "CALLS",
-      "to": "func_call_target:func",
-      "properties": {
-        "callee_name": "func"
-      }
-    },
-    {
-      "from": "func:handler.go:ProcessCharge",
-      "rel": "CALLS",
-      "to": "func_call_target:Println",
-      "properties": {
-        "callee_name": "Println"
-      }
-    },
-    {
-      "from": "file:handler.go",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:handler.go:HealthCheck",
-      "properties": {}
-    },
-    {
-      "from": "class:handler.go:PaymentHandler",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:handler.go:HealthCheck",
-      "properties": {}
-    },
-    {
-      "from": "PRD-CONF-202",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-050",
-      "properties": {}
-    },
-    {
-      "from": "REQ-050",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-050-1",
-      "properties": {}
-    },
-    {
-      "from": "DOC-JIRA-EXPORT",
-      "rel": "SPECIFIES_REQUIREMENT",
-      "to": "REQ-701",
-      "properties": {}
-    },
-    {
-      "from": "REQ-701",
-      "rel": "ENFORCES_GUARDRAIL",
-      "to": "SCEN-REQ-701-1",
+      "to": "decision:ADR-001:retry_ceiling",
       "properties": {}
     },
     {
@@ -4792,30 +3749,6 @@
       }
     },
     {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:validate_card",
-      "properties": {
-        "callee_name": "validate_card"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:assess_risk",
-      "properties": {
-        "callee_name": "assess_risk"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
       "from": "func:fraud_detector.py:assess_risk",
       "rel": "CALLS",
       "to": "func:retry_with_backoff",
@@ -4872,760 +3805,10 @@
       }
     },
     {
-      "from": "dec:ADR-001:core",
-      "rel": "CONSTRAINS_FUNCTION",
-      "to": "func:retry_with_backoff",
+      "from": "project:cli_test",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:f2202ac",
       "properties": {}
-    },
-    {
-      "from": "dec:ADR-002:core",
-      "rel": "CONSTRAINS_FUNCTION",
-      "to": "func:queue_refund_job",
-      "properties": {}
-    },
-    {
-      "from": "dec:ADR-001:core",
-      "rel": "CONSTRAINS_FUNCTION",
-      "to": "func:fraud_detector.py:retry_with_backoff",
-      "properties": {}
-    },
-    {
-      "from": "REQ-003",
-      "rel": "IMPLEMENTED_BY_FUNCTION",
-      "to": "func:fraud_detector.py:assess_risk",
-      "properties": {}
-    },
-    {
-      "from": "dec:ADR-001:core",
-      "rel": "CONSTRAINS_FUNCTION",
-      "to": "func:fraud_detector.py:assess_risk",
-      "properties": {}
-    },
-    {
-      "from": "REQ-006",
-      "rel": "IMPLEMENTED_BY_FUNCTION",
-      "to": "func:notification_service.py:send_webhook",
-      "properties": {}
-    },
-    {
-      "from": "REQ-002",
-      "rel": "IMPLEMENTED_BY_FUNCTION",
-      "to": "func:payment_service.py:validate_card",
-      "properties": {}
-    },
-    {
-      "from": "REQ-001",
-      "rel": "IMPLEMENTED_BY_FUNCTION",
-      "to": "func:payment_service.py:authorize_payment",
-      "properties": {}
-    },
-    {
-      "from": "REQ-002",
-      "rel": "IMPLEMENTED_BY_FUNCTION",
-      "to": "func:payment_service.py:authorize_payment",
-      "properties": {}
-    },
-    {
-      "from": "REQ-003",
-      "rel": "IMPLEMENTED_BY_FUNCTION",
-      "to": "func:payment_service.py:authorize_payment",
-      "properties": {}
-    },
-    {
-      "from": "REQ-005",
-      "rel": "IMPLEMENTED_BY_FUNCTION",
-      "to": "func:payment_service.py:authorize_payment",
-      "properties": {}
-    },
-    {
-      "from": "REQ-007",
-      "rel": "IMPLEMENTED_BY_FUNCTION",
-      "to": "func:refund_processor.py:validate_refund_eligibility",
-      "properties": {}
-    },
-    {
-      "from": "dec:ADR-002:core",
-      "rel": "CONSTRAINS_FUNCTION",
-      "to": "func:refund_processor.py:queue_refund_job",
-      "properties": {}
-    },
-    {
-      "from": "timeline:commit:e4f5a6b",
-      "rel": "MOTIVATED_BY_ADR",
-      "to": "dec:ADR-001:core",
-      "properties": {}
-    },
-    {
-      "from": "file:fraud_detector.py",
-      "rel": "ROUTED_TO_CLASS",
-      "to": "class:fraud_detector.py:FraudDetector",
-      "properties": {}
-    },
-    {
-      "from": "file:fraud_detector.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:fraud_detector.py:__init__",
-      "properties": {}
-    },
-    {
-      "from": "class:fraud_detector.py:FraudDetector",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:fraud_detector.py:__init__",
-      "properties": {}
-    },
-    {
-      "from": "file:fraud_detector.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:fraud_detector.py:retry_with_backoff",
-      "properties": {}
-    },
-    {
-      "from": "class:fraud_detector.py:FraudDetector",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:fraud_detector.py:retry_with_backoff",
-      "properties": {}
-    },
-    {
-      "from": "func:fraud_detector.py:retry_with_backoff",
-      "rel": "CALLS",
-      "to": "func_call_target:RuntimeError",
-      "properties": {
-        "callee_name": "RuntimeError"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:retry_with_backoff",
-      "rel": "CALLS",
-      "to": "func_call_target:operation",
-      "properties": {
-        "callee_name": "operation"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:retry_with_backoff",
-      "rel": "CALLS",
-      "to": "func_call_target:sleep",
-      "properties": {
-        "callee_name": "sleep"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:retry_with_backoff",
-      "rel": "CALLS",
-      "to": "func_call_target:RuntimeError",
-      "properties": {
-        "callee_name": "RuntimeError"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:retry_with_backoff",
-      "rel": "CALLS",
-      "to": "func_call_target:str",
-      "properties": {
-        "callee_name": "str"
-      }
-    },
-    {
-      "from": "file:fraud_detector.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:fraud_detector.py:assess_risk",
-      "properties": {}
-    },
-    {
-      "from": "class:fraud_detector.py:FraudDetector",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:fraud_detector.py:assess_risk",
-      "properties": {}
-    },
-    {
-      "from": "func:fraud_detector.py:assess_risk",
-      "rel": "CALLS",
-      "to": "func_call_target:retry_with_backoff",
-      "properties": {
-        "callee_name": "retry_with_backoff"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:assess_risk",
-      "rel": "CALLS",
-      "to": "func_call_target:min",
-      "properties": {
-        "callee_name": "min"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:assess_risk",
-      "rel": "CALLS",
-      "to": "func_call_target:get",
-      "properties": {
-        "callee_name": "get"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:assess_risk",
-      "rel": "CALLS",
-      "to": "func_call_target:get",
-      "properties": {
-        "callee_name": "get"
-      }
-    },
-    {
-      "from": "file:fraud_detector.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:fraud_detector.py:_call_risk_engine",
-      "properties": {}
-    },
-    {
-      "from": "class:fraud_detector.py:FraudDetector",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:fraud_detector.py:_call_risk_engine",
-      "properties": {}
-    },
-    {
-      "from": "func:fraud_detector.py:_call_risk_engine",
-      "rel": "CALLS",
-      "to": "func_call_target:min",
-      "properties": {
-        "callee_name": "min"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:_call_risk_engine",
-      "rel": "CALLS",
-      "to": "func_call_target:get",
-      "properties": {
-        "callee_name": "get"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:_call_risk_engine",
-      "rel": "CALLS",
-      "to": "func_call_target:get",
-      "properties": {
-        "callee_name": "get"
-      }
-    },
-    {
-      "from": "file:notification_service.py",
-      "rel": "ROUTED_TO_CLASS",
-      "to": "class:notification_service.py:NotificationService",
-      "properties": {}
-    },
-    {
-      "from": "file:notification_service.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:notification_service.py:__init__",
-      "properties": {}
-    },
-    {
-      "from": "class:notification_service.py:NotificationService",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:notification_service.py:__init__",
-      "properties": {}
-    },
-    {
-      "from": "file:notification_service.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:notification_service.py:send_webhook",
-      "properties": {}
-    },
-    {
-      "from": "class:notification_service.py:NotificationService",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:notification_service.py:send_webhook",
-      "properties": {}
-    },
-    {
-      "from": "func:notification_service.py:send_webhook",
-      "rel": "CALLS",
-      "to": "func_call_target:append",
-      "properties": {
-        "callee_name": "append"
-      }
-    },
-    {
-      "from": "file:notification_service.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:notification_service.py:send_receipt",
-      "properties": {}
-    },
-    {
-      "from": "class:notification_service.py:NotificationService",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:notification_service.py:send_receipt",
-      "properties": {}
-    },
-    {
-      "from": "file:payment_service.py",
-      "rel": "ROUTED_TO_CLASS",
-      "to": "class:payment_service.py:PaymentService",
-      "properties": {}
-    },
-    {
-      "from": "file:payment_service.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:payment_service.py:__init__",
-      "properties": {}
-    },
-    {
-      "from": "class:payment_service.py:PaymentService",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:payment_service.py:__init__",
-      "properties": {}
-    },
-    {
-      "from": "func:payment_service.py:__init__",
-      "rel": "CALLS",
-      "to": "func_call_target:FraudDetector",
-      "properties": {
-        "callee_name": "FraudDetector"
-      }
-    },
-    {
-      "from": "func:payment_service.py:__init__",
-      "rel": "CALLS",
-      "to": "func_call_target:NotificationService",
-      "properties": {
-        "callee_name": "NotificationService"
-      }
-    },
-    {
-      "from": "file:payment_service.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:payment_service.py:validate_card",
-      "properties": {}
-    },
-    {
-      "from": "class:payment_service.py:PaymentService",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:payment_service.py:validate_card",
-      "properties": {}
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:replace",
-      "properties": {
-        "callee_name": "replace"
-      }
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:enumerate",
-      "properties": {
-        "callee_name": "enumerate"
-      }
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:int",
-      "properties": {
-        "callee_name": "int"
-      }
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:replace",
-      "properties": {
-        "callee_name": "replace"
-      }
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:isdigit",
-      "properties": {
-        "callee_name": "isdigit"
-      }
-    },
-    {
-      "from": "func:payment_service.py:validate_card",
-      "rel": "CALLS",
-      "to": "func_call_target:len",
-      "properties": {
-        "callee_name": "len"
-      }
-    },
-    {
-      "from": "file:payment_service.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:payment_service.py:authorize_payment",
-      "properties": {}
-    },
-    {
-      "from": "class:payment_service.py:PaymentService",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:payment_service.py:authorize_payment",
-      "properties": {}
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:validate_card",
-      "properties": {
-        "callee_name": "validate_card"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:assess_risk",
-      "properties": {
-        "callee_name": "assess_risk"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:time",
-      "properties": {
-        "callee_name": "time"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:int",
-      "properties": {
-        "callee_name": "int"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func_call_target:time",
-      "properties": {
-        "callee_name": "time"
-      }
-    },
-    {
-      "from": "file:refund_processor.py",
-      "rel": "ROUTED_TO_CLASS",
-      "to": "class:refund_processor.py:RefundProcessor",
-      "properties": {}
-    },
-    {
-      "from": "file:refund_processor.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:refund_processor.py:__init__",
-      "properties": {}
-    },
-    {
-      "from": "class:refund_processor.py:RefundProcessor",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:refund_processor.py:__init__",
-      "properties": {}
-    },
-    {
-      "from": "func:refund_processor.py:__init__",
-      "rel": "CALLS",
-      "to": "func_call_target:NotificationService",
-      "properties": {
-        "callee_name": "NotificationService"
-      }
-    },
-    {
-      "from": "file:refund_processor.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:refund_processor.py:validate_refund_eligibility",
-      "properties": {}
-    },
-    {
-      "from": "class:refund_processor.py:RefundProcessor",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:refund_processor.py:validate_refund_eligibility",
-      "properties": {}
-    },
-    {
-      "from": "func:refund_processor.py:validate_refund_eligibility",
-      "rel": "CALLS",
-      "to": "func_call_target:time",
-      "properties": {
-        "callee_name": "time"
-      }
-    },
-    {
-      "from": "file:refund_processor.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:refund_processor.py:queue_refund_job",
-      "properties": {}
-    },
-    {
-      "from": "class:refund_processor.py:RefundProcessor",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:refund_processor.py:queue_refund_job",
-      "properties": {}
-    },
-    {
-      "from": "func:refund_processor.py:queue_refund_job",
-      "rel": "CALLS",
-      "to": "func_call_target:append",
-      "properties": {
-        "callee_name": "append"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:queue_refund_job",
-      "rel": "CALLS",
-      "to": "func_call_target:time",
-      "properties": {
-        "callee_name": "time"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:queue_refund_job",
-      "rel": "CALLS",
-      "to": "func_call_target:int",
-      "properties": {
-        "callee_name": "int"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:queue_refund_job",
-      "rel": "CALLS",
-      "to": "func_call_target:time",
-      "properties": {
-        "callee_name": "time"
-      }
-    },
-    {
-      "from": "file:refund_processor.py",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:refund_processor.py:execute_refund",
-      "properties": {}
-    },
-    {
-      "from": "class:refund_processor.py:RefundProcessor",
-      "rel": "CONTAINS_FUNCTION",
-      "to": "func:refund_processor.py:execute_refund",
-      "properties": {}
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func_call_target:validate_refund_eligibility",
-      "properties": {
-        "callee_name": "validate_refund_eligibility"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func_call_target:queue_refund_job",
-      "properties": {
-        "callee_name": "queue_refund_job"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func_call_target:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:assess_risk",
-      "rel": "CALLS",
-      "to": "func:retry_with_backoff",
-      "properties": {
-        "callee_name": "retry_with_backoff"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:validate_card",
-      "properties": {
-        "callee_name": "validate_card"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:assess_risk",
-      "properties": {
-        "callee_name": "assess_risk"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:validate_refund_eligibility",
-      "properties": {
-        "callee_name": "validate_refund_eligibility"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:queue_refund_job",
-      "properties": {
-        "callee_name": "queue_refund_job"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:validate_card",
-      "properties": {
-        "callee_name": "validate_card"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:assess_risk",
-      "properties": {
-        "callee_name": "assess_risk"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:assess_risk",
-      "rel": "CALLS",
-      "to": "func:retry_with_backoff",
-      "properties": {
-        "callee_name": "retry_with_backoff"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:validate_card",
-      "properties": {
-        "callee_name": "validate_card"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:assess_risk",
-      "properties": {
-        "callee_name": "assess_risk"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:validate_refund_eligibility",
-      "properties": {
-        "callee_name": "validate_refund_eligibility"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:queue_refund_job",
-      "properties": {
-        "callee_name": "queue_refund_job"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:assess_risk",
-      "rel": "CALLS",
-      "to": "func:retry_with_backoff",
-      "properties": {
-        "callee_name": "retry_with_backoff"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:validate_card",
-      "properties": {
-        "callee_name": "validate_card"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:assess_risk",
-      "properties": {
-        "callee_name": "assess_risk"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:validate_refund_eligibility",
-      "properties": {
-        "callee_name": "validate_refund_eligibility"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:queue_refund_job",
-      "properties": {
-        "callee_name": "queue_refund_job"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
     },
     {
       "from": "project:cli_test",
@@ -5652,85 +3835,79 @@
       "properties": {}
     },
     {
-      "from": "project:cli_test",
-      "rel": "HAS_TIMELINE_RECORD",
-      "to": "timeline:commit:35eb46d",
-      "properties": {}
-    },
-    {
-      "from": "dec:ADR-001:core",
+      "from": "decision:ADR-001:retry_ceiling",
       "rel": "CONSTRAINS_FUNCTION",
       "to": "func:retry_with_backoff",
       "properties": {}
     },
     {
-      "from": "dec:ADR-002:core",
+      "from": "decision:ADR-002:concurrency_5",
       "rel": "CONSTRAINS_FUNCTION",
       "to": "func:queue_refund_job",
       "properties": {}
     },
     {
-      "from": "dec:ADR-001:core",
+      "from": "decision:ADR-001:retry_ceiling",
       "rel": "CONSTRAINS_FUNCTION",
       "to": "func:fraud_detector.py:retry_with_backoff",
       "properties": {}
     },
     {
-      "from": "REQ-003",
+      "from": "req:REQ-003",
       "rel": "IMPLEMENTED_BY_FUNCTION",
       "to": "func:fraud_detector.py:assess_risk",
       "properties": {}
     },
     {
-      "from": "dec:ADR-001:core",
+      "from": "decision:ADR-001:retry_ceiling",
       "rel": "CONSTRAINS_FUNCTION",
       "to": "func:fraud_detector.py:assess_risk",
       "properties": {}
     },
     {
-      "from": "REQ-006",
+      "from": "req:REQ-006",
       "rel": "IMPLEMENTED_BY_FUNCTION",
       "to": "func:notification_service.py:send_webhook",
       "properties": {}
     },
     {
-      "from": "REQ-002",
+      "from": "req:REQ-002",
       "rel": "IMPLEMENTED_BY_FUNCTION",
       "to": "func:payment_service.py:validate_card",
       "properties": {}
     },
     {
-      "from": "REQ-001",
+      "from": "req:REQ-001",
       "rel": "IMPLEMENTED_BY_FUNCTION",
       "to": "func:payment_service.py:authorize_payment",
       "properties": {}
     },
     {
-      "from": "REQ-002",
+      "from": "req:REQ-002",
       "rel": "IMPLEMENTED_BY_FUNCTION",
       "to": "func:payment_service.py:authorize_payment",
       "properties": {}
     },
     {
-      "from": "REQ-003",
+      "from": "req:REQ-003",
       "rel": "IMPLEMENTED_BY_FUNCTION",
       "to": "func:payment_service.py:authorize_payment",
       "properties": {}
     },
     {
-      "from": "REQ-005",
+      "from": "req:REQ-005",
       "rel": "IMPLEMENTED_BY_FUNCTION",
       "to": "func:payment_service.py:authorize_payment",
       "properties": {}
     },
     {
-      "from": "REQ-007",
+      "from": "req:REQ-007",
       "rel": "IMPLEMENTED_BY_FUNCTION",
       "to": "func:refund_processor.py:validate_refund_eligibility",
       "properties": {}
     },
     {
-      "from": "dec:ADR-002:core",
+      "from": "decision:ADR-002:concurrency_5",
       "rel": "CONSTRAINS_FUNCTION",
       "to": "func:refund_processor.py:queue_refund_job",
       "properties": {}
@@ -5738,7 +3915,7 @@
     {
       "from": "timeline:commit:e4f5a6b",
       "rel": "MOTIVATED_BY_ADR",
-      "to": "dec:ADR-001:core",
+      "to": "decision:ADR-001:retry_ceiling",
       "properties": {}
     },
     {
@@ -6217,86 +4394,6 @@
       "from": "func:refund_processor.py:execute_refund",
       "rel": "CALLS",
       "to": "func_call_target:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:assess_risk",
-      "rel": "CALLS",
-      "to": "func:retry_with_backoff",
-      "properties": {
-        "callee_name": "retry_with_backoff"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:validate_card",
-      "properties": {
-        "callee_name": "validate_card"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:assess_risk",
-      "properties": {
-        "callee_name": "assess_risk"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:validate_refund_eligibility",
-      "properties": {
-        "callee_name": "validate_refund_eligibility"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:queue_refund_job",
-      "properties": {
-        "callee_name": "queue_refund_job"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:validate_card",
-      "properties": {
-        "callee_name": "validate_card"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:assess_risk",
-      "properties": {
-        "callee_name": "assess_risk"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:send_webhook",
       "properties": {
         "callee_name": "send_webhook"
       }
@@ -7202,86 +5299,6 @@
       }
     },
     {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:validate_card",
-      "properties": {
-        "callee_name": "validate_card"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:assess_risk",
-      "properties": {
-        "callee_name": "assess_risk"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:fraud_detector.py:assess_risk",
-      "rel": "CALLS",
-      "to": "func:retry_with_backoff",
-      "properties": {
-        "callee_name": "retry_with_backoff"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:validate_card",
-      "properties": {
-        "callee_name": "validate_card"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:assess_risk",
-      "properties": {
-        "callee_name": "assess_risk"
-      }
-    },
-    {
-      "from": "func:payment_service.py:authorize_payment",
-      "rel": "CALLS",
-      "to": "func:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:validate_refund_eligibility",
-      "properties": {
-        "callee_name": "validate_refund_eligibility"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:queue_refund_job",
-      "properties": {
-        "callee_name": "queue_refund_job"
-      }
-    },
-    {
-      "from": "func:refund_processor.py:execute_refund",
-      "rel": "CALLS",
-      "to": "func:send_webhook",
-      "properties": {
-        "callee_name": "send_webhook"
-      }
-    },
-    {
       "from": "func:fraud_detector.py:assess_risk",
       "rel": "CALLS",
       "to": "func:retry_with_backoff",
@@ -7627,6 +5644,12 @@
       "from": "proc:RB-PAY-001:BUG-298",
       "rel": "RESOLVED_BY_FIX",
       "to": "BUG-298",
+      "properties": {}
+    },
+    {
+      "from": "project:test_ent",
+      "rel": "HAS_TIMELINE_RECORD",
+      "to": "timeline:commit:f2202ac",
       "properties": {}
     },
     {

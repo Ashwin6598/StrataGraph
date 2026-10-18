@@ -34,11 +34,14 @@ Instead of a siloed custom UI, CodeGraph is an **MCP (Model Context Protocol) Se
 │  │  • simulate_scenario  │      • check_safe_to_change   │  │
 │  │  • get_change_history │      • get_function_lineage   │  │
 │  │  • list_uncovered_req │      • review_pr_diff         │  │
+│  │  • update_prd_features│      • cross_org_bug_check    │  │
+│  │  • approve_prd_update │                               │  │
 │  └───────────────────────┴───────────────────────────────┘  │
 │  ┌───────────────────────┬───────────────────────────────┐  │
 │  │   Shared Search       │       Ingestion & Mutations   │  │
 │  │  • search_graph       │      • ingest_code / prd / adr│  │
 │  │  • get_related_nodes  │      • record_bugfix (Approval│  │
+│  │  • explain_traversal  │      • approve_bugfix_email   │  │
 │  └───────────────────────┴───────────────────────────────┘  │
 └──────────────────────────────┬──────────────────────────────┘
                                │ OpenCypher
@@ -197,7 +200,7 @@ Add to `.cursor/mcp.json` or VS Code MCP settings:
 
 | Persona | System Prompt | Communication Style | Primary Tools |
 |---------|---------------|---------------------|---------------|
-| **Product Manager** | `prompts/product-persona.md` | Plain English, business terms, completion %, zero code | `query_prd_coverage`, `simulate_scenario`, `get_change_history`, `list_uncovered_requirements` |
+| **Product Manager** | `prompts/product-persona.md` | Plain English, business terms, completion %, zero code | `query_prd_coverage`, `simulate_scenario`, `get_change_history`, `list_uncovered_requirements`, `update_prd_features_and_scenarios`, `approve_prd_update_via_email` |
 | **Developer / SRE** | `prompts/developer-persona.md` | Technical, file paths, line numbers, ADR constraints | `debug_issue`, `check_safe_to_change`, `get_function_lineage`, `review_pr_diff`, `cross_org_bug_check` |
 
 ---
@@ -307,34 +310,46 @@ When an AI agent or engineer fixes an incident via `record_bugfix()`, unapproved
    - MCP tool: `approve_bugfix_via_email(ticket_id="BUG-342", approval_token="<token>")`
 4. **Graph Activation:** Upon validation, the fix status is upgraded to `APPROVED`, `approved_by` is bound to the owner's email, and the relationship `(:Fix)-[:FIXES_FUNCTION {status: 'APPROVED'}]->(:Function)` is permanently activated in FalkorDB.
 
+### 5. PRD Agent Updates & PRD Owner Email Approval Workflow
+When an AI agent (e.g. Product Advisor or backlog generator) proposes new features or acceptance scenarios via `update_prd_features_and_scenarios()`, unapproved requirements do NOT inflate coverage metrics or alter active quality gates:
+1. **PRD Owner Resolution:** The root `Project` node's `prd_owner` attribute is resolved (e.g. `product-lead@payflow.internal`).
+2. **Staged Isolation:** The proposed requirement and scenarios are staged in FalkorDB with status `PENDING_APPROVAL`. Both `query_prd_coverage()` and `list_uncovered_requirements()` ignore staged nodes to preserve metric integrity.
+3. **Email Dispatch:** A cryptographic approval token is generated and an actionable approval email containing feature specifications and scenario criteria is sent to the PRD Owner.
+4. **Verified DB Ingestion:** The PRD Owner can approve via:
+   - One-Click HTTP link: `http://localhost:8000/api/approve-prd?feature_id=REQ-011&token=<token>&approver=<email>`
+   - CLI command: `uv run python -m codegraph approve-prd --feature-id REQ-011 --token <token> --approver product-lead@payflow.internal`
+   - MCP tool: `approve_prd_update_via_email(feature_id="REQ-011", approval_token="<token>", approver_email="...")`
+5. **Graph Activation:** Upon token validation, the requirement and scenario statuses are promoted to `APPROVED`, `approved_by` is recorded, and the relationships `(:Project)-[:SPECIFIES_REQUIREMENT]->(:FunctionalRequirement)` and `(:FunctionalRequirement)-[:HAS_SCENARIO]->(:Scenario)` are activated in the knowledge graph.
+
 ---
 
 ## 🧪 Running Automated Tests
 
-Run the full 68-test pytest suite:
+Run the full 74-test pytest suite:
 
 ```bash
 uv run pytest -v
-# 68 passed in 0.59s
+# 74 passed in 0.58s
 ```
 
 The modular test suite in [`tests/`](file:///Users/ashwin/Documents/Projects/GraphHack/tests/) provides comprehensive test coverage:
 * `test_db_engine.py`: Graph database engine, CRUD, neighbor traversal, and fallback storage
 * `test_parsers.py`: Multi-language code parser (Python AST, TypeScript, Go), document converter (HTML, JSON/Jira, Markdown, Plain Text), PRD & ADR parsers, runbooks
 * `test_email_approval.py`: Code Domain Owner resolution (.github/CODEOWNERS), email dispatch, token verification, and DB ingestion
+* `test_prd_agent_updates.py`: Agent PRD updates, staged status isolation, PRD Owner email dispatch, token verification, and DB ingestion
 * `test_project_owners.py`: Project dual-ownership model (`codebase_owner` & `prd_owner`), pipeline ingestion, and status CLI
 * `test_product_tools.py`: PRD compliance metrics, plain-English scenario simulation, change timeline
 * `test_developer_tools.py`: Incident diagnostics, safe-to-change checks, 4-pillar lineage, PR diff audits
 * `test_shared_and_ingest.py`: Full-text search, N-hop neighborhood expansion, unified pipeline, approval workflow
-* `test_mcp_server.py`: Async MCP 2.x server initialization, 18 tools registry, persona prompts
-* `test_cli.py`: Click CLI commands (`status`, `demo`, `seed`, `ingest`, `approve-bugfix`, `help`)
+* `test_mcp_server.py`: Async MCP 2.x server initialization, 20 tools registry, persona prompts
+* `test_cli.py`: Click CLI commands (`status`, `demo`, `seed`, `ingest`, `approve-bugfix`, `approve-prd`, `help`)
 
 ---
 
 ## 🏆 Hackathon Track Criteria Alignment
 
 - **Multi-hop reasoning:** `simulate_scenario` and `get_related_entities` traverse chains: `Scenario -> Requirement -> Function -> Calls -> Decisions`.
-- **Graph queries as agent tools:** All 18 tools generate and execute OpenCypher queries against FalkorDB.
+- **Graph queries as agent tools:** All 20 tools generate and execute OpenCypher queries against FalkorDB.
 - **Tool selection through MCP:** Standardized MCP 2.x protocol allows seamless tool discovery and invocation by any agent client.
 - **Actions based on graph shows:** Produces concrete safety verdicts (`SAFE` vs `UNSAFE`), RCAs with line numbers, and PR merge gating (`REQUEST_CHANGES` vs `APPROVE`).
 - **Explainable results:** Every tool response includes `cypher_query` and `traversal_path` demonstrating exact data lineage.
@@ -357,6 +372,8 @@ Foundational architectural decisions for every CodeGraph component are documente
 * [**ADR-010:** Multi-Format Enterprise Document & Polyglot Ingestion Adapter](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/010-multi-format-enterprise-document-and-polyglot-ingestion.md)
 * [**ADR-011:** Code Domain Owner Email Approval & Ingestion Workflow](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/011-domain-owner-email-approval-and-ingestion-flow.md)
 * [**ADR-012:** Project Entity Dual-Ownership Model (Codebase & PRD Owner)](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/012-project-entity-dual-ownership-model.md)
+* [**ADR-013:** PRD Agent Updates and PRD Owner Email Approval Workflow](file:///Users/ashwin/Documents/Projects/GraphHack/docs/adr/013-prd-agent-updates-and-owner-approval-workflow.md)
+
 
 
 

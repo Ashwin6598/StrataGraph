@@ -4,9 +4,18 @@ Designed specifically for Product Managers: outputs clear business summaries in 
 no code snippets, with multi-hop graph reasoning across the PRD, CodeBase, ADR, and Operations chains.
 """
 
+import secrets
 from typing import Dict, Any, List, Optional
 from ..db import db
-from ..schema import ExplainableResult, TraversalStep, Relationships
+from ..schema import (
+    ExplainableResult,
+    TraversalStep,
+    Relationships,
+    FunctionalRequirementNode,
+    ScenarioNode,
+    GuardrailNode
+)
+from ..approval_service import resolve_prd_owner, send_prd_approval_email, approve_prd_update_and_ingest
 
 
 def query_prd_coverage(project_id: str = "project:payflow") -> Dict[str, Any]:
@@ -33,7 +42,10 @@ def query_prd_coverage(project_id: str = "project:payflow") -> Dict[str, Any]:
     for nid, node in db.memory_graph.nodes.items():
         if node["label"] == "FunctionalRequirement":
             props = node["properties"]
+            if props.get("status") == "PENDING_APPROVAL":
+                continue
             req_id = node["id"]
+
 
             # Find linked functions
             linked_funcs = []
@@ -293,6 +305,9 @@ def list_uncovered_requirements() -> Dict[str, Any]:
 
     for nid, node in db.memory_graph.nodes.items():
         if node["label"] == "FunctionalRequirement":
+            props = node["properties"]
+            if props.get("status") == "PENDING_APPROVAL":
+                continue
             req_id = node["id"]
             has_code = False
             for edge in db.memory_graph.edges:
@@ -301,7 +316,6 @@ def list_uncovered_requirements() -> Dict[str, Any]:
                     break
 
             if not has_code:
-                props = node["properties"]
                 clean_id = req_id.replace("req:", "")
                 uncovered.append({
                     "id": clean_id,
@@ -327,3 +341,137 @@ def list_uncovered_requirements() -> Dict[str, Any]:
         traversal_path=traversal_path,
         explanation="Graph query matching FunctionalRequirement nodes with out-degree zero on IMPLEMENTED_BY_FUNCTION."
     ).model_dump()
+
+
+def update_prd_features_and_scenarios(
+    feature_id: str,
+    feature_title: str,
+    description: str,
+    project_id: str = "project:payflow",
+    priority: str = "HIGH",
+    scenarios: Optional[List[str]] = None,
+    guardrails: Optional[List[str]] = None,
+    approved_by_prd_owner: bool = False
+) -> Dict[str, Any]:
+    """
+    Updates the PRD by proposing or adding a new feature/requirement and accompanying test scenarios.
+    Enforces the PRD Owner approval workflow: unapproved updates dispatch an approval email to the project's PRD Owner.
+    """
+    scenarios = scenarios or []
+    guardrails = guardrails or []
+    clean_fid = feature_id.replace("req:", "")
+    req_id = f"req:{clean_fid}"
+
+    clean_pid = project_id if project_id.startswith("project:") else f"project:{project_id}"
+    prd_owner = resolve_prd_owner(clean_pid)
+    approval_token = secrets.token_hex(16) if not approved_by_prd_owner else None
+    status = "APPROVED" if approved_by_prd_owner else "PENDING_APPROVAL"
+
+    # Find project's PRD input or default
+    prd_input_id = f"prd_input:{clean_pid.replace('project:', '')}_features"
+    if prd_input_id not in db.memory_graph.nodes:
+        # Link to first available PRDInput or fallback
+        for nid, n in db.memory_graph.nodes.items():
+            if n.get("label") == "PRDInput":
+                prd_input_id = nid
+                break
+
+    # Create / Stage FunctionalRequirementNode
+    req_node = FunctionalRequirementNode(
+        id=req_id,
+        prd_input_id=prd_input_id,
+        title=feature_title,
+        description=description,
+        priority=priority,
+        status=status,
+        approval_token=approval_token,
+        prd_owner_email=prd_owner,
+        approved_by="prd_owner" if approved_by_prd_owner else None
+    )
+    db.create_node(req_id, "FunctionalRequirement", req_node.model_dump())
+    db.create_edge(prd_input_id, Relationships.SPECIFIES_REQUIREMENT, req_id, {"status": status})
+
+    # Create Scenarios
+    for idx, scen_text in enumerate(scenarios, 1):
+        scen_id = f"scen:{clean_fid}-{idx}"
+        scen_node = ScenarioNode(
+            id=scen_id,
+            req_id=req_id,
+            description=scen_text,
+            expected_behavior=scen_text,
+            covered_by_code=False,
+            status=status
+        )
+        db.create_node(scen_id, "Scenario", scen_node.model_dump())
+        db.create_edge(req_id, Relationships.HAS_SCENARIO, scen_id, {"status": status})
+
+    # Create Guardrails
+    for idx, guard_text in enumerate(guardrails, 1):
+        guard_id = f"guardrail:{clean_fid.lower()}-{idx}"
+        guard_node = GuardrailNode(
+            id=guard_id,
+            req_id=req_id,
+            title=f"Guardrail for {clean_fid}",
+            rule_statement=guard_text,
+            enforcement_level="HARD_BLOCK",
+            violation_code=f"ERR_{clean_fid.upper()}_VIOLATION"
+        )
+        db.create_node(guard_id, "Guardrail", guard_node.model_dump())
+        db.create_edge(req_id, Relationships.ENFORCES_GUARDRAIL, guard_id)
+
+    db.flush()
+
+    # If unapproved, dispatch email to the project's PRD Owner
+    email_dispatched = False
+    if not approved_by_prd_owner:
+        email_res = send_prd_approval_email(
+            to_email=prd_owner,
+            project_id=clean_pid,
+            feature_id=clean_fid,
+            feature_title=feature_title,
+            description=description,
+            priority=priority,
+            scenarios=scenarios,
+            guardrails=guardrails,
+            approval_token=approval_token
+        )
+        email_dispatched = email_res.get("dispatched", False)
+
+    msg = (
+        f"Feature {clean_fid} ({feature_title}) and {len(scenarios)} scenarios successfully approved and ingested into PRD graph."
+        if approved_by_prd_owner
+        else f"Approval request dispatched to PRD Owner <{prd_owner}> via email. Feature '{clean_fid}' and {len(scenarios)} scenarios staged under PENDING_APPROVAL and will be ingested into the active graph once approved."
+    )
+
+    return ExplainableResult(
+        result={
+            "feature_id": clean_fid,
+            "status": status,
+            "approved": approved_by_prd_owner,
+            "prd_owner": prd_owner,
+            "approval_token": approval_token,
+            "email_dispatched": email_dispatched,
+            "scenarios_count": len(scenarios),
+            "guardrails_count": len(guardrails),
+            "message": msg
+        },
+        cypher_query=f"MERGE (r:FunctionalRequirement {{id: '{req_id}', status: '{status}'}})",
+        traversal_path=[],
+        explanation="PRD update: FunctionalRequirement and Scenario nodes staged/created with PRD owner approval gate."
+    ).model_dump()
+
+
+def approve_prd_update_via_email(
+    feature_id: str,
+    approval_token: str,
+    approver_email: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Validates PRD Owner's approval token and permanently ingests the feature and scenarios into the active knowledge graph.
+    """
+    return approve_prd_update_and_ingest(
+        feature_id=feature_id,
+        approval_token=approval_token,
+        approver_email=approver_email
+    )
+

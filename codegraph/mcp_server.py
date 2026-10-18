@@ -15,6 +15,8 @@ from .tools.product_tools import (
     simulate_scenario as _simulate_scenario,
     get_change_history as _get_change_history,
     list_uncovered_requirements as _list_uncovered_requirements,
+    update_prd_features_and_scenarios as _update_prd_features_and_scenarios,
+    approve_prd_update_via_email as _approve_prd_update_via_email,
 )
 from .tools.developer_tools import (
     debug_issue as _debug_issue,
@@ -89,9 +91,52 @@ def list_uncovered_requirements() -> Dict[str, Any]:
     return _list_uncovered_requirements()
 
 
+@server.tool(
+    name="update_prd_features_and_scenarios",
+    description="Propose or add a new business requirement/feature and test scenarios to the PRD. Dispatches an approval email to the project's PRD Owner."
+)
+def update_prd_features_and_scenarios(
+    feature_id: str,
+    feature_title: str,
+    description: str,
+    project_id: str = "project:payflow",
+    priority: str = "HIGH",
+    scenarios: Optional[List[str]] = None,
+    guardrails: Optional[List[str]] = None,
+    approved_by_prd_owner: bool = False
+) -> Dict[str, Any]:
+    return _update_prd_features_and_scenarios(
+        feature_id=feature_id,
+        feature_title=feature_title,
+        description=description,
+        project_id=project_id,
+        priority=priority,
+        scenarios=scenarios,
+        guardrails=guardrails,
+        approved_by_prd_owner=approved_by_prd_owner
+    )
+
+
+@server.tool(
+    name="approve_prd_update_via_email",
+    description="Validate PRD Owner's email approval token and permanently ingest the new feature and scenarios into FalkorDB."
+)
+def approve_prd_update_via_email(
+    feature_id: str,
+    approval_token: str,
+    approver_email: Optional[str] = None
+) -> Dict[str, Any]:
+    return _approve_prd_update_via_email(
+        feature_id=feature_id,
+        approval_token=approval_token,
+        approver_email=approver_email
+    )
+
+
 # =========================================================================
 # Developer Persona Tools
 # =========================================================================
+
 
 @server.tool(
     name="debug_issue",

@@ -98,6 +98,26 @@ def approve_bugfix(ticket: str, token: str, approver: str):
 
 
 @main.command()
+@click.option("--feature-id", "-f", required=True, help="Requirement/Feature ID (e.g. REQ-011)")
+@click.option("--token", "-k", required=True, help="Secure approval token received in email")
+@click.option("--approver", "-a", default=None, help="Email of approving PRD Owner")
+def approve_prd(feature_id: str, token: str, approver: str):
+    """Approve a proposed PRD feature and scenarios using the email token and ingest it into the DB."""
+    from .tools.product_tools import approve_prd_update_via_email
+    click.echo(f"\n🔐 Processing PRD Owner Approval for Feature '{feature_id}'...")
+    res = approve_prd_update_via_email(feature_id=feature_id, approval_token=token, approver_email=approver)
+    result_data = res.get("result", {})
+    if result_data.get("status") == "APPROVED":
+        click.echo("✅ Ingestion Successful!")
+        click.echo(f"  • Feature:   {result_data.get('feature_id')}")
+        click.echo(f"  • Approver:  {result_data.get('approved_by')}")
+        click.echo(f"  • Status:    {result_data.get('status')}")
+        click.echo(f"  • Message:   {result_data.get('message')}\n")
+    else:
+        click.echo(f"❌ Approval Failed: {result_data.get('message')}\n")
+
+
+@main.command()
 def seed():
     """Seed the knowledge graph with the PayFlow demo dataset."""
     from seed import seed_all

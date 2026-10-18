@@ -82,6 +82,8 @@ class ScenarioNode(BaseModel):
     description: str
     expected_behavior: str
     covered_by_code: bool = True
+    status: str = "APPROVED"  # "APPROVED", "PENDING_APPROVAL"
+
 
 
 class RequirementNode(BaseModel):
@@ -185,7 +187,11 @@ class FunctionalRequirementNode(BaseModel):
     title: str
     description: str
     priority: str = "CRITICAL"  # "CRITICAL", "HIGH", "MEDIUM", "LOW"
-    status: str = "IMPLEMENTED"  # "IMPLEMENTED", "PENDING_DEV"
+    status: str = "IMPLEMENTED"  # "IMPLEMENTED", "PENDING_DEV", "PENDING_APPROVAL", "APPROVED"
+    approval_token: Optional[str] = None
+    prd_owner_email: Optional[str] = None
+    approved_by: Optional[str] = None
+
 
 
 class GuardrailNode(BaseModel):

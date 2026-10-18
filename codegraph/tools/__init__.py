@@ -7,6 +7,8 @@ from .product_tools import (
     simulate_scenario,
     get_change_history,
     list_uncovered_requirements,
+    update_prd_features_and_scenarios,
+    approve_prd_update_via_email,
 )
 from .developer_tools import (
     debug_issue,
@@ -34,6 +36,8 @@ __all__ = [
     "simulate_scenario",
     "get_change_history",
     "list_uncovered_requirements",
+    "update_prd_features_and_scenarios",
+    "approve_prd_update_via_email",
     "debug_issue",
     "check_safe_to_change",
     "get_function_lineage",
