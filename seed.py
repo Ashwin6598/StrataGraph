@@ -232,6 +232,12 @@ def seed_all():
             project_id=project_id,
             title="High-Volume Batch Refund Isolation and Rate-Limit Protection",
             technical_driver="High-volume sales events trigger spikes of 500+ refunds/sec. Synchronous execution exhausts gateway thread pools."
+        ),
+        ADRRequirementNode(
+            id="adr_req:cross_team_domain_synergy",
+            project_id=project_id,
+            title="Cross-Domain Capability Reuse and Distributed Idempotency Standard",
+            technical_driver="Siloed feature teams duplicate integration logic and risk double-submission race conditions across checkout and refund boundaries."
         )
     ]
     for ar in adr_reqs:
@@ -250,6 +256,12 @@ def seed_all():
             adr_req_id="adr_req:peak_refund_throughput",
             pattern_name="Decoupled Distributed Queue with Concurrency-Capped Consumers",
             description="Asynchronously enqueues refund jobs to isolate the checkout API while capping worker concurrency to respect banking partner rate limits."
+        ),
+        ArchitectureNode(
+            id="arch:cross_domain_patterns",
+            adr_req_id="adr_req:cross_team_domain_synergy",
+            pattern_name="Shared Microservice Architecture Pattern Library and Distributed Locking",
+            description="Enforces standardized reuse of resilient HTTP retry pipelines and Redis idempotency locks across all project domains."
         )
     ]
     for a in architectures:
@@ -274,6 +286,15 @@ def seed_all():
             statement="Queue consumers MUST run with exactly 5 concurrent workers per instance. Concurrency < 5 causes message accumulation and REFUND_TIMEOUT under load. Concurrency > 10 causes banking partner HTTP 429 rate limit errors.",
             rationale="Preserves checkout gateway thread availability while staying within bank clearing rate limits.",
             invariants="WORKER_POOL_CONCURRENCY == 5, MAX_REFUND_AGE_DAYS == 30"
+        ),
+        DecisionNode(
+            id="decision:ADR-003:cross_team_reuse",
+            arch_id="arch:cross_domain_patterns",
+            adr_id="ADR-003",
+            title="Cross-Domain Capability Reuse and Distributed Idempotency",
+            statement="Outbound integrations MUST reuse the ADR-001 retry pipeline. Financial mutations MUST enforce distributed Redis idempotency locks per REQ-009.",
+            rationale="Eliminates duplicate engineering effort, accelerates FX delivery by 5-8 story points, and prevents double payouts.",
+            invariants="MANDATORY_REUSE_ADR_001 == true, IDEMPOTENCY_TTL == 120s"
         )
     ]
     for d in decisions:
@@ -292,6 +313,12 @@ def seed_all():
             decision_id="decision:ADR-002:concurrency_5",
             positive_impact="Eliminates HTTP 504 Gateway Timeouts on primary payment authorization during Black Friday refund spikes.",
             tradeoffs="Refunds settle asynchronously rather than synchronously in-band."
+        ),
+        ADRResultNode(
+            id="adr_result:cross_team_acceleration",
+            decision_id="decision:ADR-003:cross_team_reuse",
+            positive_impact="Accelerates cross-domain delivery velocity by ~5-8 story points and eliminates duplicate payout risks.",
+            tradeoffs="Requires cross-service architectural alignment governed by Technical Program Managers."
         )
     ]
     for ar_res in adr_results:
@@ -466,6 +493,26 @@ def seed_all():
             line_start=15,
             line_end=28,
             docstring="Dispatches signed webhook event to registered merchant endpoints."
+        ),
+        FunctionNode(
+            id="func:enforce_idempotency",
+            name="enforce_idempotency",
+            class_id="class:PaymentService",
+            file_path="demo_data/code/payment_service.py",
+            signature="enforce_idempotency(idempotency_key, ttl_seconds=120)",
+            line_start=65,
+            line_end=75,
+            docstring="Atomically checks and acquires Redis distributed lock for idempotency key to prevent double charges and double refunds (REQ-009, ADR-003)."
+        ),
+        FunctionNode(
+            id="func:process_refund",
+            name="process_refund",
+            class_id="class:RefundProcessor",
+            file_path="demo_data/code/refund_processor.py",
+            signature="process_refund(order_id, amount_cents)",
+            line_start=22,
+            line_end=40,
+            docstring="Processes refund eligibility and validates 30-day cutoff window."
         )
     ]
     for fn in functions:
@@ -727,8 +774,11 @@ def seed_all():
     db.create_edge("decision:ADR-002:concurrency_5", Relationships.CONSTRAINS_FUNCTION, "func:queue_refund_job")
     db.create_edge("decision:ADR-002:concurrency_5", Relationships.CONSTRAINS_FUNCTION, "func:execute_refund")
     db.create_edge("decision:ADR-002:concurrency_5", Relationships.ENFORCED_IN_CODE_LOGIC, "logic:worker_concurrency_5")
+    db.create_edge("decision:ADR-003:cross_team_reuse", Relationships.CONSTRAINS_FUNCTION, "func:retry_with_backoff")
+    db.create_edge("decision:ADR-003:cross_team_reuse", Relationships.CONSTRAINS_FUNCTION, "func:enforce_idempotency")
     db.create_edge("arch:resilient_retry_pipeline", Relationships.STRUCTURES_LOGIC_FLOW, "flow:payment_authorization")
     db.create_edge("arch:async_worker_queue", Relationships.STRUCTURES_LOGIC_FLOW, "flow:refund_execution")
+    db.create_edge("arch:cross_domain_patterns", Relationships.STRUCTURES_LOGIC_FLOW, "flow:payment_authorization")
 
     # PRD -> CodeBase (Requirements implemented by code functions and logic)
     db.create_edge("prd_input:checkout_payload", Relationships.MAPS_TO_CODE_INPUT, "code_input:auth_args")
@@ -737,6 +787,7 @@ def seed_all():
     db.create_edge("req:REQ-002", Relationships.IMPLEMENTED_BY_FUNCTION, "func:validate_card")
     db.create_edge("req:REQ-003", Relationships.IMPLEMENTED_BY_FUNCTION, "func:assess_risk")
     db.create_edge("req:REQ-005", Relationships.IMPLEMENTED_BY_FUNCTION, "func:authorize_payment")
+    db.create_edge("req:REQ-005", Relationships.IMPLEMENTED_BY_FUNCTION, "func:enforce_idempotency")
     db.create_edge("req:REQ-006", Relationships.IMPLEMENTED_BY_FUNCTION, "func:send_webhook")
     db.create_edge("req:REQ-007", Relationships.IMPLEMENTED_BY_FUNCTION, "func:execute_refund")
     db.create_edge("req:REQ-007", Relationships.IMPLEMENTED_BY_FUNCTION, "func:validate_refund_eligibility")

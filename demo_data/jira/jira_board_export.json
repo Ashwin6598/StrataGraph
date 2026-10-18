@@ -162,8 +162,8 @@
     {
       "key": "PAY-306",
       "feature_key": "PAY-FEAT-204",
-      "summary": "Integrate real-time forex rate provider for DCC (REQ-004)",
-      "description": "Connect to European Central Bank daily forex feed for multi-currency conversion.",
+      "summary": "Integrate real-time forex rate provider for DCC (REQ-004, ADR-003)",
+      "description": "Connect to European Central Bank daily forex feed for multi-currency conversion. Cross-Team Synergy: Reuse fraud_detector.retry_with_backoff (ADR-001) for outbound ECB HTTP requests to accelerate delivery by ~5-8 story points.",
       "story_points": 8,
       "assignee": "Unassigned",
       "status": "TODO",
@@ -177,8 +177,8 @@
     {
       "key": "PAY-307",
       "feature_key": "PAY-FEAT-205",
-      "summary": "Partial refund calculation and fee deduction (REQ-008)",
-      "description": "Support partial settlement amount refunding against original transaction.",
+      "summary": "Partial refund calculation and fee deduction (REQ-008, ADR-003)",
+      "description": "Support partial settlement amount refunding against original transaction. Blocked on merchant interchange clawback accounting rule. Cross-Domain Unblocking: Pair with Alice Chen (payment_service) to reuse existing merchant fee schedule math from PAY-FEAT-201.",
       "story_points": 5,
       "assignee": "Sarah Jenkins (Fintech Engineer)",
       "status": "IN_PROGRESS",
@@ -192,8 +192,8 @@
     {
       "key": "PAY-308",
       "feature_key": "PAY-FEAT-201",
-      "summary": "Strict payment idempotency check with Redis distributed locks (REQ-009)",
-      "description": "Atomically verify and lock idempotency keys for 120s to prevent double charges.",
+      "summary": "Strict payment idempotency check with Redis distributed locks (REQ-009, ADR-003)",
+      "description": "Atomically verify and lock idempotency keys for 120s to prevent double charges. Standardized cross-service idempotency lock pattern per ADR-003.",
       "story_points": 5,
       "assignee": "Bob Martinez (Tech Lead)",
       "status": "DONE",

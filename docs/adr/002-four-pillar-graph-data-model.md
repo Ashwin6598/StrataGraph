@@ -17,7 +17,7 @@ A unified, structured domain model was required where:
 - Every modification preserves chronological timeline lineage ("what changed" and "why it changed").
 
 ## Decision
-Adopt a **4-Pillar Connected Knowledge Graph** anchored by `Project`:
+Adopt a **5-Pillar Connected Knowledge Graph** anchored by `Project` (which explicitly stores `codebase_owner` and `prd_owner` per ADR-012):
 
 1. **CodeBase Chain:**
    `Project` ➔ `CodeInput` ➔ `LogicFlow` ➔ `Class` ➔ `Function` ➔ `CodeLogic` ➔ `CodeOutput`
@@ -27,7 +27,9 @@ Adopt a **4-Pillar Connected Knowledge Graph** anchored by `Project`:
    `Project` ➔ `ADRRequirement` ➔ `Architecture` ➔ `Decision` ➔ `ADRResult`
 4. **Operations Chain:**
    `Project` ➔ `Issue` ➔ `RCA` ➔ `Fix` ➔ `OpResult`
-5. **Timeline & Quality Lineage:**
+5. **Program Flow Chain (Agile / Jira Execution per ADR-014 & ADR-015):**
+   `Project` ➔ `Epic` ➔ `AgileFeature` ➔ `Story` ➔ `Developer / AST Function`
+6. **Timeline & Quality Lineage:**
    `ChangeTimeline` records both `what_changed` and `why_changed`, with explicit motivations linking to `FunctionalRequirement`, `Decision`, and `Fix`.
 
 ### Cross-Entity Interlinks:
@@ -41,6 +43,10 @@ Adopt a **4-Pillar Connected Knowledge Graph** anchored by `Project`:
 - `(Issue)-[:VIOLATED_DECISION]->(Decision)`
 - `(Fix)-[:FIXES_FUNCTION]->(Function)`
 - `(Fix)-[:MODIFIES_CODE_LOGIC]->(CodeLogic)`
+- `(AgileFeature | Story)-[:REALIZES_REQUIREMENT]->(FunctionalRequirement)`
+- `(AgileFeature | Story)-[:GUIDED_BY_ARCHITECTURE]->(Architecture | Decision)`
+- `(Story)-[:IMPLEMENTS_CODE]->(Function)`
+- `(Story)-[:RESOLVES_ISSUE]->(Issue)`
 
 ## Consequences
 - **Positive:**
