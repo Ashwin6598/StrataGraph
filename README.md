@@ -354,8 +354,8 @@ The pipeline supports all enterprise documentation formats via [`DocumentConvert
 
 The **Auto-Linker** automatically inspects function docstrings and git commits to synthesize cross-entity links (`@implements REQ-xxx`, `@governed_by ADR-xxx`, `Fixes BUG-xxx`).
 
-### 2. Automated CI/CD Sync on PR Merge
-Add the GitHub Action in [`.github/workflows/codegraph-sync.yml`](file:///Users/ashwin/Documents/Projects/GraphHack/.github/workflows/codegraph-sync.yml) to continuously sync your graph whenever a PR merges to `main`.
+### 2. Automated Ingestion & Continuous Sync
+Run the ingestion pipeline in any automated deployment script or CI step to continuously sync the graph whenever changes are merged.
 
 ### 3. Deploy as a Production Microservice
 Start the server in HTTP/SSE transport mode:
