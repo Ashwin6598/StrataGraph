@@ -13,12 +13,22 @@ def search_graph(query: str, entity_type: Optional[str] = None, limit: int = 15)
     Performs full-text search across all nodes in the knowledge graph.
     Matches across PRDs, Requirements, Scenarios, ADRs, Code Functions, BugFixes, and Runbooks.
     """
-    cypher = """
-    MATCH (n)
-    WHERE ($entity_type IS NULL OR labels(n)[0] = $entity_type)
-      AND any(prop IN keys(n) WHERE toString(n[prop]) CONTAINS $query)
-    RETURN n LIMIT $limit
-    """
+    if entity_type:
+        cypher = f"""
+        MATCH (n:{entity_type})
+        WHERE any(prop IN keys(n) WHERE toString(n[prop]) CONTAINS $query)
+        RETURN n LIMIT $limit
+        """
+    else:
+        # Rule 5: Explicit labels over core GraphBLAS matrices
+        cypher = """
+        MATCH (n)
+        WHERE any(lbl IN labels(n) WHERE lbl IN ['Project', 'Function', 'FunctionalRequirement', 'Decision', 'Issue', 'Epic', 'AgileFeature', 'Story'])
+          AND any(prop IN keys(n) WHERE toString(n[prop]) CONTAINS $query)
+        RETURN n LIMIT $limit
+        """
+
+    db.execute_cypher(cypher, {"query": query, "limit": limit})
 
     query_lower = query.lower()
     matches = []
@@ -62,10 +72,16 @@ def get_related_entities(node_id: str, hops: int = 2) -> Dict[str, Any]:
     Performs an N-hop graph neighborhood expansion starting from any node ID.
     Finds all directly and transitively connected business, technical, and quality artifacts.
     """
+    start_node = db.get_node(node_id)
+    start_label = start_node.get("label") if start_node else db.resolve_label(node_id)
+    label_clause = f":{start_label}" if start_label else ""
+    bounded_hops = min(max(1, hops), 5)
+
     cypher = f"""
-    MATCH path = (start {{id: $node_id}})-[*1..{hops}]-(connected)
+    MATCH path = (start{label_clause} {{id: $node_id}})-[*1..{bounded_hops}]-(connected)
     RETURN path
     """
+    db.execute_cypher(cypher, {"node_id": node_id})
 
     if node_id not in db.memory_graph.nodes:
         # Try finding by name or ticket

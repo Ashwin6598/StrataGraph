@@ -7,7 +7,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple, Set
 from .config import settings
 
 logger = logging.getLogger("codegraph.db")
@@ -95,15 +95,86 @@ class LocalMemoryGraph:
         return neighbors
 
 
+# FalkorDB GraphBLAS Optimization Constants
+INTERNED_FIELDS: Set[str] = {
+    "status",
+    "priority",
+    "severity",
+    "actor_role",
+    "sprint",
+    "root_cause_category",
+    "service_name",
+    "approval_status",
+}
+
+CORE_INDEXES: List[Tuple[str, str]] = [
+    ("Project", "id"),
+    ("Function", "id"),
+    ("Function", "name"),
+    ("Class", "id"),
+    ("Class", "name"),
+    ("CodeLogic", "id"),
+    ("PRDInput", "id"),
+    ("FunctionalRequirement", "id"),
+    ("Guardrail", "id"),
+    ("PRDOutput", "id"),
+    ("ADRRequirement", "id"),
+    ("Architecture", "id"),
+    ("Decision", "id"),
+    ("ADRResult", "id"),
+    ("Issue", "id"),
+    ("RCA", "id"),
+    ("Fix", "id"),
+    ("OpResult", "id"),
+    ("ChangeTimeline", "id"),
+    ("Epic", "id"),
+    ("AgileFeature", "id"),
+    ("AgileFeature", "key"),
+    ("Story", "id"),
+    ("Story", "key"),
+]
+
+PREFIX_LABEL_MAP: Dict[str, str] = {
+    "project:": "Project",
+    "func:": "Function",
+    "class:": "Class",
+    "logic:": "CodeLogic",
+    "prd_input:": "PRDInput",
+    "req:": "FunctionalRequirement",
+    "guard:": "Guardrail",
+    "prd_out:": "PRDOutput",
+    "adr_req:": "ADRRequirement",
+    "arch:": "Architecture",
+    "dec:": "Decision",
+    "adr_res:": "ADRResult",
+    "issue:": "Issue",
+    "rca:": "RCA",
+    "fix:": "Fix",
+    "op_res:": "OpResult",
+    "timeline:": "ChangeTimeline",
+    "epic:": "Epic",
+    "feat:": "AgileFeature",
+    "story:": "Story",
+}
+
+
 class GraphDatabase:
     """
     Unified database interface for CodeGraph.
     Delegates to FalkorDB when connected, or LocalMemoryGraph when offline.
+    Optimized for FalkorDB GraphBLAS sparse matrix performance:
+    - String interning (intern()) on repeated enums
+    - Explicit single-property indexes on core entities
+    - Targeted explicit node labels on matches (no open MATCH (a))
+    - Parameterized Cypher query caching
+    - Logical graph key isolation per project/tenant
     """
     def __init__(self):
         self.is_falkordb = False
         self.falkor_client = None
         self.falkor_graph = None
+        self.active_graph_name: str = settings.falkordb_graph
+        self.falkor_graphs: Dict[str, Any] = {}
         self.memory_graph = LocalMemoryGraph()
         self._init_connection()
 
@@ -121,8 +192,10 @@ class GraphDatabase:
             graph.query("RETURN 1 AS ping")
             self.falkor_client = client
             self.falkor_graph = graph
+            self.falkor_graphs[settings.falkordb_graph] = graph
             self.is_falkordb = True
             logger.info(f"Connected to FalkorDB at {settings.falkordb_host}:{settings.falkordb_port}")
+            self.ensure_indexes(settings.falkordb_graph)
         except Exception as e:
             if settings.auto_fallback:
                 self.is_falkordb = False
@@ -130,42 +203,129 @@ class GraphDatabase:
             else:
                 raise ConnectionError(f"Failed to connect to FalkorDB: {e}")
 
+    def get_project_graph_key(self, project_id: str) -> str:
+        """
+        Derives an isolated logical graph key for a project/tenant
+        to prevent monolithic graph inflation in GraphBLAS (Rule 4: Isolation).
+        """
+        clean = project_id.replace("project:", "").replace("-", "_")
+        return f"{settings.falkordb_graph}_{clean}"
+
+    def select_graph(self, graph_name: str) -> Any:
+        """
+        Selects or switches to an isolated logical graph key (Rule 4: Isolation).
+        """
+        self.active_graph_name = graph_name
+        if self.is_falkordb and self.falkor_client:
+            if graph_name not in self.falkor_graphs:
+                g = self.falkor_client.select_graph(graph_name)
+                self.falkor_graphs[graph_name] = g
+                self.ensure_indexes(graph_name)
+            self.falkor_graph = self.falkor_graphs[graph_name]
+            return self.falkor_graph
+        return None
+
+    def ensure_indexes(self, graph_name: Optional[str] = None) -> List[str]:
+        """
+        Creates single-property indexes on all core entities in FalkorDB (Rule 3: Explicit Indexing):
+        CREATE INDEX FOR (label) ON (property)
+        Guarantees O(1) point lookups across GraphBLAS sparse matrices.
+        """
+        created = []
+        target_graph = self.falkor_graphs.get(graph_name) if graph_name else self.falkor_graph
+        for label, prop in CORE_INDEXES:
+            cypher = f"CREATE INDEX FOR (n:{label}) ON (n.{prop})"
+            created.append(cypher)
+            if self.is_falkordb and target_graph:
+                try:
+                    target_graph.query(cypher)
+                except Exception as e:
+                    # Ignore if index already exists
+                    logger.debug(f"Index on {label}({prop}) creation notice: {e}")
+        return created
+
+    def resolve_label(self, node_id: str) -> str:
+        """Resolves node label from memory graph or deterministic ID prefix."""
+        node = self.memory_graph.nodes.get(node_id)
+        if node and node.get("label"):
+            return node["label"]
+        for prefix, lbl in PREFIX_LABEL_MAP.items():
+            if node_id.startswith(prefix):
+                return lbl
+        return ""
+
     def get_backend_info(self) -> Dict[str, Any]:
         return {
             "backend": "FalkorDB" if self.is_falkordb else "LocalMemoryGraph (Fallback)",
             "host": settings.falkordb_host if self.is_falkordb else "local-in-memory",
             "port": settings.falkordb_port if self.is_falkordb else 0,
-            "graph_name": settings.falkordb_graph,
+            "graph_name": self.active_graph_name,
             "node_count": len(self.memory_graph.nodes) if not self.is_falkordb else "dynamic",
             "edge_count": len(self.memory_graph.edges) if not self.is_falkordb else "dynamic",
+            "indexes_registered": len(CORE_INDEXES)
         }
 
-    def execute_cypher(self, cypher: str, params: Optional[Dict[str, Any]] = None) -> Any:
+    def execute_cypher(self, cypher: str, params: Optional[Dict[str, Any]] = None, graph_name: Optional[str] = None) -> Any:
         """
         Executes Cypher on FalkorDB if connected, or logs it when in local fallback mode.
+        Rule 7: Parameterized query caching.
         """
-        if self.is_falkordb and self.falkor_graph:
-            return self.falkor_graph.query(cypher, params or {})
+        target_graph = self.falkor_graphs.get(graph_name) if graph_name else self.falkor_graph
+        if self.is_falkordb and target_graph:
+            return target_graph.query(cypher, params or {})
         return None
 
-    def create_node(self, node_id: str, label: str, properties: Dict[str, Any]):
+    def create_node(self, node_id: str, label: str, properties: Dict[str, Any], graph_name: Optional[str] = None):
         # Always update memory store for consistent local cache
         self.memory_graph.add_node(node_id, label, properties)
-        if self.is_falkordb and self.falkor_graph:
-            # Escape strings safely for Cypher
-            props_str = json.dumps(properties)
-            cypher = f"MERGE (n:{label} {{id: $id}}) SET n += $props"
-            self.falkor_graph.query(cypher, {"id": node_id, "props": properties})
+        target_graph = self.falkor_graphs.get(graph_name) if graph_name else self.falkor_graph
+        if self.is_falkordb and target_graph:
+            # Rule 2: String interning (intern()) on repeated enums
+            # Rule 7: Fully parameterized Cypher
+            regular_props = {}
+            intern_clauses = []
+            cypher_params: Dict[str, Any] = {"id": node_id}
 
-    def create_edge(self, from_id: str, rel_type: str, to_id: str, properties: Optional[Dict[str, Any]] = None):
+            for k, v in properties.items():
+                if k in INTERNED_FIELDS and isinstance(v, str):
+                    intern_clauses.append(f"n.{k} = intern(${k})")
+                    cypher_params[k] = v
+                else:
+                    regular_props[k] = v
+
+            cypher_params["props"] = regular_props
+            set_parts = ["n += $props"] + intern_clauses
+            set_clause = ", ".join(set_parts)
+            cypher = f"MERGE (n:{label} {{id: $id}}) SET {set_clause}"
+            target_graph.query(cypher, cypher_params)
+
+    def create_edge(
+        self,
+        from_id: str,
+        rel_type: str,
+        to_id: str,
+        properties: Optional[Dict[str, Any]] = None,
+        from_label: Optional[str] = None,
+        to_label: Optional[str] = None,
+        graph_name: Optional[str] = None
+    ):
         self.memory_graph.add_edge(from_id, rel_type, to_id, properties)
-        if self.is_falkordb and self.falkor_graph:
+        target_graph = self.falkor_graphs.get(graph_name) if graph_name else self.falkor_graph
+        if self.is_falkordb and target_graph:
+            # Rule 5: Explicit labels on both sides (never open MATCH (a))
+            # Rule 7: Parameterized query
+            flabel = from_label or self.resolve_label(from_id)
+            tlabel = to_label or self.resolve_label(to_id)
+
+            f_clause = f"(a:{flabel} {{id: $from_id}})" if flabel else "(a {id: $from_id})"
+            t_clause = f"(b:{tlabel} {{id: $to_id}})" if tlabel else "(b {id: $to_id})"
+
             cypher = f"""
-            MATCH (a {{id: $from_id}}), (b {{id: $to_id}})
+            MATCH {f_clause}, {t_clause}
             MERGE (a)-[r:{rel_type}]->(b)
             SET r += $props
             """
-            self.falkor_graph.query(cypher, {"from_id": from_id, "to_id": to_id, "props": properties or {}})
+            target_graph.query(cypher, {"from_id": from_id, "to_id": to_id, "props": properties or {}})
 
     def get_neighbors(self, node_id: str, direction: str = "both") -> List[Dict[str, Any]]:
         dir_val = "out" if direction == "outgoing" else ("in" if direction == "incoming" else direction)

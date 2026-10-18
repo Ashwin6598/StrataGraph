@@ -1001,12 +1001,20 @@ def create_epic(
     db.create_edge(clean_pid, Relationships.HAS_EPIC, epic_id)
     db.flush()
 
-    cypher = f"""
-    MERGE (p:Project {{id: '{clean_pid}'}})
-    MERGE (e:Epic {{id: '{epic_id}'}})
-    SET e.summary = '{summary}', e.key = '{clean_key}', e.owner = '{owner}', e.status = 'IN_PROGRESS'
+    cypher = """
+    MERGE (p:Project {id: $project_id})
+    MERGE (e:Epic {id: $epic_id})
+    SET e.summary = $summary, e.key = $key, e.owner = $owner, e.status = intern($status)
     MERGE (p)-[:HAS_EPIC]->(e)
     """
+    db.execute_cypher(cypher, {
+        "project_id": clean_pid,
+        "epic_id": epic_id,
+        "summary": summary,
+        "key": clean_key,
+        "owner": owner,
+        "status": "IN_PROGRESS"
+    })
 
     return ExplainableResult(
         result={
@@ -1096,12 +1104,20 @@ def create_feature(
 
     db.flush()
 
-    cypher = f"""
-    MERGE (e:Epic {{id: '{epic_id}'}})
-    MERGE (f:AgileFeature {{id: '{feat_id}'}})
-    SET f.summary = '{summary}', f.key = '{clean_fkey}', f.service_name = '{service_name or ""}'
+    cypher = """
+    MERGE (e:Epic {id: $epic_id})
+    MERGE (f:AgileFeature {id: $feat_id})
+    SET f.summary = $summary, f.key = $key, f.service_name = $service_name, f.status = intern($status)
     MERGE (e)-[:HAS_FEATURE]->(f)
     """
+    db.execute_cypher(cypher, {
+        "epic_id": epic_id,
+        "feat_id": feat_id,
+        "summary": summary,
+        "key": clean_fkey,
+        "service_name": service_name or "",
+        "status": "IN_DEVELOPMENT"
+    })
 
     return ExplainableResult(
         result={
@@ -1188,12 +1204,21 @@ def create_story(
 
     db.flush()
 
-    cypher = f"""
-    MERGE (f:AgileFeature {{id: '{feature_id}'}})
-    MERGE (s:Story {{id: '{story_id}'}})
-    SET s.summary = '{summary}', s.key = '{clean_skey}', s.assignee = '{assignee}', s.story_points = {story_points}
+    cypher = """
+    MERGE (f:AgileFeature {id: $feature_id})
+    MERGE (s:Story {id: $story_id})
+    SET s.summary = $summary, s.key = $key, s.assignee = $assignee, s.story_points = $story_points, s.status = intern($status)
     MERGE (f)-[:HAS_STORY]->(s)
     """
+    db.execute_cypher(cypher, {
+        "feature_id": feature_id,
+        "story_id": story_id,
+        "summary": summary,
+        "key": clean_skey,
+        "assignee": assignee,
+        "story_points": story_points,
+        "status": "TODO"
+    })
 
     return ExplainableResult(
         result={

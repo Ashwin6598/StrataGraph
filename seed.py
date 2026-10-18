@@ -23,6 +23,7 @@ from codegraph.schema import (
 def seed_all():
     print("🚀 Initializing CodeGraph Seeding (4-Pillar Architecture)...")
     db.clear()
+    db.ensure_indexes()
 
     # =========================================================================
     # 0. Root Project Anchor

@@ -184,16 +184,25 @@ def record_bugfix(
         )
         email_dispatched = email_res.get("dispatched", False)
 
-    cypher = f"""
-    MERGE (i:Issue {{id: '{issue_id}'}})
-    SET i.symptom = '{symptom}', i.approved = {str(approved_by_lead).lower()}
-    MERGE (fx:Fix {{id: '{fix_id}'}})
-    SET fx.action_taken = '{fix_summary}', fx.approval_status = '{status}'
+    cypher = """
+    MERGE (i:Issue {id: $issue_id})
+    SET i.symptom = $symptom, i.approved = $approved
+    MERGE (fx:Fix {id: $fix_id})
+    SET fx.action_taken = $fix_summary, fx.approval_status = intern($status)
     WITH i, fx
-    MATCH (f:Function {{name: '{clean_func}'}})
+    MATCH (f:Function {name: $func_name})
     MERGE (i)-[:MANIFESTED_IN_FUNCTION]->(f)
-    MERGE (fx)-[:FIXES_FUNCTION {{status: '{status}'}}]->(f)
+    MERGE (fx)-[:FIXES_FUNCTION {status: intern($status)}]->(f)
     """
+    db.execute_cypher(cypher, {
+        "issue_id": issue_id,
+        "symptom": symptom,
+        "approved": approved_by_lead,
+        "fix_id": fix_id,
+        "fix_summary": fix_summary,
+        "status": status,
+        "func_name": clean_func,
+    })
 
     msg = (
         "BugFix and RCA successfully registered in knowledge graph Operations chain."

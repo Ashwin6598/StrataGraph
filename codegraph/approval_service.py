@@ -247,13 +247,18 @@ def approve_bugfix_and_ingest(
 
     db.flush()
 
-    cypher = f"""
-    MATCH (fx:Fix {{id: '{fix_id}'}})
-    SET fx.approval_status = 'APPROVED', fx.approved_by = '{final_approver}'
+    cypher = """
+    MATCH (fx:Fix {id: $fix_id})
+    SET fx.approval_status = intern($status), fx.approved_by = $approved_by
     WITH fx
     MATCH (fx)-[r:FIXES_FUNCTION]->(f:Function)
-    SET r.approval_status = 'APPROVED', r.status = 'APPROVED'
+    SET r.approval_status = intern($status), r.status = intern($status)
     """
+    db.execute_cypher(cypher, {
+        "fix_id": fix_id,
+        "status": "APPROVED",
+        "approved_by": final_approver
+    })
 
     return ExplainableResult(
         result={
@@ -454,13 +459,18 @@ def approve_prd_update_and_ingest(
 
     db.flush()
 
-    cypher = f"""
-    MATCH (r:FunctionalRequirement {{id: '{req_id}'}})
-    SET r.status = 'APPROVED', r.approved_by = '{final_approver}'
+    cypher = """
+    MATCH (r:FunctionalRequirement {id: $req_id})
+    SET r.status = intern($status), r.approved_by = $approved_by
     WITH r
     MATCH (pi:PRDInput)-[rel:SPECIFIES_REQUIREMENT]->(r)
-    SET rel.status = 'APPROVED'
+    SET rel.status = intern($status)
     """
+    db.execute_cypher(cypher, {
+        "req_id": req_id,
+        "status": "APPROVED",
+        "approved_by": final_approver
+    })
 
     return ExplainableResult(
         result={
@@ -645,13 +655,18 @@ def approve_architectural_proposal_and_ingest(
 
     db.flush()
 
-    cypher = f"""
-    MATCH (d:Decision {{id: '{did}'}})
-    SET d.status = 'APPROVED', d.approved_by = '{final_approver}'
+    cypher = """
+    MATCH (d:Decision {id: $did})
+    SET d.status = intern($status), d.approved_by = $approved_by
     WITH d
     MATCH (a:Architecture)-[rel:LEADS_TO_DECISION]->(d)
-    SET rel.status = 'APPROVED'
+    SET rel.status = intern($status)
     """
+    db.execute_cypher(cypher, {
+        "did": did,
+        "status": "APPROVED",
+        "approved_by": final_approver
+    })
 
     return ExplainableResult(
         result={
