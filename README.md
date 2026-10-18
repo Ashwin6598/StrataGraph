@@ -15,68 +15,184 @@
 
 ## 🚀 The Solution: StrataGraph
 
-StrataGraph connects **Source Code (AST)**, **Product Requirements (PRD)**, **Architecture Decisions (ADR)**, and **Quality History (Runbooks, BugFixes, RCAs)** into a unified property graph backed by **FalkorDB**.
+StrataGraph connects **Source Code (AST)**, **Product Requirements (PRD)**, **Architecture Decisions (ADR)**, **Operations (Runbooks, BugFixes, RCAs)**, and **Program Flow (Agile Epics, Features, Stories)** into a unified property graph backed by **FalkorDB**.
 
-Instead of a siloed custom UI, StrataGraph is an **MCP (Model Context Protocol) Server**. Any MCP-compatible agent client (**Claude Desktop, Antigravity, Cursor, VS Code Copilot, or CLI**) connects directly to the server.
+### Dual-Access Architecture (Interactive MCP & Standalone Ingestion)
+StrataGraph is designed with two distinct operational planes:
+1. **Interactive Agent Plane (MCP Server):** Any MCP-compliant client (**Claude Desktop, Antigravity, Cursor, VS Code Copilot, or CLI**) connects over `stdio` or `streamable-http/sse` to converse with 4 specialized Agent Personas across 33 typed tools.
+2. **Standalone Production Ingestion Plane (CLI & CI/CD):** An independent core subsystem (`codegraph/ingest/`) indexes arbitrary polyglot codebases (ASTs), enterprise documentation formats (Markdown, PDF, Confluence, Word, Jira), and git commit histories directly into FalkorDB without requiring an active LLM or MCP session.
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     Any MCP Agent Client                    │
-│        (Claude Desktop / Antigravity / Cursor / Copilot)     │
-└──────────────────────────────┬──────────────────────────────┘
-                               │ JSON-RPC (stdio or HTTP/SSE)
-┌──────────────────────────────▼──────────────────────────────┐
-│                  CodeGraph MCP Server                       │
-│  ┌───────────────────────┬───────────────────────────────┐  │
-│  │   Product Persona     │       Developer Persona       │  │
-│  │  • query_prd_coverage │      • debug_issue            │  │
-│  │  • simulate_scenario  │      • check_safe_to_change   │  │
-│  │  • get_change_history │      • get_function_lineage   │  │
-│  │  • list_uncovered_req │      • review_pr_diff         │  │
-│  │  • update_prd_features│      • cross_org_bug_check    │  │
-│  │  • approve_prd_update │      • propose_architecture   │  │
-│  └───────────────────────┴───────────────────────────────┘  │
-│  ┌───────────────────────┬───────────────────────────────┐  │
-│  │ Program Manager Persona│     Systems Architect Persona │  │
-│  │  • query_program_stats │      • propose_architecture   │  │
-│  │  • diagnose_bottlenecks│      • approve_architecture   │  │
-│  │  • get_lead_time_stats │      • check_iam_permission   │  │
-│  │  • trace_delivery_chain│      • list_iam_roles         │  │
-│  │  • unlock_capabilities │      • search_graph           │  │
-│  │  • create_epic/feat/st │      • check_safe_to_change   │  │
-│  └───────────────────────┴───────────────────────────────┘  │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │          Ingestion, Governance & IAM Mutations        │  │
-│  │  • ingest_code / prd / adr / runbooks / jira_board    │  │
-│  │  • record_bugfix (Code Domain Owner Email Approval)   │  │
-│  │  • update_prd_features (PRD Owner Email Approval)     │  │
-│  │  • propose_architecture (Architect Email Approval)    │  │
-│  └───────────────────────────────────────────────────────┘  │
-└──────────────────────────────┬──────────────────────────────┘
-                                │ OpenCypher
-┌──────────────────────────────▼──────────────────────────────┐
-│                    FalkorDB / Graph Store                   │
-│                                                             │
-│                      [ Root: Project ]                      │
-│        ┌───────────┬───────────┬───────────┬───────────┐    │
-│        ▼           ▼           ▼           ▼           ▼    │
-│     [ PRD ]     [ ADR ]   [ CodeBase ]   [ Ops ]   [ Agile ]│
-│        │           │           │           │           │    │
-│      Input     Requirement    Input      Issues       Epic  │
-│        │           │           │           │           │    │
-│  Functional Req Architecture Logic Flow   RCA        Feature│
-│        │           │           │           │           │    │
-│   Guardrails    Decisions   Classes       Fix         Story │
-│        │           │           │           │           │    │
-│     Output      Result     Functions    Result     Developer│
-│        ▲           ▲           │           ▲           │    │
-│        │           │      Code Logic       │           │    │
-│        │           │           │           │           │    │
-│        │           │        Output         │           │    │
-│        └───────────┴───────────┴───────────┴───────────┘    │
-│                                                             │
-│   [ Timeline & History: ChangeTimeline (What & Why) ]      │
-└─────────────────────────────────────────────────────────────┘
+=============================================================================================================
+                                     STRATAGRAPH SYSTEM ARCHITECTURE
+=============================================================================================================
+
+ ┌─────────────────────────────────────────────────────────┐  ┌────────────────────────────────────────────┐
+ │                  Interactive MCP Clients                │  │    Standalone Automation, CLI & CI/CD      │
+ │     (Claude Desktop / Cursor / Antigravity / Copilot)   │  │ (python -m codegraph ingest / Git Hooks)   │
+ └────────────────────────────┬────────────────────────────┘  └─────────────────────┬──────────────────────┘
+                              │ JSON-RPC (stdio or HTTP/SSE)                        │ Direct CLI Ingestion
+                              ▼                                                     ▼
+ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+ │                       🛡️ Agent Security Harness & Ingestion Guardrails (ADR-017)                         │
+ │  • Pre-Execution IAM RBAC Gate (enforce_permission)     • Anti-DoS Payload Limit (10MB Cap)             │
+ │  • Canonical Path Sandboxing (Path.resolve / LFI)       • Adversarial Prompt Injection Sanitizer        │
+ │  • Sensitive Secret Shield (.env, id_rsa, keys)         • Staged Quarantine Gate (PENDING_APPROVAL)     │
+ └────────────────────────────┬─────────────────────────────────────────────────────┬──────────────────────┘
+                              │                                                     │
+                              ▼                                                     ▼
+ ┌─────────────────────────────────────────────────────────┐  ┌────────────────────────────────────────────┐
+ │               StrataGraph MCP Server Layer              │  │        Standalone Ingestion Engine         │
+ │                  (codegraph/mcp_server.py)              │  │           (codegraph/ingest/)              │
+ │                                                         │  ├────────────────────────────────────────────┤
+ │ 🏛️ Systems Architect Persona (architect_advisor)        │  │ • CodebaseParser (AST: Py, TS, Go, Java)   │
+ │   • propose_architectural_change • list_iam_roles       │  │ • DocumentConverter (PDF, DOCX, HTML, TXT) │
+ │   • approve_architectural_prop   • check_safe_to_change │  │ • PRDParser & ADRParser & ChangeTracker    │
+ │   • check_iam_permission         • search_graph         │  │ • JiraParser (Epics, Features, Stories)    │
+ │                                                         │  │ • GitCommitLogExtractor (git log lineage)  │
+ │ 📋 Product Manager Persona (product_advisor)            │  │ • Heuristic Cross-Entity Auto-Linker       │
+ │   • query_prd_coverage           • list_uncovered_req   │  └─────────────────────┬──────────────────────┘
+ │   • simulate_scenario (NL)       • update_prd_features  │                        │
+ │   • get_change_history           • approve_prd_update   │                        │
+ │                                                         │                        │
+ │ 💻 Software Engineer Persona (developer_assistant)      │                        │
+ │   • debug_issue (RCA matching)   • review_pr_diff       │                        │
+ │   • check_safe_to_change         • cross_org_bug_check  │                        │
+ │   • get_function_lineage         • record_bugfix        │                        │
+ │                                                         │                        │
+ │ 📊 Program Manager (TPM) Persona (program_manager)      │                        │
+ │   • query_program_delivery_status• get_lead_time_metrics│                        │
+ │   • diagnose_delivery_bottlenecks• trace_delivery_chain │                        │
+ │   • unlock_cross_team_cap        • create_epic/feat/st  │                        │
+ │                                                         │                        │
+ │ 🔍 Shared Exploration Tools                             │                        │
+ │   • search_graph  • get_related_entities  • explain_path│                        │
+ └────────────────────────────┬────────────────────────────┘                        │
+                              │                                                     │
+                              │               ┌─────────────────────────────────────┴──────────────────────┐
+                              │               │   🔐 Cryptographic Human-in-the-Loop Approval Gateway      │
+                              │               │   • Code Domain Owner (.github/CODEOWNERS) ➔ BugFix Gate   │
+                              │               │   • PRD Owner (Project.prd_owner) ➔ Requirements Gate      │
+                              │               │   • Architect Lead (Project.architect_owner) ➔ ADR Gate    │
+                              │               │   Channels: 1-Click HTTP Link / CLI / MCP Approval Tools   │
+                              │               └─────────────────────────────────────┬──────────────────────┘
+                              │                                                     │
+                              ▼                                                     ▼
+ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+ │                               🗄️ Dual-Engine Graph Persistence Layer                                     │
+ │                                                                                                         │
+ │   Primary: FalkorDB (SuiteSparse:GraphBLAS)           Fallback: LocalMemoryGraph (Zero-Dependency)      │
+ │   • Matrix Multiplication (C = A · B) over semirings  • Deterministic In-Memory Property Graph Engine    │
+ │   • 24 Single-Property Indexes (O(1) lookups)         • Multi-Hop BFS Neighborhood Traverser            │
+ │   • Categorical String Interning (intern($val))       • Atomic State File (codegraph_local_store.json)  │
+ │   • Parameterized Plan Caching ($params)              • 100% Offline Resilience (No Docker Required)    │
+ └────────────────────────────────────────────────────┬────────────────────────────────────────────────────┘
+                                                      │
+                                                      ▼
+ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+ │                               🧠 5-Pillar Connected Knowledge Graph Data Model                           │
+ │                                                                                                         │
+ │                     ┌─────────────────────────── [ Root: Project ] ───────────────────────────┐         │
+ │                     │   • codebase_owner       • prd_owner       • architect_owner            │         │
+ │                     ▼                           ▼                           ▼                 │         │
+ │    ┌───────────────────────────┐ ┌───────────────────────────┐ ┌───────────────────────────┐ │         │
+ │    │     1. CodeBase Pillar    │ │       2. PRD Pillar       │ │       3. ADR Pillar       │ │         │
+ │    │ CodeInput ➔ LogicFlow     │ │ PRDInput ➔ Requirement    │ │ ADRRequirement ➔ Architecture│         │
+ │    │ ➔ Class ➔ Function        │ │ ➔ Guardrail ➔ PRDOutput   │ │ ➔ Decision ➔ ADRResult    │ │         │
+ │    │ ➔ CodeLogic ➔ CodeOutput  │ │                           │ │ (Governing Invariants)    │ │         │
+ │    └─────────────┬─────────────┘ └─────────────┬─────────────┘ └─────────────┬─────────────┘ │         │
+ │                  │                             │                             │               │         │
+ │                  ▼                             ▼                             ▼               │         │
+ │    ┌───────────────────────────┐                 ┌───────────────────────────┐               │         │
+ │    │    4. Operations Pillar   │                 │   5. Program Flow Pillar  │◄──────────────┘         │
+ │    │ Issue (Incident/Bug)      │                 │ Epic ➔ AgileFeature       │                         │
+ │    │ ➔ RCA (Root Cause)        │                 │ ➔ Story (Agile Task)      │                         │
+ │    │ ➔ Fix ➔ OpResult          │                 │ ➔ Developer / Function    │                         │
+ │    └─────────────┬─────────────┘                 └─────────────┬─────────────┘                         │
+ │                  │                                             │                                       │
+ │                  └───────────────────────┬─────────────────────┘                                       │
+ │                                          ▼                                                             │
+ │               ┌─────────────────────────────────────────────────────────────────────┐                  │
+ │               │             Temporal Lineage Anchor: ChangeTimeline                 │                  │
+ │               │      (Captures WHAT changed and WHY it changed across all pillars)  │                  │
+ │               └─────────────────────────────────────────────────────────────────────┘                  │
+ └─────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+```mermaid
+flowchart TD
+    subgraph Clients["🖥️ Clients & Automation Channels"]
+        direction LR
+        MCP_CLIENTS["Interactive MCP Clients\n(Claude Desktop / Cursor / Antigravity / Copilot)"]
+        CLI_CICD["Standalone Automation & CI/CD\n(Click CLI / GitHub Actions / Webhooks)"]
+    end
+
+    subgraph Security["🛡️ Agent Security Harness & Ingestion Guardrails (ADR-017)"]
+        IAM_GATE["IAM Pre-Execution RBAC Gate\n(enforce_permission)"]
+        SANDBOX["Canonical Path Sandboxing\n(Path.resolve / LFI Protection)"]
+        SECRETS["Sensitive Secret Shield\n(.env / id_rsa / Private Keys)"]
+        ANTIDOS["Payload Anti-DoS Limits\n(10 MB Cap / Stat Inspection)"]
+        SANITIZER["Adversarial Prompt Sanitizer\n(Injection & Script Scrubbing)"]
+        QUARANTINE["Staged Quarantine Gate\n(PENDING_APPROVAL Isolation)"]
+    end
+
+    subgraph EntryLayers["⚙️ Execution & Interface Layer"]
+        subgraph MCPServer["🔌 StrataGraph MCP Server (stdio / streamable-http)"]
+            ARCH_TOOLS["🏛️ Systems Architect Persona\n• propose_architectural_change\n• approve_architectural_proposal\n• check_iam_permission\n• list_iam_roles\n• check_safe_to_change\n• search_graph"]
+            PROD_TOOLS["📋 Product Manager Persona\n• query_prd_coverage\n• simulate_scenario\n• get_change_history\n• list_uncovered_requirements\n• update_prd_features_and_scenarios\n• approve_prd_update_via_email"]
+            DEV_TOOLS["💻 Software Engineer Persona\n• debug_issue (RCA matching)\n• check_safe_to_change\n• get_function_lineage\n• review_pr_diff\n• cross_org_bug_check\n• record_bugfix"]
+            PROG_TOOLS["📊 Program Manager (TPM) Persona\n• query_program_delivery_status\n• diagnose_delivery_bottlenecks\n• unlock_cross_team_capabilities\n• get_feature_lead_time_metrics\n• trace_requirement_to_delivery_chain\n• create_epic / feature / story"]
+            SHARED_TOOLS["🔍 Shared Tools\n• search_graph\n• get_related_entities (N-hop BFS)\n• explain_traversal (ASCII path)"]
+        end
+
+        subgraph IngestPipeline["📥 Standalone Ingestion Engine (codegraph/ingest/)"]
+            PARSER_CODE["CodebaseParser\n(Python AST, TS, Go, Java, Rust)"]
+            CONV_DOC["DocumentConverter\n(MD, HTML, Confluence, Jira, PDF, Docx)"]
+            PARSER_PRD_ADR["PRD & ADR & Runbook Parsers"]
+            PARSER_JIRA["Jira Board Parser (Epics, Features, Stories)"]
+            EXTR_GIT["Git Commit Log Extractor"]
+            AUTOLINK["Cross-Entity Heuristic Auto-Linker"]
+        end
+    end
+
+    subgraph Governance["🔐 Cryptographic Approval Gateway (Triple-Ownership)"]
+        OWNER_CODE["Codebase Owner (.github/CODEOWNERS)\nBugFix & AST Mutation Signoff"]
+        OWNER_PRD["PRD Owner (Project.prd_owner)\nRequirement & Scenario Signoff"]
+        OWNER_ARCH["Architect Lead (Project.architect_owner)\nADR & Invariant Signoff"]
+        APPROVE_CHANNELS["Approval Channels: 1-Click HTTP / CLI / MCP Tool"]
+    end
+
+    subgraph Engine["🗄️ Dual-Engine Database Layer (ADR-001, ADR-018)"]
+        FALKOR["FalkorDB (Primary)\n• SuiteSparse:GraphBLAS Sparse Matrices (C = A · B)\n• 24 Single-Property Indexes\n• String Interning (intern($val))\n• Parameterized Plan Caching ($params)"]
+        FALLBACK["LocalMemoryGraph (Fallback)\n• Deterministic In-Memory Adjacency Engine\n• Zero-Dependency JSON Store (codegraph_local_store.json)"]
+    end
+
+    subgraph Graph["🧠 5-Pillar Connected Knowledge Graph"]
+        ROOT["Root: Project (codebase_owner, prd_owner, architect_owner)"]
+        P_CODE["1. CodeBase Pillar\nInput ➔ LogicFlow ➔ Class ➔ Function ➔ Logic ➔ Output"]
+        P_PRD["2. PRD Pillar\nInput ➔ Requirement ➔ Guardrail ➔ Output"]
+        P_ADR["3. ADR Pillar\nRequirement ➔ Architecture ➔ Decision ➔ Result"]
+        P_OPS["4. Operations Pillar\nIssue ➔ RCA ➔ Fix ➔ OpResult"]
+        P_AGILE["5. Program Flow Pillar\nEpic ➔ AgileFeature ➔ Story ➔ Code / Dev"]
+        P_TIME["Lineage Anchor: ChangeTimeline\n(WHAT changed & WHY changed)"]
+    end
+
+    MCP_CLIENTS -->|JSON-RPC| MCPServer
+    CLI_CICD -->|Direct Python Execution| IngestPipeline
+    CLI_CICD -->|CLI Approval Commands| Governance
+
+    MCPServer <--> Security
+    IngestPipeline <--> Security
+
+    MCPServer <--> Governance
+    Governance -->|Validated Tokens| Engine
+
+    MCPServer -->|OpenCypher| Engine
+    IngestPipeline -->|OpenCypher Mutations| Engine
+
+    Engine <--> Graph
+    ROOT --> P_CODE & P_PRD & P_ADR & P_OPS & P_AGILE
+    P_TIME -.-> P_PRD & P_ADR & P_OPS & P_CODE
 ```
 
 ### 🔗 The 5-Pillar Connected Data Model
@@ -210,19 +326,35 @@ Add to `.cursor/mcp.json` or VS Code MCP settings:
 
 ---
 
-## 🎭 Three Personas, One Connected Graph
+## 🎭 Four Personas, One Connected Graph
 
 | Persona | System Prompt | Communication Style | Primary Tools |
 |---------|---------------|---------------------|---------------|
-| **Product Manager** | `prompts/product-persona.md` | Plain English, business terms, completion %, zero code | `query_prd_coverage`, `simulate_scenario`, `get_change_history`, `list_uncovered_requirements`, `update_prd_features_and_scenarios`, `approve_prd_update_via_email` |
-| **Developer / SRE** | `prompts/developer-persona.md` | Technical, file paths, line numbers, ADR constraints | `debug_issue`, `check_safe_to_change`, `get_function_lineage`, `review_pr_diff`, `cross_org_bug_check` |
-| **Program Manager** | `prompts/program-persona.md` | Delivery velocity, story points, sprint burndown, cycle times, blockers, cross-team capability reuse | `query_program_delivery_status`, `diagnose_delivery_bottlenecks`, `unlock_cross_team_capabilities`, `get_feature_lead_time_metrics`, `trace_requirement_to_delivery_chain`, `ingest_jira_board` |
+| **Systems Architect** | `prompts/architect-persona.md` (`architect_advisor`) | Invariant contracts, distributed system resilience patterns, ADR decision statements, RFCs | `propose_architectural_change`, `approve_architectural_proposal_via_email`, `check_iam_permission`, `list_iam_roles`, `check_safe_to_change`, `search_graph` |
+| **Product Manager** | `prompts/product-persona.md` (`product_advisor`) | Plain English, business terms, completion %, zero code | `query_prd_coverage`, `simulate_scenario`, `get_change_history`, `list_uncovered_requirements`, `update_prd_features_and_scenarios`, `approve_prd_update_via_email` |
+| **Developer / SRE** | `prompts/developer-persona.md` (`developer_assistant`) | Technical, file paths, line numbers, ADR constraints | `debug_issue`, `check_safe_to_change`, `get_function_lineage`, `review_pr_diff`, `cross_org_bug_check`, `record_bugfix`, `approve_bugfix_via_email` |
+| **Program Manager** | `prompts/program-persona.md` (`program_manager`) | Delivery velocity, story points, sprint burndown, cycle times, blockers, cross-team capability reuse | `query_program_delivery_status`, `diagnose_delivery_bottlenecks`, `unlock_cross_team_capabilities`, `get_feature_lead_time_metrics`, `trace_requirement_to_delivery_chain`, `create_epic`, `create_feature`, `create_story`, `ingest_jira_board` |
 
 ### 📋 Roles and Responsibilities of Each Persona Agent
 
 Each persona agent is strictly bounded to the responsibilities and authority designated for its domain, preventing role confusion and enforcing cross-functional governance:
 
-#### 1. Product Persona Agent (`Product Advisor`)
+#### 1. Systems Architect Persona Agent (`Lead Architect Advisor`)
+* **Primary Role:** Architectural Decision Authority, System Invariant Governance, and Structural Resilience Lead.
+* **Core Responsibilities:**
+  * **Architectural Decision Authoring (ADRs):** Directly author and ingest binding Architectural Decision Records into the knowledge graph using `propose_architectural_change` (`approved_by_architect=True`), establishing official patterns, rationale, and consequences.
+  * **System Invariant Specification:** Define and enforce non-negotiable architectural invariants (e.g., mandatory 3-retry ceilings with exponential backoff, worker pool concurrency limits, distributed Redis idempotency locks, zero duplicate transaction guarantees).
+  * **Developer Proposal Review & Approval:** Review developer-submitted architectural shifts staged under `PENDING_APPROVAL` and approve them via cryptographic email tokens using `approve_architectural_proposal_via_email`.
+  * **Architectural Safety & Blast Radius Auditing:** Evaluate function-level modifications against governing ADR invariants and historical regression incidents using `check_safe_to_change` before any code changes are committed.
+  * **Identity & Access Management (IAM) Governance:** Verify role-based permissions (`AUTHOR_ARCHITECTURE`, `PROPOSE_ARCHITECTURE`, `MODIFY_CODEBASE`, `UPDATE_PRD`, `MANAGE_AGILE_FLOW`) across actors using `check_iam_permission` and inspect registered role matrices using `list_iam_roles`.
+  * **Cross-Pillar Architecture Lineage:** Audit how PRD functional requirements drive architectural decisions (`DRIVES_ADR_REQUIREMENT`), and how decisions constrain engineering code (`CONSTRAINS_FUNCTION`) using `search_graph` and `get_related_entities`.
+* **Boundaries & Exclusions:**
+  * NEVER approve architectural proposals that weaken established resilience guarantees, eliminate idempotency guards, or bypass security harnesses.
+  * Do not unilaterally modify product requirements or acceptance criteria (reserved for the PRD Owner).
+  * Do not manage sprint allocations, developer point burns, or agile delivery schedules (reserved for the Program Manager).
+  * Preserve strict cross-pillar separation of concerns.
+
+#### 2. Product Persona Agent (`Product Advisor`)
 * **Primary Role:** Business Specification & Requirements Authority for the project.
 * **Core Responsibilities:**
   * **PRD Compliance Auditing:** Measure and report how completely repository code implements PRD requirements using `query_prd_coverage` and `list_uncovered_requirements`.
@@ -236,7 +368,7 @@ Each persona agent is strictly bounded to the responsibilities and authority des
   * Do not diagnose compiler errors or infrastructure failures (delegated to Developer Persona).
   * Do not manage agile sprint allocation or developer task assignment (delegated to Program Manager Persona).
 
-#### 2. Developer Persona Agent (`Senior Engineering Assistant`)
+#### 3. Developer Persona Agent (`Senior Engineering Assistant`)
 * **Primary Role:** Engineering Implementation & Architectural Resilience Authority for the codebase.
 * **Core Responsibilities:**
   * **Architectural Safety Audits:** Inspect functions before edits using `check_safe_to_change` to identify governing Architecture Decision Records (ADRs) and past production bugs.
@@ -251,7 +383,7 @@ Each persona agent is strictly bounded to the responsibilities and authority des
   * Do not redefine business scope or acceptance criteria without consulting the PRD Owner.
   * Do not manage sprint allocations or delivery timelines (delegated to Program Manager Persona).
 
-#### 3. Program Manager Persona Agent (`Program Advisor`)
+#### 4. Program Manager Persona Agent (`Program Advisor`)
 * **Primary Role:** Delivery Velocity, Agile Workflow Governance, Cross-Team Capability Unlocking, and Cross-Discipline Alignment Authority.
 * **Core Responsibilities:**
   * **Agile Program Delivery Tracking:** Monitor overall program progress across Epics (project-level initiation), Features (functional/service separation), and Stories (task-level developer assignments) using `query_program_delivery_status`.
@@ -409,7 +541,7 @@ The modular test suite in [`tests/`](tests/) provides comprehensive test coverag
 * `test_product_tools.py`: PRD compliance metrics, plain-English scenario simulation, change timeline
 * `test_developer_tools.py`: Incident diagnostics, safe-to-change checks, 4-pillar lineage, PR diff audits
 * `test_shared_and_ingest.py`: Full-text search, N-hop neighborhood expansion, unified pipeline, approval workflow
-* `test_mcp_server.py`: Async MCP 2.x server initialization, 30 tools registry, 4 persona prompts (`product_advisor`, `developer_assistant`, `program_manager`, `architect_advisor`)
+* `test_mcp_server.py`: Async MCP 2.x server initialization, 33 tools registry, 4 persona prompts (`product_advisor`, `developer_assistant`, `program_manager`, `architect_advisor`)
 * `test_cli.py`: Click CLI commands (`status`, `demo`, `seed`, `ingest`, `approve-bugfix`, `approve-prd`, `approve-architecture`, `help`)
 
 ---

@@ -58,10 +58,11 @@ async def test_mcp_tool_registry():
 
 @pytest.mark.anyio
 async def test_mcp_prompts_registry():
-    """Verify Product Advisor, Developer Assistant, and Program Manager personas are registered."""
+    """Verify Systems Architect, Product Advisor, Developer Assistant, and Program Manager personas are registered."""
     prompts = await server.list_prompts()
     prompt_names = {p.name for p in prompts}
 
+    assert "architect_advisor" in prompt_names
     assert "product_advisor" in prompt_names
     assert "developer_assistant" in prompt_names
     assert "program_manager" in prompt_names
