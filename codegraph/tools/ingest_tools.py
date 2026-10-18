@@ -14,12 +14,27 @@ from ..ingest.adr_parser import ADRParser
 from ..ingest.change_tracker import ChangeTracker
 from ..approval_service import resolve_domain_owner, send_approval_email, approve_bugfix_and_ingest
 from ..iam import iam, Permission
+from ..guardrails import enforce_ingestion_harness
 
 
-def ingest_codebase(directory_path: str) -> Dict[str, Any]:
+def ingest_codebase(
+    directory_path: str,
+    actor: Optional[str] = "payment-tech-lead@payflow.internal"
+) -> Dict[str, Any]:
     """
     Ingests source code files from a directory into AST nodes (Files, Classes, Functions, Calls).
+    Guarded by security harness: path sandboxing, sensitive file blocking, and IAM authorization.
     """
+    clean_actor = actor or "payment-tech-lead@payflow.internal"
+    denial = enforce_ingestion_harness(
+        target_path=directory_path,
+        actor=clean_actor,
+        required_permission=Permission.MODIFY_CODEBASE,
+        action_name="ingest_codebase"
+    )
+    if denial:
+        return denial
+
     parser = CodebaseParser()
     results = parser.parse_directory(directory_path)
     return {
@@ -29,26 +44,68 @@ def ingest_codebase(directory_path: str) -> Dict[str, Any]:
     }
 
 
-def ingest_prd(file_path: str) -> Dict[str, Any]:
+def ingest_prd(
+    file_path: str,
+    actor: Optional[str] = "product-lead@payflow.internal"
+) -> Dict[str, Any]:
     """
     Ingests a Product Requirements Document (PRD) markdown file into Requirements and Scenarios.
+    Guarded by security harness: path sandboxing, sensitive file blocking, and IAM authorization.
     """
+    clean_actor = actor or "product-lead@payflow.internal"
+    denial = enforce_ingestion_harness(
+        target_path=file_path,
+        actor=clean_actor,
+        required_permission=Permission.UPDATE_PRD,
+        action_name="ingest_prd"
+    )
+    if denial:
+        return denial
+
     parser = PRDParser()
     return parser.parse_file(file_path)
 
 
-def ingest_adr(file_path: str) -> Dict[str, Any]:
+def ingest_adr(
+    file_path: str,
+    actor: Optional[str] = "architect-lead@payflow.internal"
+) -> Dict[str, Any]:
     """
     Ingests an Architecture Decision Record (ADR) markdown file into Decisions and Constraints.
+    Guarded by security harness: path sandboxing, sensitive file blocking, and IAM authorization.
     """
+    clean_actor = actor or "architect-lead@payflow.internal"
+    denial = enforce_ingestion_harness(
+        target_path=file_path,
+        actor=clean_actor,
+        required_permission=Permission.AUTHOR_ARCHITECTURE,
+        action_name="ingest_adr"
+    )
+    if denial:
+        return denial
+
     parser = ADRParser()
     return parser.parse_file(file_path)
 
 
-def ingest_runbook(file_path: str) -> Dict[str, Any]:
+def ingest_runbook(
+    file_path: str,
+    actor: Optional[str] = "payment-tech-lead@payflow.internal"
+) -> Dict[str, Any]:
     """
     Ingests an incident runbook markdown file into Runbooks and historical BugFix nodes.
+    Guarded by security harness: path sandboxing, sensitive file blocking, and IAM authorization.
     """
+    clean_actor = actor or "payment-tech-lead@payflow.internal"
+    denial = enforce_ingestion_harness(
+        target_path=file_path,
+        actor=clean_actor,
+        required_permission=Permission.MODIFY_CODEBASE,
+        action_name="ingest_runbook"
+    )
+    if denial:
+        return denial
+
     tracker = ChangeTracker()
     return tracker.parse_runbook(file_path)
 

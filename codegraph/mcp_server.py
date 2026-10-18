@@ -232,34 +232,46 @@ def explain_traversal(steps: List[Dict[str, Any]]) -> str:
 
 @server.tool(
     name="ingest_codebase",
-    description="Ingest source code files from a directory into AST graph nodes (Files, Classes, Functions, and Call edges)."
+    description="Ingest source code files from a directory into AST graph nodes. Guarded by security harness: path sandboxing, sensitive file blocking, and IAM authorization."
 )
-def ingest_codebase(directory_path: str) -> Dict[str, Any]:
-    return _ingest_codebase(directory_path=directory_path)
+def ingest_codebase(
+    directory_path: str,
+    actor: Optional[str] = "payment-tech-lead@payflow.internal"
+) -> Dict[str, Any]:
+    return _ingest_codebase(directory_path=directory_path, actor=actor)
 
 
 @server.tool(
     name="ingest_prd",
-    description="Ingest a PRD markdown document into PRD, Requirement, and Scenario graph nodes."
+    description="Ingest a PRD markdown document into PRD, Requirement, and Scenario graph nodes. Guarded by security harness: path sandboxing, sensitive file blocking, and IAM authorization."
 )
-def ingest_prd(file_path: str) -> Dict[str, Any]:
-    return _ingest_prd(file_path=file_path)
+def ingest_prd(
+    file_path: str,
+    actor: Optional[str] = "product-lead@payflow.internal"
+) -> Dict[str, Any]:
+    return _ingest_prd(file_path=file_path, actor=actor)
 
 
 @server.tool(
     name="ingest_adr",
-    description="Ingest an Architecture Decision Record markdown file into ADR, Decision, and Constraint nodes."
+    description="Ingest an Architecture Decision Record markdown file into ADR, Decision, and Constraint nodes. Guarded by security harness: path sandboxing, sensitive file blocking, and IAM authorization."
 )
-def ingest_adr(file_path: str) -> Dict[str, Any]:
-    return _ingest_adr(file_path=file_path)
+def ingest_adr(
+    file_path: str,
+    actor: Optional[str] = "architect-lead@payflow.internal"
+) -> Dict[str, Any]:
+    return _ingest_adr(file_path=file_path, actor=actor)
 
 
 @server.tool(
     name="ingest_runbook",
-    description="Ingest an operational runbook markdown file into Runbooks, BugFixes, and verified recovery procedures."
+    description="Ingest an operational runbook markdown file into Runbooks, BugFixes, and verified recovery procedures. Guarded by security harness: path sandboxing, sensitive file blocking, and IAM authorization."
 )
-def ingest_runbook(file_path: str) -> Dict[str, Any]:
-    return _ingest_runbook(file_path=file_path)
+def ingest_runbook(
+    file_path: str,
+    actor: Optional[str] = "payment-tech-lead@payflow.internal"
+) -> Dict[str, Any]:
+    return _ingest_runbook(file_path=file_path, actor=actor)
 
 
 @server.tool(
@@ -353,13 +365,14 @@ def trace_requirement_to_delivery_chain(
 
 @server.tool(
     name="ingest_jira_board",
-    description="Ingest external Jira board JSON export into the 5th Pillar (Program Flow) and persist in FalkorDB."
+    description="Ingest external Jira board JSON export into the 5th Pillar (Program Flow) and persist in FalkorDB. Guarded by security harness: path sandboxing, sensitive file blocking, and IAM authorization."
 )
 def ingest_jira_board(
     jira_file_path: str,
-    project_id: str = "project:payflow"
+    project_id: str = "project:payflow",
+    actor: Optional[str] = "tpm-lead@payflow.internal"
 ) -> Dict[str, Any]:
-    return _ingest_jira_board(jira_file_path=jira_file_path, project_id=project_id)
+    return _ingest_jira_board(jira_file_path=jira_file_path, project_id=project_id, actor=actor)
 
 
 @server.tool(

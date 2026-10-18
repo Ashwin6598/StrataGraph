@@ -12,6 +12,7 @@ from codegraph.db import db
 from codegraph.schema import ExplainableResult, TraversalStep, Relationships, EpicNode, AgileFeatureNode, StoryNode
 from codegraph.ingest.jira_parser import JiraBoardParser
 from codegraph.iam import iam, Permission
+from codegraph.guardrails import enforce_ingestion_harness
 
 
 def query_program_delivery_status(
@@ -649,12 +650,24 @@ def trace_requirement_to_delivery_chain(
 
 def ingest_jira_board(
     jira_file_path: str,
-    project_id: str = "project:payflow"
+    project_id: str = "project:payflow",
+    actor: Optional[str] = "tpm-lead@payflow.internal"
 ) -> Dict[str, Any]:
     """
     Ingests an external Jira JSON export file into the 5th Pillar (Program Flow)
     and persists all Epics, Features, Stories, and Cross-Pillar links in FalkorDB.
+    Guarded by security harness: path sandboxing, sensitive file blocking, and IAM authorization.
     """
+    clean_actor = actor or "tpm-lead@payflow.internal"
+    denial = enforce_ingestion_harness(
+        target_path=jira_file_path,
+        actor=clean_actor,
+        required_permission=Permission.MANAGE_AGILE_FLOW,
+        action_name="ingest_jira_board"
+    )
+    if denial:
+        return denial
+
     parser = JiraBoardParser(project_id=project_id)
     parsed = parser.parse_file(jira_file_path)
 
